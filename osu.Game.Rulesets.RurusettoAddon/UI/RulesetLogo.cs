@@ -38,6 +38,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 					d.Size = new osuTK.Vector2( 1 );
 				} ) );
 			}
+			else if ( entry.DarkIcon is null ) {
+				RemoveInternal( logo );
+			}
 			else {
 				API.RequestImage( entry.DarkIcon ).ContinueWith( t => Schedule( () => {
 					logo.Texture = t.Result;

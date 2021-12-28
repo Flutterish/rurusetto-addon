@@ -69,6 +69,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		public static DrawableTag CreateHardCoded ( bool large = false ) => new( "Hard coded", Colour4.FromHex( "#FF6060" ), solid: true, height: large ? 26 : 18 ) {
 			TooltipText = "This ruleset is hard coded into the game and cannot be modified"
 		};
+		public static DrawableTag CreateFailledImport ( bool large = false ) => new( "Failed Import", Colour4.FromHex( "#FF6060" ), solid: true, height: large ? 26 : 18 ) {
+			TooltipText = "This ruleset is downloaded, but failed to import"
+		};
 
 
 		public LocalisableString TooltipText { get; set; }

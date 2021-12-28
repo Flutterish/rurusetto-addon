@@ -133,6 +133,31 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public void ClearLocalWiki () {
 			localWiki.Clear();
 		}
+		public LocalRulesetWikiEntry CreateLocalEntry ( string shortname, string name ) {
+			return new LocalRulesetWikiEntry {
+				ListingEntry = new() {
+					ShortName = shortname,
+					Name = name,
+					Description = "Local ruleset, not listed on the wiki.",
+					CanDownload = false,
+					Owner = new UserDetail()
+				},
+				Detail = new RulesetDetail {
+					CanDownload = false,
+					Content = "Local ruleset, not listed on the wiki.",
+					CreatedAt = DateTime.Now,
+					Creator = new(),
+					Description = "Local ruleset, not listed on the wiki.",
+					LastEditedAt = DateTime.Now,
+					LastEditedBy = new(),
+					Name = name,
+					ShortName = shortname,
+					CoverDark = StaticAPIResource.DefaultCover.GetURI(),
+					CoverLight = StaticAPIResource.DefaultCover.GetURI(),
+					Owner = new()
+				}
+			};
+		}
 	}
 
 	public record LocalRulesetWikiEntry {

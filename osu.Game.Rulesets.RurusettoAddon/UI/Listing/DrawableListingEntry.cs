@@ -176,15 +176,20 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						Tags.Add( DrawableTag.CreateArchived() );
 					} );
 				}
-				if ( Entry.LocalRulesetInfo != null ) {
+				if ( Entry.IsLocal ) {
 					Schedule( () => {
 						Tags.Add( DrawableTag.CreateLocal() );
 					} );
-					if ( DownloadManager.IsHardCodedRuleset( Entry.LocalRulesetInfo ) ) {
+					if ( Entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( Entry.LocalRulesetInfo ) ) {
 						Schedule( () => {
 							Tags.Add( DrawableTag.CreateHardCoded() );
 						} );
 					}
+				}
+				if ( Entry.FaliedImport ) {
+					Schedule( () => {
+						Tags.Add( DrawableTag.CreateFailledImport() );
+					} );
 				}
 
 				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {

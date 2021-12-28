@@ -1,7 +1,7 @@
-﻿using Humanizer;
-using osu.Framework.Bindables;
+﻿using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,17 +17,45 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			this.API = API;
 			this.storage = storage;
 
+			InstalledRulesets = Array.Empty<RulesetInfo>();
+			UnimportedRulesets = Array.Empty<(string, string)>();
+
 			PerformPreCleanup();
 		}
 
-		public RulesetDownloadManager ( RurusettoAPI API, Storage storage, IRulesetStore store ) : this( API, storage ) {
+		public RulesetDownloadManager ( RurusettoAPI API, Storage storage, IRulesetStore store ) {
+			this.API = API;
+			this.storage = storage;
 			this.store = store;
+
+			InstalledRulesets = store.AvailableRulesets.Cast<RulesetInfo>();
+			Dictionary<RulesetInfo, string> filenames = new();
+			foreach ( var i in InstalledRulesets ) {
+				if ( Path.GetFileName( i.CreateInstance()?.GetType().Assembly.Location ) is string filename ) {
+					filenames.Add( i, filename );
+				}
+			}
+			InstalledRulesetPaths = filenames;
+
+			List<(string filename, string shortname)> unimportedRulesets = new();
+			foreach ( var i in storage.GetFiles( "./rulesets", "*.dll" ) ) {
+				var filename = Path.GetFileName( i );
+
+				if ( !filenames.Values.Contains( filename ) ) {
+					unimportedRulesets.Add( (filename, filename.Substring( "osu.Game.Rulesets.".Length, filename.Length - "osu.Game.Rulesets.".Length - ".dll".Length ).ToLower()) );
+				}
+			}
+			UnimportedRulesets = unimportedRulesets;
+
+			PerformPreCleanup();
 		}
 
-		public IEnumerable<RulesetInfo> InstalledRulesets => store.AvailableRulesets.Cast<RulesetInfo>();
+		public IDictionary<RulesetInfo, string> InstalledRulesetPaths { get; private set; }
+		public IEnumerable<RulesetInfo> InstalledRulesets { get; private set; }
+		public IEnumerable<(string filename, string shortname)> UnimportedRulesets { get; private set; }
 
 		public bool IsHardCodedRuleset ( RulesetInfo info ) {
-			return info.CreateInstance()?.GetType().Assembly.Location.StartsWith( storage.GetFullPath( "./" ), System.StringComparison.Ordinal ) != true;
+			return InstalledRulesetPaths.TryGetValue( info, out var v ) && !v.StartsWith( storage.GetFullPath( "./" ), StringComparison.Ordinal );
 		}
 
 		private Dictionary<string, Bindable<DownloadState>> downloadStates = new();
@@ -48,9 +76,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 		public RulesetInfo GetLocalRuleset ( string shortName, string name, string filename ) {
 			if ( !rulesets.TryGetValue( shortName, out var ruleset ) ) {
-				ruleset = store?.AvailableRulesets.FirstOrDefault( r =>
-					Path.GetFileName( r.CreateInstance()?.GetType().Assembly.Location ) == filename
-				) as RulesetInfo;
+				ruleset = InstalledRulesetPaths.FirstOrDefault( x =>
+					x.Value == filename
+				).Key;
 
 				ruleset ??= store?.AvailableRulesets.FirstOrDefault( r =>
 					r.Name.ToLower() == name.ToLower() ||
@@ -82,7 +110,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					}
 				}
 				
-				if ( GetLocalRuleset( t.Result.ShortName, t.Result.Name, t.Result.GithubFilename ) != null ) {
+				if ( UnimportedRulesets.Any( x => x.shortname == shortName ) || GetLocalRuleset( t.Result.ShortName, t.Result.Name, t.Result.GithubFilename ) != null ) {
 					status.Value = DownloadState.AvailableLocally;
 					return;
 				}
@@ -120,7 +148,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					var data = await new HttpClient().GetStreamAsync( t.Result.Download );
 					if ( taskCancelled( shortName, task ) ) return;
 
-					var file = storage.GetStream( filename, System.IO.FileAccess.Write, System.IO.FileMode.OpenOrCreate );
+					var file = storage.GetStream( filename, FileAccess.Write, FileMode.OpenOrCreate );
 					await data.CopyToAsync( file );
 					file.Dispose();
 					data.Dispose();
@@ -128,7 +156,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					if ( taskCancelled( shortName, task ) ) return;
 				}
 
-				tasks[ shortName ] = task with { Source = filename, Ruleset = t.Result.Name.Humanize() };
+				tasks[ shortName ] = task with { Source = filename };
 				GetStateBindable( shortName ).Value = finishedState;
 			} );
 		}
@@ -164,13 +192,20 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 
-			if ( GetLocalRuleset( shortName, "", "" )?.CreateInstance()?.GetType().Assembly.Location is not string location )
+			var unimported = UnimportedRulesets.Where( x => x.shortname == shortName );
+			var installed = InstalledRulesetPaths.Where( x => x.Key.ShortName == shortName );
+			string location;
+			if ( unimported.Any() ) {
+				location = unimported.First().filename;
+			}
+			else if ( installed.Any() ) {
+				location = installed.First().Value;
+			}
+			else {
 				return;
+			}
 
-			if ( !storage.Exists( location ) )
-				return;
-
-			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, location ) { Ruleset = GetLocalRuleset( shortName, "", "" ).Name.Humanize() };
+			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, storage.GetFullPath( $"./rulesets/{location}" ) );
 			GetStateBindable( shortName ).Value = DownloadState.ToBeRemoved;
 		}
 

@@ -1,7 +1,7 @@
-﻿using osu.Framework.Graphics;
+﻿using Humanizer;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Rulesets.RurusettoAddon.API;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 					if ( task != refreshTask )
 						return;
 
-					HashSet<string> entries = new();
+					Dictionary<string, ListingEntry> entries = new();
 					foreach ( var i in t.Result ) {
 						var next = new DrawableListingEntry( i ) {
 							Anchor = Anchor.TopCentre,
@@ -39,38 +39,38 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						};
 						content.Add( next );
 
-						entries.Add( System.IO.Path.GetFileName( i.Download ) );
+						if ( !string.IsNullOrWhiteSpace( i.Download ) )
+							entries.Add( System.IO.Path.GetFileName( i.Download ), i );
 					}
 
 					foreach ( var i in DownloadManager.InstalledRulesets ) {
-						if ( !entries.Contains( System.IO.Path.GetFileName( i.CreateInstance()?.GetType().Assembly.Location ) ) ) {
-							var local = new LocalRulesetWikiEntry() {
-								ListingEntry = new() {
-									ShortName = i.ShortName,
-									Name = i.Name,
-									Description = "Local ruleset, not listed on the wiki.",
-									CanDownload = false,
-									Owner = new UserDetail(),
-									LocalRulesetInfo = i
-								},
-								Detail = new RulesetDetail {
-									CanDownload = false,
-									Content = "Local ruleset, not listed on the wiki.",
-									CreatedAt = DateTime.Now,
-									Creator = new(),
-									Description = "Local ruleset, not listed on the wiki.",
-									LastEditedAt = DateTime.Now,
-									LastEditedBy = new(),
-									Name = i.Name,
-									ShortName = i.ShortName,
-									CoverDark = StaticAPIResource.DefaultCover.GetURI(),
-									CoverLight = StaticAPIResource.DefaultCover.GetURI(),
-									Owner = new()
-								}
-							};
+						if ( !entries.ContainsKey( System.IO.Path.GetFileName( i.CreateInstance()?.GetType().Assembly.Location ) ) ) {
+							var local = API.CreateLocalEntry( i.ShortName, i.Name );
+							local.ListingEntry.LocalRulesetInfo = i;
+							local.ListingEntry.IsLocal = true;
 
 							API.InjectLocalRuleset( local );
 							
+							var next = new DrawableListingEntry( local.ListingEntry ) {
+								Anchor = Anchor.TopCentre,
+								Origin = Anchor.TopCentre
+							};
+							content.Add( next );
+						}
+					}
+
+					foreach ( var i in DownloadManager.UnimportedRulesets ) {
+						if ( entries.TryGetValue( i.filename, out var e ) ) {
+							e.FaliedImport = true;
+						}
+						else {
+							var name = i.shortname;
+							var local = API.CreateLocalEntry( name.ToLower(), name.Humanize() );
+							local.ListingEntry.FaliedImport = true;
+							local.ListingEntry.IsLocal = true;
+
+							API.InjectLocalRuleset( local );
+
 							var next = new DrawableListingEntry( local.ListingEntry ) {
 								Anchor = Anchor.TopCentre,
 								Origin = Anchor.TopCentre

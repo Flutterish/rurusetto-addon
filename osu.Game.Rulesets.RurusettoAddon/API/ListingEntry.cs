@@ -41,5 +41,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public bool CanDownload;
 
 		public RulesetInfo LocalRulesetInfo;
+		public bool IsLocal;
+		public bool FaliedImport;
 	}
 }

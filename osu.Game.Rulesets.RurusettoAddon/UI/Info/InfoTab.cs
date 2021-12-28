@@ -136,11 +136,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					if ( entry.IsArchived ) {
 						Tags.Add( DrawableTag.CreateArchived( large: true ) );
 					}
-					if ( this.entry.LocalRulesetInfo != null ) {
+					if ( this.entry.IsLocal ) {
 						Tags.Add( DrawableTag.CreateLocal( large: true ) );
-						if ( DownloadManager.IsHardCodedRuleset( this.entry.LocalRulesetInfo ) ) {
+						if ( this.entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( this.entry.LocalRulesetInfo ) ) {
 							Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
 						}
+					}
+					if ( this.entry.FaliedImport ) {
+						Tags.Add( DrawableTag.CreateFailledImport( large: true ) );
 					}
 
 					buttons.Add( new HomeButton( entry ) {
