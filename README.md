@@ -13,5 +13,5 @@ To [Nao](https://github.com/naoei) for graphical design for the addon and [Yulia
 * Go to [Releases](/releases) of this repository
 * Click the topmost one
 * Download the `osu.Game.Rulesets.RurusettoAddon.dll` file. Save to the copied path.
-* Restart
+* Restart osu!
 * Done! Click the ![overlay button](./overlayButton.png) button to browse the wiki
