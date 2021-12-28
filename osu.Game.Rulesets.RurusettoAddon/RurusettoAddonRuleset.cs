@@ -8,6 +8,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Rulesets.Difficulty;
@@ -18,7 +19,6 @@ using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.UI;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -45,6 +45,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
         public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
             => Array.Empty<KeyBinding>();
+
+        public static string ErrorMessage ( string code )
+            => $"Could not load rurusetto-addon: Please report this to the rurusetto-addon repository NOT the osu!lazer repository: Code {code}";
 
         public override Drawable CreateIcon() => new Icon( this );
 
@@ -80,54 +83,104 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                 if ( game is null ) return;
                 if ( game.Dependencies.Get<RurusettoOverlay>() != null ) return;
 
+                var notifications = typeof( OsuGame ).GetField( "Notifications", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as NotificationOverlay;
+                if ( notifications is null ) {
+                    return;
+				}
+
                 // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L790
                 // contains overlays
-                var overlayContent = typeof( OsuGame ).GetField( "overlayContent", BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( game ) as Container;
+                var overlayContent = typeof( OsuGame ).GetField( "overlayContent", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as Container;
+
+                if ( overlayContent is null ) {
+                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OCNRE" ) } );
+                    return;
+                }
 
                 // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L953
                 // caches the overlay globally and allows us to run code when it is loaded
-                typeof( OsuGame ).GetMethod( "loadComponentSingleFile", BindingFlags.NonPublic | BindingFlags.Instance ).MakeGenericMethod( typeof( RurusettoOverlay ) ).Invoke(
-                    game,
-                    new object[] { new RurusettoOverlay( ruleset ), (Action<RurusettoOverlay>)((overlay) => {
-                        overlayContent.Add( overlay );
+                var loadComponent = typeof( OsuGame ).GetMethod( "loadComponentSingleFile", BindingFlags.NonPublic | BindingFlags.Instance )?.MakeGenericMethod( typeof( RurusettoOverlay ) );
 
-                        // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/Overlays/Toolbar/Toolbar.cs#L89
-                        // leveraging an "easy" hack to get the container with toolbar buttons
-                        var userButton = typeof( Toolbar ).GetField( "userButton", BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( game.Toolbar ) as Drawable;
-                        ( userButton.Parent as FillFlowContainer ).Insert( -1, new RurusettoToolbarButton() );
+                if ( loadComponent is null ) {
+                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCNRE" ) } );
+                    return;
+                }
 
-                        // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L855
-                        // add overlay hiding, since osu does it manually
-                        var singleDisplayOverlays = new string[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
-                        var overlays = singleDisplayOverlays.Select( name => typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( game ) as OverlayContainer ).Append( game.Dependencies.Get<RankingsOverlay>() ).ToArray();
-                        foreach ( var i in overlays ) {
-                            i.State.ValueChanged += v => {
-                                if ( v.NewValue != Visibility.Visible ) return;
+                try {
+                    loadComponent.Invoke( game,
+                        new object[] { new RurusettoOverlay( ruleset ), (Action<RurusettoOverlay>)addOverlay, true }
+                    );
+                }
+                catch ( Exception ) {
+                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCIE" ) } );
+                    return;
+                }
 
-                                overlay.Hide();
-                            };
-                        }
+                void addOverlay ( RurusettoOverlay overlay ) {
+                    overlayContent.Add( overlay );
 
-                        overlay.State.ValueChanged += v => {
+                    // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/Overlays/Toolbar/Toolbar.cs#L89
+                    // leveraging an "easy" hack to get the container with toolbar buttons
+                    var userButton = typeof( Toolbar ).GetField( "userButton", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game.Toolbar ) as Drawable;
+                    if ( userButton is null || userButton.Parent is not FillFlowContainer buttonsContainer ) {
+                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#UBNRE" ) } );
+                        overlayContent.Remove( overlay );
+                        return;
+                    }
+
+                    var button = new RurusettoToolbarButton();
+                    buttonsContainer.Insert( -1, button );
+
+                    // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L855
+                    // add overlay hiding, since osu does it manually
+                    var singleDisplayOverlays = new string[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
+                    var overlays = singleDisplayOverlays.Select( name => 
+                        typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as OverlayContainer
+                    ).ToList();
+                    if ( game.Dependencies.TryGet<RankingsOverlay>( out var rov ) ) {
+                        overlays.Add( rov );
+                    }
+                    else {
+                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#ROVNRE" ) } );
+                        overlayContent.Remove( overlay );
+                        buttonsContainer.Remove( button );
+                        return;
+                    }
+
+                    if ( overlays.Any( x => x is null ) ) {
+                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OVNRE" ) } );
+                        overlayContent.Remove( overlay );
+                        buttonsContainer.Remove( button );
+                        return;
+                    }
+
+                    foreach ( var i in overlays ) {
+                        i.State.ValueChanged += v => {
                             if ( v.NewValue != Visibility.Visible ) return;
 
-                            foreach ( var i in overlays ) {
-                                i.Hide();
-                            }
+                            overlay.Hide();
+                        };
+                    }
 
-                            // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L896
-                            // show above other overlays
-                            if (overlay.IsLoaded)
-                                overlayContent.ChangeChildDepth(overlay, (float)-Clock.CurrentTime);
-                            else
-                                overlay.Depth = (float)-Clock.CurrentTime;
-                        };
-                        
-                        host.Exited += () => {
-                            overlay.Dependencies.Get<RulesetDownloadManager>().PerformTasks();
-                        };
-                    }), true }
-                );
+                    overlay.State.ValueChanged += v => {
+                        if ( v.NewValue != Visibility.Visible ) return;
+
+                        foreach ( var i in overlays ) {
+                            i.Hide();
+                        }
+
+                        // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L896
+                        // show above other overlays
+                        if ( overlay.IsLoaded )
+                            overlayContent.ChangeChildDepth( overlay, (float)-Clock.CurrentTime );
+                        else
+                            overlay.Depth = (float)-Clock.CurrentTime;
+                    };
+
+                    host.Exited += () => {
+                        overlay.Dependencies.Get<RulesetDownloadManager>().PerformTasks();
+                    };
+                }
             }
         }
     }
