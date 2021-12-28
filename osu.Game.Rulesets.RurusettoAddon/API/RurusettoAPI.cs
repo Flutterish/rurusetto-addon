@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public readonly Bindable<string> Address = new( "https://rulesets.info/api/" );
 		public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
 
-		private Dictionary<string, LocalRulesetWikiEntry> localWiki = new();
+		private ConcurrentDictionary<string, LocalRulesetWikiEntry> localWiki = new();
 
 		private Task<List<ListingEntry>> listingCache = null;
 		public async Task<IEnumerable<ListingEntry>> RequestRulesetListing () {
@@ -128,7 +128,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		public void InjectLocalRuleset ( LocalRulesetWikiEntry entry ) {
-			localWiki.Add( entry.ListingEntry.ShortName, entry );
+			localWiki.TryAdd( entry.ListingEntry.ShortName, entry );
+		}
+		public void ClearLocalWiki () {
+			localWiki.Clear();
 		}
 	}
 

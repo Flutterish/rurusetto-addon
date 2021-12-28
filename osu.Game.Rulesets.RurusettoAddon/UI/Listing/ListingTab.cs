@@ -25,6 +25,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			} );
 
 			Task task = null;
+			API.ClearLocalWiki();
 			task = refreshTask = API.RequestRulesetListing().ContinueWith( t => {
 				Schedule( () => {
 					if ( task != refreshTask )

@@ -18,6 +18,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		Sprite cover;
 		ContentMarkdown markdown;
 		protected FillFlowContainer Tags;
+		FillFlowContainer buttons;
 		public InfoTab ( ListingEntry entry ) {
 			this.entry = entry;
 
@@ -100,12 +101,20 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 						},
 						Margin = new MarginPadding { Bottom = 20 }
 					},
-					new RulesetDownloadButton( entry ) {
-						Height = 40f * 14 / 20,
-						Width = 200f * 14 / 20,
-						Anchor = Anchor.BottomRight,
+					buttons = new FillFlowContainer {
+						Y = -28,
+						Spacing = new Vector2( 8, 0 ),
+						AutoSizeAxes = Axes.Both,
 						Origin = Anchor.BottomRight,
-						Y = -28
+						Anchor = Anchor.BottomRight,
+						Children = new Drawable[] {
+							new RulesetDownloadButton( entry ) {
+								Height = 40f * 14 / 20,
+								Width = 200f * 14 / 20,
+								Anchor = Anchor.CentreRight,
+								Origin = Anchor.CentreRight
+							}
+						}
 					}
 				}
 			} );
@@ -133,6 +142,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 							Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
 						}
 					}
+
+					buttons.Add( new HomeButton( entry ) {
+						Height = 40f * 14 / 20,
+						Width = 120f * 14 / 20,
+						Anchor = Anchor.CentreRight,
+						Origin = Anchor.CentreRight
+					} );
+					buttons.Add( new IssueButton( entry ) {
+						Height = 40f * 14 / 20,
+						Width = 40f * 14 / 20,
+						Anchor = Anchor.CentreRight,
+						Origin = Anchor.CentreRight
+					} );
 
 					OnContentLoaded();
 				} );
