@@ -8,12 +8,14 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using osuTK;
 using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class InfoTab : OverlayTab {
 		FillFlowContainer content;
 		ListingEntry entry;
+		protected FillFlowContainer Tags;
 		public InfoTab ( ListingEntry entry ) {
 			this.entry = entry;
 
@@ -71,8 +73,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					content.Add( new Container {
 						Name = "Padding",
 						RelativeSizeAxes = Axes.X,
-						Height = 160
+						Height = 160,
+						Child = Tags = new FillFlowContainer {
+							Direction = FillDirection.Horizontal,
+							AutoSizeAxes = Axes.Both,
+							Spacing = new Vector2( 6, 0 ),
+							Margin = new MarginPadding { Top = 16 }
+						},
 					} );
+
+					if ( entry.IsArchived ) {
+						Tags.Add( DrawableTag.CreateArchived( large: true ) );
+					}
 
 					content.Add( new Container {
 						RelativeSizeAxes = Axes.X,

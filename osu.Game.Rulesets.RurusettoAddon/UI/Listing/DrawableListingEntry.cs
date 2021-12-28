@@ -29,6 +29,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
 		protected ListingEntry Entry;
+		protected FillFlowContainer Tags;
 
 		public DrawableListingEntry ( ListingEntry entry ) {
 			Entry = entry;
@@ -92,6 +93,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
 				RelativeSizeAxes = Axes.Both,
 				Children = new Drawable[] {
+					Tags = new FillFlowContainer {
+						Direction = FillDirection.Horizontal,
+						AutoSizeAxes = Axes.Both,
+						Spacing = new Vector2( 6, 0 )
+					},
 					new RulesetLogo( entry ) {
 						Width = 80f * 14 / 20,
 						Height = 80f * 14 / 20,
@@ -162,12 +168,20 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				}
 			} ) );
 
-			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {
-				Schedule( () => {
-					cover.Texture = t.Result;
-					isCoverLoaded = true;
+			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => {
+				if ( t.Result.IsArchived ) {
+					Schedule( () => {
+						Tags.Add( DrawableTag.CreateArchived() );
+					} );
+				}
+
+				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {
+					Schedule( () => {
+						cover.Texture = t.Result;
+						isCoverLoaded = true;
+					} );
 				} );
-			} ) );
+			} );
 
 			Add( new HoverClickSounds() );
 		}
