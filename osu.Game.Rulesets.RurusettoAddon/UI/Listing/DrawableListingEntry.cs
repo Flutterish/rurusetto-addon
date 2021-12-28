@@ -28,6 +28,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected RurusettoOverlay Overlay { get; private set; }
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
+		[Resolved]
+		protected RulesetDownloadManager DownloadManager { get; private set; }
 		protected ListingEntry Entry;
 		protected FillFlowContainer Tags;
 
@@ -168,14 +170,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				}
 			} ) );
 
-			if ( Entry.LocalRulesetInfo != null ) {
-				Tags.Add( DrawableTag.CreateLocal() );
-			}
 			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => {
 				if ( t.Result.IsArchived ) {
 					Schedule( () => {
 						Tags.Add( DrawableTag.CreateArchived() );
 					} );
+				}
+				if ( Entry.LocalRulesetInfo != null ) {
+					Schedule( () => {
+						Tags.Add( DrawableTag.CreateLocal() );
+					} );
+					if ( DownloadManager.IsHardCodedRuleset( Entry.LocalRulesetInfo ) ) {
+						Schedule( () => {
+							Tags.Add( DrawableTag.CreateHardCoded() );
+						} );
+					}
 				}
 
 				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {

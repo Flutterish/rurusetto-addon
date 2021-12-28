@@ -4,6 +4,7 @@ using osu.Framework.Graphics.Textures;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -34,7 +35,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			listingCache = null;
 		}
 
-		private Dictionary<string, Task<RulesetDetail>> rulesetDetailCache = new();
+		private ConcurrentDictionary<string, Task<RulesetDetail>> rulesetDetailCache = new();
 		public async Task<RulesetDetail> RequestRulesetDetail ( string shortName ) {
 			if ( !rulesetDetailCache.TryGetValue( shortName, out var detail ) ) {
 				if ( localWiki.TryGetValue( shortName, out var local ) ) {
@@ -42,7 +43,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				}
 				else {
 					detail = requestRulesetDetail( shortName );
-					rulesetDetailCache.Add( shortName, detail );
+					rulesetDetailCache.TryAdd( shortName, detail );
 				}
 			}
 
@@ -53,17 +54,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return JsonConvert.DeserializeObject<RulesetDetail>( raw );
 		}
 		public void FlushRulesetDetailCache ( string shortName ) {
-			rulesetDetailCache.Remove( shortName );
+			rulesetDetailCache.TryRemove( shortName, out var _ );
 		}
 		public void FlushRulesetDetailCache () {
 			rulesetDetailCache.Clear();
 		}
 
-		private Dictionary<string, Task<Texture>> madiaTextureCache = new();
+		private ConcurrentDictionary<string, Task<Texture>> mediaTextureCache = new();
 		public async Task<Texture> RequestImage ( string uri ) {
-			if ( !madiaTextureCache.TryGetValue( uri, out var task ) ) {
+			if ( !mediaTextureCache.TryGetValue( uri, out var task ) ) {
 				task = requestImage( uri );
-				madiaTextureCache.Add( uri, task );
+				mediaTextureCache.TryAdd( uri, task );
 			}
 
 			return await task;
@@ -82,17 +83,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return texture;
 		}
 		public void FlushImageCache ( string uri ) {
-			madiaTextureCache.Remove( uri );
+			mediaTextureCache.TryRemove( uri, out var _ );
 		}
 		public void FlushMediaImageCache () {
-			madiaTextureCache.Clear();
+			mediaTextureCache.Clear();
 		}
 
-		private Dictionary<StaticAPIResource, Task<Texture>> staticTextureCache = new();
+		private ConcurrentDictionary<StaticAPIResource, Task<Texture>> staticTextureCache = new();
 		public async Task<Texture> RequestImage ( StaticAPIResource resource ) {
 			if ( !staticTextureCache.TryGetValue( resource, out var task ) ) {
 				task = requestImage( resource );
-				staticTextureCache.Add( resource, task );
+				staticTextureCache.TryAdd( resource, task );
 			}
 
 			return await task;
@@ -109,7 +110,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return texture;
 		}
 		public void FlushImageCache ( StaticAPIResource resource ) {
-			staticTextureCache.Remove( resource );
+			staticTextureCache.Remove( resource, out var _ );
 		}
 		public void FlushStaticImageCache () {
 			staticTextureCache.Clear();

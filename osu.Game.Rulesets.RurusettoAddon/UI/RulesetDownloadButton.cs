@@ -129,6 +129,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 					DownloadState.NotAvailableOnline => new MenuItem[] { refresh },
 					_ or DownloadState.Unknown => Array.Empty<MenuItem>()
 				};
+
+				if ( entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( entry.LocalRulesetInfo ) ) {
+					ContextMenuItems = Array.Empty<MenuItem>();
+				}
 			} ), true );
 
 			Schedule( () => FinishTransforms( true ) );

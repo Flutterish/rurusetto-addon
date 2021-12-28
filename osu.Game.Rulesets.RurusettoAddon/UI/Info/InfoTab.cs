@@ -116,9 +116,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Margin = new MarginPadding { Left = 6, Bottom = 400 }
 			} );
 
-			if ( entry.LocalRulesetInfo != null ) {
-				Tags.Add( DrawableTag.CreateLocal( large: true ) );
-			}
 			API.RequestRulesetDetail( entry.ShortName ).ContinueWith( t => {
 				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
 					cover.Texture = t.Result;
@@ -129,6 +126,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					markdown.Text = entry.Content;
 					if ( entry.IsArchived ) {
 						Tags.Add( DrawableTag.CreateArchived( large: true ) );
+					}
+					if ( this.entry.LocalRulesetInfo != null ) {
+						Tags.Add( DrawableTag.CreateLocal( large: true ) );
+						if ( DownloadManager.IsHardCodedRuleset( this.entry.LocalRulesetInfo ) ) {
+							Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
+						}
 					}
 
 					OnContentLoaded();

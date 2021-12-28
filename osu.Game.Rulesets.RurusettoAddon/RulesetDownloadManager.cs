@@ -26,6 +26,10 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 		public IEnumerable<RulesetInfo> InstalledRulesets => store.AvailableRulesets.Cast<RulesetInfo>();
 
+		public bool IsHardCodedRuleset ( RulesetInfo info ) {
+			return info.CreateInstance()?.GetType().Assembly.Location.StartsWith( storage.GetFullPath( "./" ), System.StringComparison.Ordinal ) != true;
+		}
+
 		private Dictionary<string, Bindable<DownloadState>> downloadStates = new();
 		private Dictionary<string, RulesetInfo> rulesets = new();
 
