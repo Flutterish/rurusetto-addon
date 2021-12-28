@@ -131,7 +131,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						},
 						Content = new Drawable[][] {
 							new Drawable[] {
-								new OsuScrollContainer( Direction.Vertical ) {
+								new TogglableScrollContainer {
 									RelativeSizeAxes = Axes.X,
 									Padding = new MarginPadding { Right = 4 },
 									Height = 30,
