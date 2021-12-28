@@ -1,5 +1,5 @@
 # Rūruestto Addon
-An addon for osu!lazer which allows you to browse the [rūrusetto](https://rulesets.info) wiki in-game and (TBD) manage your rulesets.
+An addon for osu!lazer which allows you to browse the [rūrusetto](https://rulesets.info) wiki in-game and manage your rulesets.
 
 ## Special thanks
 To [Nao](https://github.com/naoei) for graphical design for the addon and [Yulianna](https://github.com/HelloYeew) for making Rurūsetto.
