@@ -122,11 +122,6 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                             else
                                 overlay.Depth = (float)-Clock.CurrentTime;
                         };
-
-                        // run the updater process
-                        if ( Directory.Exists("./../rurusetto-updater/") ) {
-                            Directory.Delete( "./../rurusetto-updater/", true );
-                        }
                         
                         host.Exited += () => {
                             overlay.Dependencies.Get<RulesetDownloadManager>().PerformTasks();
