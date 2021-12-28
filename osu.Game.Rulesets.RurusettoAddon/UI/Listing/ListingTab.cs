@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
-	public class ListingTab : OverlayTab { // TODO list local rulesets that are not on the wiki
+	public class ListingTab : OverlayTab {
 		FillFlowContainer content;
-		[Resolved]
-		public RulesetDownloadManager DownloadManager { get; private set; }
 		public ListingTab () {
 
 			AddInternal( content = new FillFlowContainer {
