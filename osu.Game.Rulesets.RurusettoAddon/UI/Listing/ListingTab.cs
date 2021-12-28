@@ -1,5 +1,4 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Graphics;
+﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using System;
@@ -10,7 +9,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class ListingTab : OverlayTab {
 		FillFlowContainer content;
 		public ListingTab () {
-
 			AddInternal( content = new FillFlowContainer {
 				Direction = FillDirection.Full,
 				RelativeSizeAxes = Axes.X,
@@ -70,7 +68,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 								}
 							};
 
-							DownloadManager.API.InjectLocalRuleset( local );
+							API.InjectLocalRuleset( local );
 							
 							var next = new DrawableListingEntry( local.ListingEntry ) {
 								Anchor = Anchor.TopCentre,
