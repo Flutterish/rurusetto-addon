@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
@@ -16,15 +17,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		private Container pfpContainer;
 		private Sprite pfp;
 
-		FillFlowContainer flow;
+		FillFlowContainer usernameFlow;
+		FillFlowContainer verticalFlow;
+		private bool isVerified;
+		Drawable verifiedDrawable;
 
 		public DrawableRurusettoUser ( UserDetail detail, bool isVerified = false ) {
+			this.isVerified = isVerified;
 			this.detail = detail;
 			AutoSizeAxes = Axes.X;
 
 			var color2 = Colour4.FromHex( "#394642" );
 
-			AddInternal( flow = new FillFlowContainer {
+			AddInternal( usernameFlow = new FillFlowContainer {
 				RelativeSizeAxes = Axes.Y,
 				AutoSizeAxes = Axes.X,
 				Direction = FillDirection.Horizontal,
@@ -45,21 +50,50 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 							}
 						},
 						Masking = true,
-						CornerRadius = 4
+						CornerRadius = 4,
+						Margin = new MarginPadding { Right = 12 }
 					},
-					new OsuTextFlowContainer {
-						TextAnchor = Anchor.CentreLeft,
+					verticalFlow = new FillFlowContainer {
+						Direction = FillDirection.Vertical,
+						AutoSizeAxes = Axes.Both,
 						Anchor = Anchor.CentreLeft,
 						Origin = Anchor.CentreLeft,
-						AutoSizeAxes = Axes.Both,
-						Text = detail.Info?.Username ?? "Unknown",
-						Margin = new MarginPadding { Left = 12, Right = 5 }
+						Spacing = new osuTK.Vector2( 0, 4 ),
+						Child = new OsuTextFlowContainer {
+							TextAnchor = Anchor.CentreLeft,
+							Anchor = Anchor.CentreLeft,
+							Origin = Anchor.CentreLeft,
+							AutoSizeAxes = Axes.Both,
+							Text = detail.Info?.Username ?? "Unknown",
+							Margin = new MarginPadding { Right = 5 }
+						}
 					}
 				}
 			} );
 
+			makeShort();
+		}
+
+		private bool isTall;
+		protected override void Update () {
+			base.Update();
+
+			pfpContainer.Width = pfpContainer.Height = DrawHeight;
+			if ( DrawHeight > 34 && !isTall )
+				makeTall();
+			else if ( DrawHeight <= 34 && isTall )
+				makeShort();
+		}
+
+		private void makeShort () {
+			isTall = false;
+
+			if ( verifiedDrawable != null ) {
+				( verifiedDrawable.Parent as Container<Drawable> ).Remove( verifiedDrawable );
+			}
+
 			if ( isVerified ) {
-				flow.Add( new VerifiedIcon {
+				usernameFlow.Add( verifiedDrawable = new VerifiedIcon {
 					Anchor = Anchor.CentreLeft,
 					Origin = Anchor.CentreLeft,
 					Height = 15,
@@ -68,10 +102,36 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			}
 		}
 
-		protected override void Update () {
-			base.Update();
+		private void makeTall () {
+			isTall = true;
 
-			pfpContainer.Width = pfpContainer.Height = DrawHeight;
+			if ( verifiedDrawable != null ) {
+				( verifiedDrawable.Parent as Container<Drawable> ).Remove( verifiedDrawable );
+			}
+
+			if ( isVerified ) {
+				verticalFlow.Add( verifiedDrawable = new FillFlowContainer {
+					AutoSizeAxes = Axes.Both,
+					Direction = FillDirection.Horizontal,
+					Anchor = Anchor.CentreLeft,
+					Origin = Anchor.CentreLeft,
+					Children = new Drawable[] {
+						new VerifiedIcon {
+							Anchor = Anchor.CentreLeft,
+							Origin = Anchor.CentreLeft,
+							Height = 15,
+							Width = 15
+						},
+						new OsuSpriteText {
+							Colour = Colour4.HotPink,
+							Text = "Verified Ruleset Creator",
+							Anchor = Anchor.CentreLeft,
+							Origin = Anchor.CentreLeft,
+							Margin = new MarginPadding { Left = 5 }
+						}
+					}
+				} );
+			}
 		}
 
 		protected override void LoadComplete () {

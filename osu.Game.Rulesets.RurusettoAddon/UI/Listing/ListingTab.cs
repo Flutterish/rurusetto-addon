@@ -11,7 +11,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				Direction = FillDirection.Full,
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
-				Padding = new MarginPadding { Horizontal = 16, Top = 8 }
+				Padding = new MarginPadding { Horizontal = 32, Top = 8 }
 			} );
 		}
 

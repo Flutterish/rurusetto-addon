@@ -51,10 +51,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			currentCover = sprite;
 
 			if ( currentCover.Texture == defaultCover ) {
-				this.ResizeHeightTo( 80, 400, Easing.Out );
+				this.FadeIn().ResizeHeightTo( 80, 400, Easing.Out );
 			}
 			else {
-				this.ResizeHeightTo( 160, 400, Easing.Out );
+				this.ResizeHeightTo( 0, 400, Easing.Out ).Then().FadeOut();
 			}
 		}
 	}
