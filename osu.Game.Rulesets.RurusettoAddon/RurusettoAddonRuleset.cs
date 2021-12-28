@@ -47,25 +47,30 @@ namespace osu.Game.Rulesets.RurusettoAddon {
         public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
             => Array.Empty<KeyBinding>();
 
-        public override Drawable CreateIcon() => new Icon(ShortName[0], this);
+        public override Drawable CreateIcon() => new Icon( this );
 
         public class Icon : CompositeDrawable
         {
             private RurusettoAddonRuleset ruleset;
 
-            public Icon ( char c, RurusettoAddonRuleset ruleset ) {
+            public Icon ( RurusettoAddonRuleset ruleset ) {
                 this.ruleset = ruleset;
 
+                RelativeSizeAxes = Axes.Both;
+
                 InternalChildren = new Drawable[] {
-                    new Circle {
-                        Size = new Vector2(20),
-                        Colour = Color4.White,
+                    new SpriteIcon {
+                        Icon = FontAwesome.Regular.Circle,
+                        RelativeSizeAxes = Axes.Both,
+                        Origin = Anchor.Centre,
+                        Anchor = Anchor.Centre
                     },
                     new SpriteText {
-                        Anchor = Anchor.Centre,
+                        UseFullGlyphHeight = false,
+                        Text = "r",
+                        Font = OsuFont.GetFont( size: 24 ),
                         Origin = Anchor.Centre,
-                        Text = c.ToString(),
-                        Font = OsuFont.Default.With(size: 18)
+                        Anchor = Anchor.Centre
                     }
                 };
             }
