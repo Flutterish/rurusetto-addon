@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Project">
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyTitle>osu.Game.Rulesets.Sample</AssemblyTitle>
+    <OutputType>Library</OutputType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RootNamespace>osu.Game.Rulesets.RurusettoAddon</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Resources\Textures\cover.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ppy.osu.Game" Version="2021.1225.0" />
+  </ItemGroup>
+</Project>
