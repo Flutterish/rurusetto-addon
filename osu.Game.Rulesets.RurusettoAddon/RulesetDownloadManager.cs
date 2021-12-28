@@ -1,8 +1,9 @@
-﻿using osu.Framework.Bindables;
+﻿using Humanizer;
+using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using osu.Game.Rulesets.RurusettoAddon.API;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 
@@ -15,6 +16,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public RulesetDownloadManager ( RurusettoAPI API, Storage storage ) {
 			this.API = API;
 			this.storage = storage;
+
+			PerformPreCleanup();
 		}
 
 		public RulesetDownloadManager ( RurusettoAPI API, Storage storage, IRulesetStore store ) : this( API, storage ) {
@@ -115,7 +118,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					if ( taskCancelled( shortName, task ) ) return;
 				}
 
-				tasks[ shortName ] = task with { Source = filename };
+				tasks[ shortName ] = task with { Source = filename, Ruleset = t.Result.Name.Humanize() };
 				GetStateBindable( shortName ).Value = finishedState;
 			} );
 		}
@@ -157,8 +160,42 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			if ( !storage.Exists( location ) )
 				return;
 
-			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, location );
+			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, location ) { Ruleset = GetLocalRuleset( "", shortName ).Name.Humanize() };
 			GetStateBindable( shortName ).Value = DownloadState.ToBeRemoved;
+		}
+
+		public void PerformPreCleanup () {
+			foreach ( var i in storage.GetFiles( "./rulesets", "*.dll-removed" ) ) {
+				storage.Delete( i );
+			}
+		}
+
+		public void PerformTasks () {
+			foreach ( var i in tasks.Values ) {
+				if ( i.Type == TaskType.Install || i.Type == TaskType.Update ) {
+					var filename = Path.GetFileName( i.Source );
+					if ( File.Exists( $"./rulesets/{filename}" ) ) {
+						File.Move( $"./rulesets/{filename}", $"./rulesets/{filename}-removed" );
+					}
+
+					var to = storage.GetStream( $"./rulesets/{filename}", FileAccess.Write, FileMode.CreateNew );
+					var from = storage.GetStream( i.Source, FileAccess.Read, FileMode.Open );
+
+					from.CopyTo( to );
+
+					from.Dispose();
+					to.Dispose();
+				}
+				else if ( i.Type == TaskType.Remove ) {
+					File.Move( i.Source, i.Source + "-removed" );
+				}
+			}
+
+			if ( storage.ExistsDirectory( "./rurusetto-addon-temp/" ) ) {
+				storage.DeleteDirectory( "./rurusetto-addon-temp/" );
+			}
+
+			tasks.Clear();
 		}
 
 		public void CancelRulesetRemoval ( string shortName ) {

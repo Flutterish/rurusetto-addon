@@ -10,6 +10,7 @@
     <EmbeddedResource Include="Resources\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\RulesetUpdater.exe" />
     <None Remove="Resources\Textures\cover.jpg" />
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Bindings;
+using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
@@ -17,6 +18,7 @@ using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -74,7 +76,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
             
             // we are using the icon load code to inject our "mixin" since it is present in both the intro and the toolbar, where the overlay button should be
             [BackgroundDependencyLoader(permitNulls: true)]
-            private void load ( OsuGame game ) {
+            private void load ( OsuGame game, GameHost host ) {
                 if ( game is null ) return;
                 if ( game.Dependencies.Get<RurusettoOverlay>() != null ) return;
 
@@ -119,6 +121,15 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                                 overlayContent.ChangeChildDepth(overlay, (float)-Clock.CurrentTime);
                             else
                                 overlay.Depth = (float)-Clock.CurrentTime;
+                        };
+
+                        // run the updater process
+                        if ( Directory.Exists("./../rurusetto-updater/") ) {
+                            Directory.Delete( "./../rurusetto-updater/", true );
+                        }
+                        
+                        host.Exited += () => {
+                            overlay.Dependencies.Get<RulesetDownloadManager>().PerformTasks();
                         };
                     }), true }
                 );
