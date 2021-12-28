@@ -20,6 +20,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			InstalledRulesets = Array.Empty<RulesetInfo>();
 			UnimportedRulesets = Array.Empty<(string, string)>();
 
+			InstalledRulesetPaths = new Dictionary<RulesetInfo, string>();
+			InstalledRulesetFilenames = new Dictionary<RulesetInfo, string>();
+
 			PerformPreCleanup();
 		}
 
@@ -30,12 +33,16 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 			InstalledRulesets = store.AvailableRulesets.Cast<RulesetInfo>();
 			Dictionary<RulesetInfo, string> filenames = new();
+			Dictionary<RulesetInfo, string> paths = new();
 			foreach ( var i in InstalledRulesets ) {
-				if ( Path.GetFileName( i.CreateInstance()?.GetType().Assembly.Location ) is string filename ) {
+				var loc = i.CreateInstance()?.GetType().Assembly.Location;
+				if ( Path.GetFileName( loc ) is string filename ) {
 					filenames.Add( i, filename );
+					paths.Add( i, loc );
 				}
 			}
-			InstalledRulesetPaths = filenames;
+			InstalledRulesetFilenames = filenames;
+			InstalledRulesetPaths = paths;
 
 			List<(string filename, string shortname)> unimportedRulesets = new();
 			foreach ( var i in storage.GetFiles( "./rulesets", "*.dll" ) ) {
@@ -51,6 +58,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		}
 
 		public IDictionary<RulesetInfo, string> InstalledRulesetPaths { get; private set; }
+		public IDictionary<RulesetInfo, string> InstalledRulesetFilenames { get; private set; }
 		public IEnumerable<RulesetInfo> InstalledRulesets { get; private set; }
 		public IEnumerable<(string filename, string shortname)> UnimportedRulesets { get; private set; }
 
@@ -76,7 +84,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 		public RulesetInfo GetLocalRuleset ( string shortName, string name, string filename ) {
 			if ( !rulesets.TryGetValue( shortName, out var ruleset ) ) {
-				ruleset = InstalledRulesetPaths.FirstOrDefault( x =>
+				ruleset = InstalledRulesetFilenames.FirstOrDefault( x =>
 					x.Value == filename
 				).Key;
 
@@ -193,7 +201,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 
 			var unimported = UnimportedRulesets.Where( x => x.shortname == shortName );
-			var installed = InstalledRulesetPaths.Where( x => x.Key.ShortName == shortName );
+			var installed = InstalledRulesetFilenames.Where( x => x.Key.ShortName == shortName );
 			string location;
 			if ( unimported.Any() ) {
 				location = unimported.First().filename;
