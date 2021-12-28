@@ -48,6 +48,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			}
 			catch ( Exception ) { }
 
+			_ = API.RequestImage( StaticAPIResource.DefaultCover );
+
 			return dep;
 		}
 

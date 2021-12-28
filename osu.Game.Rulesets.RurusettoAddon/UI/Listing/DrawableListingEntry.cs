@@ -30,8 +30,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected RurusettoAPI API { get; private set; }
 		protected ListingEntry Entry;
 
-		RulesetDownloadButton download;
-
 		public DrawableListingEntry ( ListingEntry entry ) {
 			Entry = entry;
 
@@ -145,7 +143,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 										Text = entry.Description
 									}
 								},
-								download = new RulesetDownloadButton( entry ) {
+								new RulesetDownloadButton( entry ) {
 									RelativeSizeAxes = Axes.Both
 								}
 							}
@@ -157,9 +155,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
+			bool isCoverLoaded = false;
+			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
+				if ( !isCoverLoaded ) {
+					cover.Texture = t.Result;
+				}
+			} ) );
+
 			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {
 				Schedule( () => {
 					cover.Texture = t.Result;
+					isCoverLoaded = true;
 				} );
 			} ) );
 

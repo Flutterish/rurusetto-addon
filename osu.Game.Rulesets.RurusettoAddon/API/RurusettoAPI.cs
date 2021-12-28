@@ -89,7 +89,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return await task;
 		}
 		private async Task<Texture> requestImage ( StaticAPIResource resource ) {
-			var imageStream = await client.GetStreamAsync( GetEndpoint( "/static" + resource.GetURI() ) );
+			var imageStream = await client.GetStreamAsync( GetEndpoint( (resource.GetURI().StartsWith( "/media/" ) ? "" : "/static") + resource.GetURI() ) );
 			var image = await Image.LoadAsync<Rgba32>( imageStream );
 			imageStream.Dispose();
 
@@ -135,7 +135,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		ChangelogCoverDark,
 		ChangelogCoverLight,
 
-		DefaultProfileImage
+		DefaultProfileImage,
+		DefaultCover
 	}
 
 	public static class StaticAPIResourceExtensions {
@@ -156,7 +157,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			[StaticAPIResource.ChangelogCoverDark] = "/img/changelog-cover-night2.png",
 			[StaticAPIResource.ChangelogCoverLight] = "/img/changelog-cover-light3.png",
 
-			[StaticAPIResource.DefaultProfileImage] = "/img/default.png"
+			[StaticAPIResource.DefaultProfileImage] = "/img/default.png",
+			[StaticAPIResource.DefaultCover] = "/media/default_wiki_cover.jpeg"
 		};
 
 		public static string GetURI ( this StaticAPIResource res )
