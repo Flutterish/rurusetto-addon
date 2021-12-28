@@ -91,6 +91,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		private async Task<Texture> requestImage ( StaticAPIResource resource ) {
 			var imageStream = await client.GetStreamAsync( GetEndpoint( "/static" + resource.GetURI() ) );
 			var image = await Image.LoadAsync<Rgba32>( imageStream );
+			imageStream.Dispose();
 
 			var texture = new Texture( image.Width, image.Height );
 			texture.SetData( new TextureUpload( image ) );

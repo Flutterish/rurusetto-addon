@@ -18,7 +18,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class DrawableListingEntry : VisibilityContainer {
 		Sprite cover;
 		Drawable coverContainer;
-		DownloadButton download;
 
 		protected override bool StartHidden => false;
 
@@ -30,6 +29,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
 		protected ListingEntry Entry;
+
+		RulesetDownloadButton download;
 
 		public DrawableListingEntry ( ListingEntry entry ) {
 			Entry = entry;
@@ -144,7 +145,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 										Text = entry.Description
 									}
 								},
-								download = new DownloadButton {
+								download = new RulesetDownloadButton( entry ) {
 									RelativeSizeAxes = Axes.Both
 								}
 							}

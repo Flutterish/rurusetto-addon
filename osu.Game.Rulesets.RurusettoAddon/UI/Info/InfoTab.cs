@@ -6,7 +6,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.Containers.Markdown;
-using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using System;
@@ -98,7 +97,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 								},
 								Margin = new MarginPadding { Bottom = 20 }
 							},
-							new DownloadButton {
+							new RulesetDownloadButton( this.entry ) {
 								Height = 40f * 14 / 20,
 								Width = 200f * 14 / 20,
 								Anchor = Anchor.BottomRight,

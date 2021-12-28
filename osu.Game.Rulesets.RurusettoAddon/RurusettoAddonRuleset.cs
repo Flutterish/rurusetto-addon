@@ -1,7 +1,6 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Bindings;
 using osu.Game.Beatmaps;
@@ -16,8 +15,6 @@ using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.UI;
-using osuTK;
-using osuTK.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;

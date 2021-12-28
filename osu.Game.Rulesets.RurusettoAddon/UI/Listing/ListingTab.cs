@@ -3,7 +3,7 @@ using osu.Framework.Graphics.Containers;
 using System.Threading.Tasks;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
-	public class ListingTab : OverlayTab {
+	public class ListingTab : OverlayTab { // TODO list local rulesets that are not on the wiki
 		FillFlowContainer content;
 		public ListingTab () {
 

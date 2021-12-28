@@ -1,7 +1,9 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Platform;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
@@ -31,6 +33,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			var dep = new DependencyContainer( base.CreateChildDependencies( parent ) );
 
 			dep.CacheAs( ruleset );
+			if ( dep.TryGet<IRulesetStore>( out var store ) ) {
+				dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>(), store ) );
+			}
+			else {
+				dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
+			}
+
 			try {
 				var rulesetconfig = dep.Get<IRulesetConfigCache>();
 				var config = rulesetconfig?.GetConfigFor( ruleset ) as RurusettoConfigManager;
@@ -45,14 +54,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		public RurusettoOverlay ( RurusettoAddonRuleset ruleset ) : base( OverlayColourScheme.Pink ) {
 			this.ruleset = ruleset;
 
-			Add( scroll = new OsuScrollContainer( Direction.Vertical ) {
+			Add( new OsuContextMenuContainer {
 				RelativeSizeAxes = Axes.Both,
-				ScrollbarVisible = false,
+				Child = scroll = new OsuScrollContainer( Direction.Vertical ) {
+					RelativeSizeAxes = Axes.Both,
+					ScrollbarVisible = false,
 
-				Child = content = new FillFlowContainer {
-					Direction = FillDirection.Vertical,
-					RelativeSizeAxes = Axes.X,
-					AutoSizeAxes = Axes.Y
+					Child = content = new FillFlowContainer {
+						Direction = FillDirection.Vertical,
+						RelativeSizeAxes = Axes.X,
+						AutoSizeAxes = Axes.Y
+					}
 				}
 			} );
 
