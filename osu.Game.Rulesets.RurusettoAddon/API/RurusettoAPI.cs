@@ -5,6 +5,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -14,13 +15,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public readonly Bindable<string> Address = new( "https://rulesets.info/api/" );
 		public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
 
+		private Dictionary<string, LocalRulesetWikiEntry> localWiki = new();
+
 		private Task<List<ListingEntry>> listingCache = null;
-		public async Task<List<ListingEntry>> RequestRulesetListing () {
+		public async Task<IEnumerable<ListingEntry>> RequestRulesetListing () {
 			if ( listingCache is null ) {
 				listingCache = requestRulesetListing();
 			}
 
-			return await listingCache;
+			var value = await listingCache;
+			return value.Concat( localWiki.Values.Select( x => x.ListingEntry ) );
 		}
 		private async Task<List<ListingEntry>> requestRulesetListing () {
 			var raw = await client.GetStringAsync( GetEndpoint( "/api/rulesets" ) );
@@ -33,8 +37,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		private Dictionary<string, Task<RulesetDetail>> rulesetDetailCache = new();
 		public async Task<RulesetDetail> RequestRulesetDetail ( string shortName ) {
 			if ( !rulesetDetailCache.TryGetValue( shortName, out var detail ) ) {
-				detail = requestRulesetDetail( shortName );
-				rulesetDetailCache.Add( shortName, detail );
+				if ( localWiki.TryGetValue( shortName, out var local ) ) {
+					return local.Detail;
+				}
+				else {
+					detail = requestRulesetDetail( shortName );
+					rulesetDetailCache.Add( shortName, detail );
+				}
 			}
 
 			return await detail;
@@ -116,6 +125,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			FlushRulesetListingCache();
 			FlushRulesetDetailCache();
 		}
+
+		public void InjectLocalRuleset ( LocalRulesetWikiEntry entry ) {
+			localWiki.Add( entry.ListingEntry.ShortName, entry );
+		}
+	}
+
+	public record LocalRulesetWikiEntry {
+		public ListingEntry ListingEntry { get; init; }
+		public RulesetDetail Detail { get; init; }
 	}
 
 	public enum StaticAPIResource {

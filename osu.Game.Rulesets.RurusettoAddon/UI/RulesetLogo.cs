@@ -30,10 +30,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 
 		protected override void LoadComplete () {
 			base.LoadComplete();
-
-			API.RequestImage( entry.DarkIcon ).ContinueWith( t => Schedule( () => {
-				logo.Texture = t.Result;
-			} ) );
+			
+			if ( entry.LocalRulesetInfo != null ) {
+				RemoveInternal( logo );
+				AddInternal( entry.LocalRulesetInfo.CreateInstance().CreateIcon().With( d => {
+					d.RelativeSizeAxes = Axes.Both;
+					d.Size = new osuTK.Vector2( 1 );
+				} ) );
+			}
+			else {
+				API.RequestImage( entry.DarkIcon ).ContinueWith( t => Schedule( () => {
+					logo.Texture = t.Result;
+				} ) );
+			}
 		}
 	}
 }

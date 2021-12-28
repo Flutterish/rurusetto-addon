@@ -168,6 +168,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				}
 			} ) );
 
+			if ( Entry.LocalRulesetInfo != null ) {
+				Tags.Add( DrawableTag.CreateLocal() );
+			}
 			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => {
 				if ( t.Result.IsArchived ) {
 					Schedule( () => {

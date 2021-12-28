@@ -9,7 +9,7 @@ using System.Net.Http;
 
 namespace osu.Game.Rulesets.RurusettoAddon {
 	public class RulesetDownloadManager {
-		RurusettoAPI API;
+		public readonly RurusettoAPI API;
 		Storage storage;
 		IRulesetStore store;
 
@@ -23,6 +23,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public RulesetDownloadManager ( RurusettoAPI API, Storage storage, IRulesetStore store ) : this( API, storage ) {
 			this.store = store;
 		}
+
+		public IEnumerable<RulesetInfo> InstalledRulesets => store.AvailableRulesets.Cast<RulesetInfo>();
 
 		private Dictionary<string, Bindable<DownloadState>> downloadStates = new();
 		private Dictionary<string, RulesetInfo> rulesets = new();
@@ -40,10 +42,14 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			bindable.BindTo( GetStateBindable( shortName ) );
 		}
 
-		public RulesetInfo GetLocalRuleset ( string fullName, string shortName ) {
+		public RulesetInfo GetLocalRuleset ( string shortName, string name, string filename ) {
 			if ( !rulesets.TryGetValue( shortName, out var ruleset ) ) {
 				ruleset = store?.AvailableRulesets.FirstOrDefault( r =>
-					r.Name.ToLower() == fullName.ToLower() ||
+					Path.GetFileName( r.CreateInstance()?.GetType().Assembly.Location ) == filename
+				) as RulesetInfo;
+
+				ruleset ??= store?.AvailableRulesets.FirstOrDefault( r =>
+					r.Name.ToLower() == name.ToLower() ||
 					r.ShortName.ToLower() == shortName.ToLower()
 				) as RulesetInfo;
 
@@ -72,7 +78,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					}
 				}
 				
-				if ( GetLocalRuleset( t.Result.Name, t.Result.ShortName ) != null ) {
+				if ( GetLocalRuleset( t.Result.ShortName, t.Result.Name, t.Result.GithubFilename ) != null ) {
 					status.Value = DownloadState.AvailableLocally;
 					return;
 				}
@@ -154,13 +160,13 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 
-			if ( GetLocalRuleset( "", shortName )?.CreateInstance().GetType().Assembly.Location is not string location )
+			if ( GetLocalRuleset( shortName, "", "" )?.CreateInstance()?.GetType().Assembly.Location is not string location )
 				return;
 
 			if ( !storage.Exists( location ) )
 				return;
 
-			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, location ) { Ruleset = GetLocalRuleset( "", shortName ).Name.Humanize() };
+			tasks[ shortName ] = new RulesetManagerTask( TaskType.Remove, location ) { Ruleset = GetLocalRuleset( shortName, "", "" ).Name.Humanize() };
 			GetStateBindable( shortName ).Value = DownloadState.ToBeRemoved;
 		}
 

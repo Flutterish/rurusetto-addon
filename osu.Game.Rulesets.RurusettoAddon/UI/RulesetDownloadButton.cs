@@ -139,7 +139,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		
 		void onClick () {
 			if ( State.Value == DownloadState.AvailableLocally && currentRuleset is Bindable<RulesetInfo> current ) {
-				current.Value = DownloadManager.GetLocalRuleset( "", entry.ShortName );
+				current.Value = DownloadManager.GetLocalRuleset( entry.ShortName, entry.Name, "" );
 			}
 			else if ( State.Value == DownloadState.AvailableOnline ) {
 				DownloadManager.DownloadRuleset( entry.ShortName );
