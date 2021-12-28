@@ -17,7 +17,6 @@ using osuTK;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class DrawableListingEntry : VisibilityContainer {
 		Sprite cover;
-		Sprite logo;
 		Drawable coverContainer;
 		DownloadButton download;
 
@@ -94,21 +93,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
 				RelativeSizeAxes = Axes.Both,
 				Children = new Drawable[] {
-					new Container {
+					new RulesetLogo( entry ) {
 						Width = 80f * 14 / 20,
 						Height = 80f * 14 / 20,
 						Anchor = Anchor.CentreLeft,
-						Origin = Anchor.CentreLeft,
-						Children = new Drawable[] {
-							new Circle {
-								RelativeSizeAxes = Axes.Both,
-								Colour = color2
-							},
-							logo = new Sprite {
-								RelativeSizeAxes = Axes.Both,
-								FillMode = FillMode.Fit
-							}
-						}
+						Origin = Anchor.CentreLeft
 					},
 					new Container {
 						AutoSizeAxes = Axes.X,
@@ -171,10 +160,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				Schedule( () => {
 					cover.Texture = t.Result;
 				} );
-			} ) );
-
-			API.RequestImage( Entry.DarkIcon ).ContinueWith( t => Schedule( () => {
-				logo.Texture = t.Result;
 			} ) );
 
 			Add( new HoverClickSounds() );

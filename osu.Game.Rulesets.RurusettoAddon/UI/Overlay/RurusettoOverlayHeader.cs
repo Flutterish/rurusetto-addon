@@ -1,5 +1,5 @@
-﻿using osu.Framework.Bindables;
-using osu.Framework.Graphics;
+﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
@@ -7,6 +7,9 @@ using osu.Game.Rulesets.RurusettoAddon.API;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 	public class RurusettoOverlayHeader : BreadcrumbControlOverlayHeader {
 		static readonly LocalisableString listingText = "listing";
+
+		[Resolved]
+		protected RurusettoAPI API { get; private set; }
 
 		public RurusettoOverlayHeader () {
 			TabControl.AddItem( listingText );
@@ -22,9 +25,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 				if ( v.NewValue != null ) {
 					TabControl.AddItem( v.NewValue.Name.ToLower() );
 					Current.Value = v.NewValue.Name.ToLower();
+
+					API.RequestRulesetDetail( v.NewValue.ShortName ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
+						background.SetCover( t.Result );
+					} ) ) );
 				}
 				else {
 					Current.Value = listingText;
+					background.SetCover( null );
 				}
 			};
 
@@ -40,8 +48,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		protected override OverlayTitle CreateTitle ()
 			=> new HeaderTitle();
 
-		protected override Drawable CreateBackground ()
-			=> new RurusettoOverlayBackground();
+		private RurusettoOverlayBackground background;
+		protected override RurusettoOverlayBackground CreateBackground ()
+			=> background = new RurusettoOverlayBackground ();
 
 		private class HeaderTitle : OverlayTitle {
 			public HeaderTitle () {
