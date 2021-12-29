@@ -73,6 +73,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			TooltipText = "This ruleset is downloaded, but failed to import"
 		};
 
+		public static DrawableTag CreateBorked ( bool large = false ) => new( "Borked", Colour4.FromHex( "#FF6060" ), solid: false, height: large ? 26 : 18 ) {
+			TooltipText = "This ruleset does not work"
+		};
+		public static DrawableTag CreatePlayable ( bool large = false ) => new( "Playable", Colour4.FromHex( "#6CB946" ), solid: false, height: large ? 26 : 18 ) {
+			TooltipText = "This ruleset works"
+		};
+		public static DrawableTag CreatePrerelease ( bool large = false ) => new( "Pre-release", Colour4.FromHex( "#FFE766" ), solid: false, height: large ? 26 : 18 ) {
+			TooltipText = "The current version is a pre-release"
+		};
+
 
 		public LocalisableString TooltipText { get; set; }
 	}

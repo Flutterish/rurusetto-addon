@@ -39,5 +39,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		/// </summary>
 		[JsonProperty( "can_download" )]
 		public bool CanDownload { get; init; }
+
+		/// <summary> The status of the ruleset. </summary>
+		[JsonProperty( "status" )]
+		public Status Status { get; init; }
 	}
 }

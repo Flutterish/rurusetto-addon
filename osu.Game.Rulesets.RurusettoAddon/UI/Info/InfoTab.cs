@@ -137,18 +137,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					var entry = t.Result;
 					markdown.Text = entry.Content;
 
-					if ( entry.IsArchived ) {
-						Tags.Add( DrawableTag.CreateArchived( large: true ) );
-					}
-					if ( ruleset.Source == Source.Local ) {
-						Tags.Add( DrawableTag.CreateLocal( large: true ) );
-					}
-					if ( ruleset.LocalRulesetInfo != null && !ruleset.IsModifiable ) {
-						Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
-					}
-					if ( ruleset.HasImportFailed ) {
-						Tags.Add( DrawableTag.CreateFailledImport( large: true ) );
-					}
+					Tags.AddRange( ruleset.GenerateTags( t.Result, large: true ) );
 
 					buttons.Add( new HomeButton( entry ) {
 						Height = 40f * 14 / 20,

@@ -4,9 +4,12 @@ using osu.Game.Graphics.Containers;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
 	public class TogglableScrollContainer : OsuScrollContainer {
-		public TogglableScrollContainer () : base( Direction.Vertical ) { }
+		public TogglableScrollContainer ( Direction direction = Direction.Vertical ) : base( direction ) { }
 
-		protected bool CanScroll => DrawHeight < ScrollContent.DrawHeight;
+		protected bool CanScroll => ScrollDirection switch {
+			Direction.Vertical => DrawHeight < ScrollContent.DrawHeight,
+			_ => DrawWidth < ScrollContent.DrawWidth
+		};
 
 		protected override bool OnMouseDown ( MouseDownEvent e ) {
 			return CanScroll ? base.OnMouseDown( e ) : false;

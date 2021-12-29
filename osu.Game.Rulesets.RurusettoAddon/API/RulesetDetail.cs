@@ -74,14 +74,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public UserDetail Creator { get; init; }
 		/// <summary> The UTC time that the wiki page has create in JSON time format. </summary>
 		[JsonProperty( "created_at" )]
-		public DateTime CreatedAt { get; init; }
+		public DateTime? CreatedAt { get; init; }
 
 		/// <summary> The user_detail of the user who edit the wiki page last time. </summary>
 		[JsonProperty( "last_edited_by_detail" )]
 		public UserDetail LastEditedBy { get; init; }
 		/// <summary> The UTC time of the latest wiki edit. </summary>
 		[JsonProperty( "last_edited_at" )]
-		public DateTime LastEditedAt { get; init; }
+		public DateTime? LastEditedAt { get; init; }
 
 		/// <summary> True if the wiki maintainer has verified that the the owner is the real owner of this ruleset. </summary>
 		[JsonProperty( "verified" )]

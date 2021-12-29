@@ -2,8 +2,11 @@
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Game.Rulesets.RurusettoAddon.UI;
 using osuTK;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -135,6 +138,30 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 			catch ( Exception ) {
 				return null; // TODO report failure
+			}
+		}
+
+		public IEnumerable<DrawableTag> GenerateTags ( RulesetDetail detail, bool large = false ) {
+			if ( Source == Source.Local ) {
+				yield return DrawableTag.CreateLocal( large );
+			}
+			if ( LocalRulesetInfo != null && !IsModifiable ) {
+				yield return DrawableTag.CreateHardCoded( large );
+			}
+			if ( HasImportFailed ) {
+				yield return DrawableTag.CreateFailledImport( large );
+			}
+
+			if ( detail.IsArchived ) {
+				yield return DrawableTag.CreateArchived( large );
+			}
+			if ( ListingEntry != null ) {
+				if ( ListingEntry.Status.IsBorked ) {
+					yield return DrawableTag.CreateBorked( large );
+				}
+				if ( ListingEntry.Status.IsPrerelease ) {
+					yield return DrawableTag.CreatePrerelease( large );
+				}
 			}
 		}
 

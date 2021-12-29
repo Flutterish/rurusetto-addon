@@ -174,18 +174,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			} ) );
 
 			Ruleset.RequestDetail().ContinueWith( t => Schedule( () => {
-				if ( t.Result.IsArchived ) {
-					Tags.Add( DrawableTag.CreateArchived() );
-				}
-				if ( Ruleset.Source == Source.Local ) {
-					Tags.Add( DrawableTag.CreateLocal() );
-				}
-				if ( Ruleset.LocalRulesetInfo != null && !Ruleset.IsModifiable ) {
-					Tags.Add( DrawableTag.CreateHardCoded() );
-				}
-				if ( Ruleset.HasImportFailed ) {
-					Tags.Add( DrawableTag.CreateFailledImport() );
-				}
+				Tags.AddRange( Ruleset.GenerateTags( t.Result ) );
 
 				Ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
 					if ( t.Result is null )
