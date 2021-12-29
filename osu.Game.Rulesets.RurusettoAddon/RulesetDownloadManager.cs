@@ -61,11 +61,33 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 			if ( ruleset.Source == Source.Web ) {
 				ruleset.RequestDetail().ContinueWith( t => {
-					if ( !t.IsFaulted && t.Result.CanDownload ) {
+					if ( t.IsFaulted ) {
+						availability.Value |= Availability.NotAvailableOnline;
+						return; // TODO report this
+					}
+
+					if ( t.Result.CanDownload ) {
 						availability.Value |= Availability.AvailableOnline;
 					}
 					else {
 						availability.Value |= Availability.NotAvailableOnline;
+					}
+
+					if ( ruleset.ListingEntry?.Status is Status s ) {
+						if ( File.Exists( ruleset.LocalPath ) ) {
+							var info = new FileInfo( ruleset.LocalPath );
+							info.Refresh();
+
+							if ( s.LatestUpdate.HasValue && info.CreationTimeUtc < s.LatestUpdate.Value ) {
+								availability.Value |= Availability.Outdated;
+							}
+							else if ( info.Length != s.FileSize ) {
+								availability.Value |= Availability.Outdated;
+							}
+						}
+						else {
+							availability.Value |= Availability.Outdated;
+						}
 					}
 				} );
 			}

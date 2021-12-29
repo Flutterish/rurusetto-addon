@@ -86,9 +86,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Icon.Alpha = 1;
 				this.FadeTo( 1f, 200 );
 				Background.FadeColour( Colour4.FromHex( "#6CB946" ), 200, Easing.InOutExpo );
-				Icon.Scale = new osuTK.Vector2( 1.7f );
-				Icon.Icon = FontAwesome.Regular.CheckCircle;
-				TooltipText = Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ? "Installed, not available online" : "Installed";
+				if ( Avail.Value.HasFlagFast( Availability.Outdated ) && Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading ) {
+					Icon.Scale = new osuTK.Vector2( 1.5f );
+					Icon.Icon = FontAwesome.Solid.Download;
+
+					TooltipText = "Update";
+				}
+				else {
+					Icon.Scale = new osuTK.Vector2( 1.7f );
+					Icon.Icon = FontAwesome.Regular.CheckCircle;
+
+					TooltipText = Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ? "Installed, not available online" : "Installed";
+				}
 
 				if ( State.Value == DownloadState.ToBeImported ) {
 					warning.FadeIn( 200 );
@@ -156,16 +165,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		}
 		
 		void onClick () {
-			if ( Avail.Value.HasFlagFast( Availability.AvailableLocally ) && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
-				current.Value = info;
+			if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading && Avail.Value.HasFlagFast( Availability.Outdated ) ) {
+				DownloadManager.UpdateRuleset( ruleset );
 			}
-			else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading ) {
-				if ( Avail.Value.HasFlagFast( Availability.Outdated ) ) {
-					DownloadManager.UpdateRuleset( ruleset );
-				}
-				else if ( Avail.Value.HasFlagFast( Availability.NotAvailableLocally ) ) {
-					DownloadManager.DownloadRuleset( ruleset );
-				}
+			else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading && Avail.Value.HasFlagFast( Availability.NotAvailableLocally ) ) {
+				DownloadManager.DownloadRuleset( ruleset );
+			}
+			else if ( Avail.Value.HasFlagFast( Availability.AvailableLocally ) && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
+				current.Value = info;
 			}
 		}
 
