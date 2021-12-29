@@ -140,7 +140,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public IEnumerable<DrawableTag> GenerateTags ( RulesetDetail detail, bool large = false ) {
+		public IEnumerable<DrawableTag> GenerateTags ( RulesetDetail detail, bool large = false, bool includePlayability = true ) {
 			if ( Source == Source.Local ) {
 				yield return DrawableTag.CreateLocal( large );
 			}
@@ -155,7 +155,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				yield return DrawableTag.CreateArchived( large );
 			}
 			if ( ListingEntry != null ) {
-				if ( ListingEntry.Status.IsBorked ) {
+				if ( includePlayability && ListingEntry.Status.IsBorked ) {
 					yield return DrawableTag.CreateBorked( large );
 				}
 				if ( ListingEntry.Status.IsPrerelease ) {

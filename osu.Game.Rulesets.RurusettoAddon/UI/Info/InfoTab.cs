@@ -5,7 +5,9 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Containers.Markdown;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osuTK;
@@ -18,6 +20,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		Sprite cover;
 		ContentMarkdown markdown;
 		protected FillFlowContainer Tags;
+		protected FillFlowContainer Status;
 		FillFlowContainer buttons;
 		public InfoTab ( RulesetIdentity ruleset ) {
 			this.ruleset = ruleset;
@@ -70,12 +73,22 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Name = "Padding",
 				RelativeSizeAxes = Axes.X,
 				Height = 160,
-				Child = Tags = new FillFlowContainer {
-					Direction = FillDirection.Horizontal,
-					AutoSizeAxes = Axes.Both,
-					Spacing = new Vector2( 6, 0 ),
-					Margin = new MarginPadding { Top = 16 }
-				},
+				Children = new Drawable[] {
+					Tags = new FillFlowContainer {
+						Direction = FillDirection.Horizontal,
+						AutoSizeAxes = Axes.Both,
+						Spacing = new Vector2( 6, 0 ),
+						Margin = new MarginPadding { Top = 16 }
+					},
+					Status = new FillFlowContainer {
+						Anchor = Anchor.TopRight,
+						Origin = Anchor.TopRight,
+						Direction = FillDirection.Vertical,
+						AutoSizeAxes = Axes.Both,
+						Spacing = new Vector2( 0, 6 ),
+						Margin = new MarginPadding { Top = 16 }
+					}
+				}
 			} );
 
 			content.Add( new Container {
@@ -137,7 +150,25 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					var entry = t.Result;
 					markdown.Text = entry.Content;
 
-					Tags.AddRange( ruleset.GenerateTags( t.Result, large: true ) );
+					Tags.AddRange( ruleset.GenerateTags( t.Result, large: true, includePlayability: false ) );
+					if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
+						Status.Add( DrawableTag.CreatePlayable( large: true ).With( d => {
+							d.Anchor = Anchor.TopRight;
+							d.Origin = Anchor.TopRight;
+						} ) );
+					}
+					else if ( ruleset.ListingEntry?.Status?.IsBorked == true ) {
+						Status.Add( DrawableTag.CreateBorked( large: true ).With( d => {
+							d.Anchor = Anchor.TopRight;
+							d.Origin = Anchor.TopRight;
+						} ) );
+					}
+					Status.Add( new OsuSpriteText {
+						Anchor = Anchor.TopRight,
+						Origin = Anchor.TopRight,
+						Font = OsuFont.GetFont( Typeface.Inter, size: 14 ),
+						Text = ruleset.ListingEntry?.Status?.LatestVersion ?? "Unknown version"
+					} );
 
 					buttons.Add( new HomeButton( entry ) {
 						Height = 40f * 14 / 20,
