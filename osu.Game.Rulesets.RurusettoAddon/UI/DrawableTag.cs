@@ -63,7 +63,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		public static DrawableTag CreateArchived ( bool large = false ) => new( "Archived", Colour4.FromHex( "#FFE766" ), solid: false, height: large ? 26 : 18 ) {
 			TooltipText = "This ruleset is no longer maintained"
 		};
-		public static DrawableTag CreateLocal ( bool large = false ) => new( "Local", Colour4.FromHex( "#FFE766" ), solid: true, height: large ? 26 : 18 ) {
+		public static DrawableTag CreateLocal ( bool large = false ) => new( "Unlisted", Colour4.FromHex( "#FFE766" ), solid: true, height: large ? 26 : 18 ) {
 			TooltipText = "This ruleset is installed locally, but is not listed on the wiki"
 		};
 		public static DrawableTag CreateHardCoded ( bool large = false ) => new( "Hard coded", Colour4.FromHex( "#FF6060" ), solid: true, height: large ? 26 : 18 ) {
