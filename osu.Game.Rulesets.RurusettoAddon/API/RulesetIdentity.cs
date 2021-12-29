@@ -137,6 +137,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				return null; // TODO report failure
 			}
 		}
+
+		public override string ToString ()
+			=> $"{Name}";
 	}
 
 	public enum Source {

@@ -49,7 +49,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						API = API,
 						Name = entry.Name,
 						Slug = entry.Slug,
-						ListingEntry = entry
+						ListingEntry = entry,
+						IsModifiable = true
 					} );
 
 					var filename = Path.GetFileName( entry.Download );
@@ -111,14 +112,24 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 				if ( storage != null ) {
 					foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
-						if ( !localPaths.ContainsKey( storage.GetFullPath( path ) ) ) {
+						if ( localPaths.TryGetValue( storage.GetFullPath( path ), out var id ) ) {
+							// we already know its there then
+						}
+						else if ( webFilenames.TryGetValue( Path.GetFileName( path ), out id ) ) {
+							id.IsPresentLocally = true;
+							id.IsModifiable = true;
+							id.LocalPath = storage.GetFullPath( path );
+							id.HasImportFailed = true;
+						}
+						else {
 							identities.Add( new() {
 								Source = Source.Local,
 								API = API,
 								Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 								IsPresentLocally = true,
 								HasImportFailed = true,
-								LocalPath = storage.GetFullPath( path )
+								LocalPath = storage.GetFullPath( path ),
+								IsModifiable = true
 							} );
 						}
 					}
@@ -126,14 +137,19 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 			else if ( storage != null ) {
 				foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
-					if ( !webFilenames.ContainsKey( Path.GetFileName( path ) ) ) {
+					if ( webFilenames.TryGetValue( Path.GetFileName( path ), out var id ) ) {
+						id.IsPresentLocally = true;
+						id.LocalPath = storage.GetFullPath( path );
+						id.IsModifiable = true;
+					}
+					else {
 						identities.Add( new() {
 							Source = Source.Local,
 							API = API,
 							Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 							IsPresentLocally = true,
-							IsModifiable = true,
-							LocalPath = storage.GetFullPath( path )
+							LocalPath = storage.GetFullPath( path ),
+							IsModifiable = true
 						} );
 					}
 				}
