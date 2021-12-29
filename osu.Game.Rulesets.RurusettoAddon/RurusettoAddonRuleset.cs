@@ -93,7 +93,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                 var overlayContent = typeof( OsuGame ).GetField( "overlayContent", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as Container;
 
                 if ( overlayContent is null ) {
-                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OCNRE" ) } );
+                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OCNRE" ) } ) );
                     return;
                 }
 
@@ -102,7 +102,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                 var loadComponent = typeof( OsuGame ).GetMethod( "loadComponentSingleFile", BindingFlags.NonPublic | BindingFlags.Instance )?.MakeGenericMethod( typeof( RurusettoOverlay ) );
 
                 if ( loadComponent is null ) {
-                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCNRE" ) } );
+                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCNRE" ) } ) );
                     return;
                 }
 
@@ -112,7 +112,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                     );
                 }
                 catch ( Exception ) {
-                    notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCIE" ) } );
+                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCIE" ) } ) );
                     return;
                 }
 
@@ -123,7 +123,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                     // leveraging an "easy" hack to get the container with toolbar buttons
                     var userButton = typeof( Toolbar ).GetField( "userButton", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game.Toolbar ) as Drawable;
                     if ( userButton is null || userButton.Parent is not FillFlowContainer buttonsContainer ) {
-                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#UBNRE" ) } );
+                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#UBNRE" ) } ) );
                         overlayContent.Remove( overlay );
                         return;
                     }
@@ -141,14 +141,14 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                         overlays.Add( rov );
                     }
                     else {
-                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#ROVNRE" ) } );
+                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#ROVNRE" ) } ) );
                         overlayContent.Remove( overlay );
                         buttonsContainer.Remove( button );
                         return;
                     }
 
                     if ( overlays.Any( x => x is null ) ) {
-                        notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OVNRE" ) } );
+                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OVNRE" ) } ) );
                         overlayContent.Remove( overlay );
                         buttonsContainer.Remove( button );
                         return;
