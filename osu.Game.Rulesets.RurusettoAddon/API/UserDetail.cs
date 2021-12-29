@@ -4,13 +4,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 	public record UserDetail {
 		/// <summary> The ID of the user in Rūrusetto database. </summary>
 		[JsonProperty( "id" )]
-		public int ID;
+		public int ID { get; init; }
 
 		[JsonProperty( "user" )]
-		public UserInfo Info;
+		public UserInfo Info { get; init; }
 
 		/// <summary> The URL of the user's profile image. </summary>
 		[JsonProperty( "image" )]
-		public string Image;
+		public string Image { get; init; }
 	}
 }
