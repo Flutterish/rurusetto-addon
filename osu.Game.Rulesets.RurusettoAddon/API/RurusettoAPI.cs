@@ -36,21 +36,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private ConcurrentDictionary<string, Task<RulesetDetail>> rulesetDetailCache = new();
-		public async Task<RulesetDetail> RequestRulesetDetail ( string shortName ) {
-			if ( !rulesetDetailCache.TryGetValue( shortName, out var detail ) ) {
-				if ( localWiki.TryGetValue( shortName, out var local ) ) {
+		public async Task<RulesetDetail> RequestRulesetDetail ( string slug ) {
+			if ( !rulesetDetailCache.TryGetValue( slug, out var detail ) ) {
+				if ( localWiki.TryGetValue( slug, out var local ) ) {
 					return local.Detail;
 				}
 				else {
-					detail = requestRulesetDetail( shortName );
-					rulesetDetailCache.TryAdd( shortName, detail );
+					detail = requestRulesetDetail( slug );
+					rulesetDetailCache.TryAdd( slug, detail );
 				}
 			}
 
 			return await detail;
 		}
-		private async Task<RulesetDetail> requestRulesetDetail ( string shortName ) {
-			var raw = await client.GetStringAsync( GetEndpoint( $"/api/rulesets/{shortName}" ) );
+		private async Task<RulesetDetail> requestRulesetDetail ( string slug ) {
+			var raw = await client.GetStringAsync( GetEndpoint( $"/api/rulesets/{slug}" ) );
 			return JsonConvert.DeserializeObject<RulesetDetail>( raw );
 		}
 		public void FlushRulesetDetailCache ( string shortName ) {
@@ -70,8 +70,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return await task;
 		}
 		private async Task<Texture> requestImage ( string uri ) {
-			if ( !uri.StartsWith( "/media/" ) && !uri.StartsWith( "media/" ) )
-				throw new InvalidOperationException( $"Images can only be requested from `/media/` endpoints, but `{uri}` was requested." );
+			if ( !uri.StartsWith( "/media/" ) && !uri.StartsWith( "media/" ) && !uri.StartsWith( "/static/" ) && !uri.StartsWith( "static/" ) )
+				throw new InvalidOperationException( $"Images can only be requested from `/media/` and `/static/` endpoints, but `{uri}` was requested." );
 
 			var imageStream = await client.GetStreamAsync( GetEndpoint( uri ) );
 			var image = await Image.LoadAsync<Rgba32>( imageStream );
@@ -85,44 +85,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public void FlushImageCache ( string uri ) {
 			mediaTextureCache.TryRemove( uri, out var _ );
 		}
-		public void FlushMediaImageCache () {
+		public void FlushImageCache () {
 			mediaTextureCache.Clear();
 		}
 
-		private ConcurrentDictionary<StaticAPIResource, Task<Texture>> staticTextureCache = new();
 		public async Task<Texture> RequestImage ( StaticAPIResource resource ) {
-			if ( !staticTextureCache.TryGetValue( resource, out var task ) ) {
-				task = requestImage( resource );
-				staticTextureCache.TryAdd( resource, task );
-			}
-
-			return await task;
-		}
-		private async Task<Texture> requestImage ( StaticAPIResource resource ) {
-			var imageStream = await client.GetStreamAsync( GetEndpoint( (resource.GetURI().StartsWith( "/media/" ) ? "" : "/static") + resource.GetURI() ) );
-			var image = await Image.LoadAsync<Rgba32>( imageStream );
-			imageStream.Dispose();
-
-			var texture = new Texture( image.Width, image.Height );
-			texture.SetData( new TextureUpload( image ) );
-			texture.AssetName = resource.ToString();
-
-			return texture;
+			return await RequestImage( resource.GetURI() );
 		}
 		public void FlushImageCache ( StaticAPIResource resource ) {
-			staticTextureCache.Remove( resource, out var _ );
-		}
-		public void FlushStaticImageCache () {
-			staticTextureCache.Clear();
-		}
-
-		public void FlushAllImageCaches () {
-			FlushMediaImageCache();
-			FlushStaticImageCache();
+			FlushImageCache( resource.GetURI() );
 		}
 
 		public void FlushAllCaches () {
-			FlushAllImageCaches();
+			FlushImageCache();
 			FlushRulesetListingCache();
 			FlushRulesetDetailCache();
 		}
@@ -188,23 +163,23 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 
 	public static class StaticAPIResourceExtensions {
 		private static Dictionary<StaticAPIResource, string> uris = new() {
-			[StaticAPIResource.LogoBlack] = "/logo/rurusetto-logo-black.svg",
-			[StaticAPIResource.LogoWhite] = "/logo/rurusetto-logo-white.svg",
-			[StaticAPIResource.LogoWithName] = "/logo/rurusetto-logo-with-name.svg",
-			[StaticAPIResource.LogoRegular] = "/logo/rurusetto-logo.svg",
+			[StaticAPIResource.LogoBlack] = "/static/logo/rurusetto-logo-black.svg",
+			[StaticAPIResource.LogoWhite] = "/static/logo/rurusetto-logo-white.svg",
+			[StaticAPIResource.LogoWithName] = "/static/logo/rurusetto-logo-with-name.svg",
+			[StaticAPIResource.LogoRegular] = "/static/logo/rurusetto-logo.svg",
 
-			[StaticAPIResource.HomeCoverDark] = "/img/home-cover-night.png",
-			[StaticAPIResource.HomeCoverLight] = "/img/home-cover-light.jpeg",
-			[StaticAPIResource.ListingCoverDark] = "/img/listing-cover-night.png",
-			[StaticAPIResource.ListingCoverLight] = "/img/listing-cover-light.png",
-			[StaticAPIResource.StatusCoverDark] = "/img/status-cover-night.jpg",
-			[StaticAPIResource.StatusCoverLight] = "/img/status-cover-light.png",
-			[StaticAPIResource.InstallCoverDark] = "/img/install-cover-night.png",
-			[StaticAPIResource.InstallCoverLight] = "/img/install-cover-light.png",
-			[StaticAPIResource.ChangelogCoverDark] = "/img/changelog-cover-night2.png",
-			[StaticAPIResource.ChangelogCoverLight] = "/img/changelog-cover-light3.png",
+			[StaticAPIResource.HomeCoverDark] = "/static/img/home-cover-night.png",
+			[StaticAPIResource.HomeCoverLight] = "/static/img/home-cover-light.jpeg",
+			[StaticAPIResource.ListingCoverDark] = "/static/img/listing-cover-night.png",
+			[StaticAPIResource.ListingCoverLight] = "/static/img/listing-cover-light.png",
+			[StaticAPIResource.StatusCoverDark] = "/static/img/status-cover-night.jpg",
+			[StaticAPIResource.StatusCoverLight] = "/static/img/status-cover-light.png",
+			[StaticAPIResource.InstallCoverDark] = "/static/img/install-cover-night.png",
+			[StaticAPIResource.InstallCoverLight] = "/static/img/install-cover-light.png",
+			[StaticAPIResource.ChangelogCoverDark] = "/static/img/changelog-cover-night2.png",
+			[StaticAPIResource.ChangelogCoverLight] = "/static/img/changelog-cover-light3.png",
 
-			[StaticAPIResource.DefaultProfileImage] = "/img/default.png",
+			[StaticAPIResource.DefaultProfileImage] = "/static/img/default.png",
 			[StaticAPIResource.DefaultCover] = "/media/default_wiki_cover.jpeg"
 		};
 
