@@ -200,8 +200,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 
-			var unimported = UnimportedRulesets.Where( x => x.shortname == shortName );
-			var installed = InstalledRulesetFilenames.Where( x => x.Key.ShortName == shortName );
+			var unimported = UnimportedRulesets.Where( x => x.shortname.ToLower() == shortName.ToLower() );
+			var installed = InstalledRulesetFilenames.Where( x => x.Key.ShortName.ToLower() == shortName.ToLower() );
 			string location;
 			if ( unimported.Any() ) {
 				location = unimported.First().filename;
