@@ -12,6 +12,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected RurusettoAPI API { get; private set; }
 		[Resolved]
 		protected RulesetDownloadManager DownloadManager { get; private set; }
+		[Resolved]
+		protected RulesetIdentityManager Identities { get; private set; }
 
 		public OverlayTab () {
 			RelativeSizeAxes = Axes.X;

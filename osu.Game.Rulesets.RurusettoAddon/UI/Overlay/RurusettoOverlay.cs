@@ -33,7 +33,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			var dep = new DependencyContainer( base.CreateChildDependencies( parent ) );
 
 			dep.CacheAs( ruleset );
-			if ( dep.TryGet<IRulesetStore>( out var store ) ) {
+			dep.CacheAs( new RulesetIdentityManager( dep.Get<Storage>(), dep.Get<IRulesetStore>(), API ) );
+
+			if ( dep.TryGet<IRulesetStore>( out var store ) ) {	
 				dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>(), store ) );
 			}
 			else {
