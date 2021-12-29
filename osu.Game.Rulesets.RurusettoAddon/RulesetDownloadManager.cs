@@ -1,6 +1,7 @@
 ﻿using osu.Framework.Bindables;
 using osu.Framework.Platform;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -17,54 +18,59 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			PerformPreCleanup();
 		}
 
-		// TODO probably split this into download state and online availiability state
 		private Dictionary<RulesetIdentity, Bindable<DownloadState>> downloadStates = new();
+		private Dictionary<RulesetIdentity, Bindable<Availability>> availabilities = new();
 		public Bindable<DownloadState> GetStateBindable ( RulesetIdentity ruleset ) {
 			if ( !downloadStates.TryGetValue( ruleset, out var state ) ) {
-				downloadStates.Add( ruleset, state = new Bindable<DownloadState>( DownloadState.Unknown ) );
-				CheckAvailability( ruleset );
+				downloadStates.Add( ruleset, state = new Bindable<DownloadState>( DownloadState.NotDownloading ) );
 			}
 
 			return state;
 		}
 
-		public void BindWith ( RulesetIdentity ruleset, IBindable<DownloadState> bindable ) {
-			if ( !downloadStates.TryGetValue( ruleset, out var state ) ) {
-				downloadStates.Add( ruleset, state = new Bindable<DownloadState>( DownloadState.Unknown ) );
-				CheckAvailability( ruleset );
+		private Bindable<Availability> getAvailabilityBindable ( RulesetIdentity ruleset, bool checkOnCreate = true ) {
+			if ( !availabilities.TryGetValue( ruleset, out var state ) ) {
+				availabilities.Add( ruleset, state = new Bindable<Availability>( Availability.Unknown ) );
+				if ( checkOnCreate ) CheckAvailability( ruleset );
 			}
 
-			bindable.BindTo( state );
+			return state;
+		}
+		public Bindable<Availability> GetAvailabilityBindable ( RulesetIdentity ruleset ) {
+			return getAvailabilityBindable( ruleset, true );
+		}
+
+		public void BindWith ( RulesetIdentity ruleset, IBindable<DownloadState> bindable ) {
+			bindable.BindTo( GetStateBindable( ruleset ) );
+		}
+		public void BindWith ( RulesetIdentity ruleset, IBindable<Availability> bindable ) {
+			bindable.BindTo( GetAvailabilityBindable( ruleset ) );
 		}
 
 		public void CheckAvailability ( RulesetIdentity ruleset ) {
-			var status = GetStateBindable( ruleset );
+			var availability = getAvailabilityBindable( ruleset, false );
 
-			status.Value = DownloadState.Unknown;
+			availability.Value = Availability.Unknown;
 
 			if ( ruleset.Source == Source.Local || ruleset.IsPresentLocally ) {
-				status.Value = DownloadState.AvailableLocally;
+				availability.Value |= Availability.AvailableLocally;
 			}
-			else if ( ruleset.Source == Source.Web ) {
-				if ( tasks.TryGetValue( ruleset, out var task ) ) {
-					if ( task.Type is TaskType.Install or TaskType.Update ) {
-						status.Value = DownloadState.ToBeImported;
-						return;
-					}
-					else if ( task.Type == TaskType.Remove ) {
-						status.Value = DownloadState.ToBeRemoved;
-						return;
-					}
-				}
+			else {
+				availability.Value |= Availability.NotAvailableLocally;
+			}
 
+			if ( ruleset.Source == Source.Web ) {
 				ruleset.RequestDetail().ContinueWith( t => {
-					if ( t.Result.CanDownload && status.Value is DownloadState.NotAvailableOnline or DownloadState.Unknown ) {
-						status.Value = DownloadState.AvailableOnline;
+					if ( !t.IsFaulted && t.Result.CanDownload ) {
+						availability.Value |= Availability.AvailableOnline;
 					}
-					else if ( !t.Result.CanDownload && status.Value is DownloadState.AvailableOnline or DownloadState.Unknown ) {
-						status.Value = DownloadState.NotAvailableOnline;
+					else {
+						availability.Value |= Availability.NotAvailableOnline;
 					}
 				} );
+			}
+			else {
+				availability.Value |= Availability.NotAvailableOnline;
 			}
 		}
 
@@ -78,7 +84,6 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			tasks[ ruleset ] = task;
 
 			GetStateBindable( ruleset ).Value = duringState;
-
 
 			ruleset.RequestDetail().ContinueWith( async t => {
 				if ( wasTaskCancelled( ruleset, task ) ) return;
@@ -115,7 +120,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public void CancelRulesetDownload ( RulesetIdentity ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type is TaskType.Install or TaskType.Update ) {
 				tasks.Remove( ruleset );
-				CheckAvailability( ruleset );
+				GetStateBindable( ruleset ).Value = DownloadState.NotDownloading;
 			}
 		}
 
@@ -132,7 +137,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 				if ( task.Type is TaskType.Install ) {
 					tasks.Remove( ruleset );
-					CheckAvailability( ruleset );
+					GetStateBindable( ruleset ).Value = DownloadState.NotDownloading;
 					return;
 				}
 			}
@@ -148,7 +153,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public void CancelRulesetRemoval ( RulesetIdentity ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type == TaskType.Remove ) {
 				tasks.Remove( ruleset );
-				CheckAvailability( ruleset );
+				GetStateBindable( ruleset ).Value = DownloadState.NotDownloading;
 			}
 		}
 
@@ -160,14 +165,19 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			foreach ( var i in storage.GetFiles( "./rulesets", "*.dll~" ) ) {
 				storage.Delete( i );
 			}
+
+			if ( storage.ExistsDirectory( "./rurusetto-addon-temp/" ) ) {
+				storage.DeleteDirectory( "./rurusetto-addon-temp/" );
+			}
 		}
 
 		public void PerformTasks () {
 			foreach ( var i in tasks.Values ) {
 				if ( i.Type == TaskType.Install || i.Type == TaskType.Update ) {
 					var filename = Path.GetFileName( i.Source );
-					if ( File.Exists( $"./rulesets/{filename}" ) ) {
-						File.Move( $"./rulesets/{filename}", $"./rulesets/{filename}-removed" );
+					var path = storage.GetFullPath( $"./rulesets/{filename}" );
+					if ( File.Exists( path ) ) {
+						File.Move( path, path + "~" );
 					}
 
 					var to = storage.GetStream( $"./rulesets/{filename}", FileAccess.Write, FileMode.CreateNew );
@@ -192,16 +202,21 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 	}
 
 	public enum DownloadState {
-		Unknown,
-
-		NotAvailableOnline,
-		AvailableOnline,
-		AvailableLocally,
-		OutdatedAvailableLocally,
+		NotDownloading,
 
 		Downloading,
 		ToBeImported,
-
 		ToBeRemoved
+	}
+
+	[Flags]
+	public enum Availability {
+		Unknown = 0,
+
+		NotAvailableLocally = 1,
+		AvailableLocally = 2,
+		NotAvailableOnline = 4,
+		AvailableOnline = 8,
+		Outdated = 16
 	}
 }

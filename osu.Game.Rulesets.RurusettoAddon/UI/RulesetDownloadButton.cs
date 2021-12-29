@@ -1,5 +1,6 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.EnumExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
@@ -16,7 +17,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		[Resolved]
 		public RulesetDownloadManager DownloadManager { get; private set; }
 
-		public readonly Bindable<DownloadState> State = new();
+		public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
+		public readonly Bindable<Availability> Avail = new( Availability.Unknown );
 
 		LoadingSpinner spinner;
 		RulesetIdentity ruleset;
@@ -46,110 +48,124 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			} );
 
 			DownloadManager.BindWith( ruleset, State );
-			State.BindValueChanged( v => Schedule( () => {
-				switch ( v.NewValue ) {
-					case DownloadState.Unknown:
-						this.FadeTo( 0.6f, 200 );
-						TooltipText = "Checking...";
-						warning.FadeOut( 200 );
-						break;
+			DownloadManager.BindWith( ruleset, Avail );
 
-					case DownloadState.NotAvailableOnline:
-						spinner.Alpha = 0;
-						Icon.Alpha = 1;
-						this.FadeTo( 0.6f, 200 );
-						TooltipText = "Unavailable Online";
-						warning.FadeOut( 200 );
-						Icon.Scale = new osuTK.Vector2( 1.5f );
-						Icon.Icon = FontAwesome.Solid.Download;
-						break;
+			State.ValueChanged += _ => Schedule( updateVisuals );
+			Avail.ValueChanged += _ => Schedule( updateVisuals );
 
-					case DownloadState.AvailableOnline:
-						spinner.Alpha = 0;
-						Icon.Alpha = 1;
-						this.FadeTo( 1f, 200 );
-						Background.FadeColour( Colour4.FromHex( "#394642" ), 200, Easing.InOutExpo );
-						Icon.Scale = new osuTK.Vector2( 1.5f );
-						Icon.Icon = FontAwesome.Solid.Download;
-						TooltipText = "Download";
-						warning.FadeOut( 200 );
-						break;
-
-					case DownloadState.ToBeRemoved:
-					case DownloadState.ToBeImported:
-					case DownloadState.OutdatedAvailableLocally:
-					case DownloadState.AvailableLocally:
-						spinner.Alpha = 0;
-						Icon.Alpha = 1;
-						this.FadeTo( 1f, 200 );
-						Background.FadeColour( Colour4.FromHex( "#6CB946" ), 200, Easing.InOutExpo );
-						Icon.Scale = new osuTK.Vector2( 1.7f );
-						Icon.Icon = FontAwesome.Regular.CheckCircle;
-						TooltipText = "Installed";
-						if ( v.NewValue == DownloadState.AvailableLocally ) {
-							warning.FadeOut( 200 );
-						}
-						else {
-							warning.FadeIn( 200 );
-							warning.TooltipText = v.NewValue switch {
-								DownloadState.ToBeRemoved => "Will be removed on restart!",
-								DownloadState.ToBeImported => "Will be installed on restart!",
-								_ => "Outdated"
-							};
-						}
-						break;
-
-					case DownloadState.Downloading:
-						Icon.Alpha = 0;
-						spinner.Alpha = 1;
-						this.FadeTo( 1f, 200 );
-						Background.FadeColour( Colour4.FromHex( "#6291D7" ), 200, Easing.InOutExpo );
-
-						TooltipText = "Downloading...";
-						warning.FadeOut( 200 );
-						break;
-				}
-			} ), true );
-
-			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
-			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
-			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
-			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
-
-			State.BindValueChanged( v => Schedule( () => {
-				ContextMenuItems = v.NewValue switch {
-					DownloadState.AvailableOnline => new MenuItem[] { refresh, download },
-					DownloadState.AvailableLocally => new MenuItem[] { refresh, remove },
-					DownloadState.OutdatedAvailableLocally => new MenuItem[] { refresh, update, remove },
-					DownloadState.Downloading => new MenuItem[] { cancelDownload },
-					DownloadState.ToBeImported => new MenuItem[] { refresh, remove },
-					DownloadState.ToBeRemoved => new MenuItem[] { refresh, cancelRemoval },
-					DownloadState.NotAvailableOnline => new MenuItem[] { refresh },
-					_ or DownloadState.Unknown => Array.Empty<MenuItem>()
-				};
-
-				if ( !ruleset.IsModifiable ) {
-					ContextMenuItems = Array.Empty<MenuItem>();
-				}
-			} ), true );
+			updateVisuals();
 
 			Schedule( () => FinishTransforms( true ) );
 		}
 
 		[Resolved]
 		private IBindable<RulesetInfo> currentRuleset { get; set; }
+
+		private void updateVisuals () {
+			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
+			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
+			OsuMenuItem redownload = new( "Re-download", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
+			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
+			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
+			OsuMenuItem cancelUpdate = new( "Cancel Update", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
+			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
+			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
+
+			if ( State.Value == DownloadState.Downloading ) {
+				Icon.Alpha = 0;
+				spinner.Alpha = 1;
+				this.FadeTo( 1f, 200 );
+				Background.FadeColour( Colour4.FromHex( "#6291D7" ), 200, Easing.InOutExpo );
+				TooltipText = "Downloading...";
+				warning.FadeOut( 200 );
+
+				ContextMenuItems = new MenuItem[] { Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : cancelDownload };
+			}
+			else if ( State.Value is DownloadState.ToBeImported or DownloadState.ToBeRemoved || Avail.Value.HasFlagFast( Availability.AvailableLocally ) ) {
+				spinner.Alpha = 0;
+				Icon.Alpha = 1;
+				this.FadeTo( 1f, 200 );
+				Background.FadeColour( Colour4.FromHex( "#6CB946" ), 200, Easing.InOutExpo );
+				Icon.Scale = new osuTK.Vector2( 1.7f );
+				Icon.Icon = FontAwesome.Regular.CheckCircle;
+				TooltipText = Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ? "Installed, not available online" : "Installed";
+
+				if ( State.Value == DownloadState.ToBeImported ) {
+					warning.FadeIn( 200 );
+					warning.TooltipText = Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? "Will be updated on restart!" : "Will be installed on restart!";
+
+					ContextMenuItems = new MenuItem[] { refresh, Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : remove };
+				}
+				else if ( State.Value == DownloadState.ToBeRemoved ) {
+					warning.FadeIn( 200 );
+					warning.TooltipText = "Will be removed on restart!";
+
+					ContextMenuItems = new MenuItem[] { refresh, cancelRemoval };
+				}
+				else if ( Avail.Value.HasFlagFast( Availability.Outdated ) ) {
+					warning.FadeIn( 200 );
+					warning.TooltipText = "Outdated";
+
+					ContextMenuItems = Avail.Value.HasFlagFast( Availability.AvailableOnline )
+						? new MenuItem[] { refresh, update, remove }
+						: new MenuItem[] { refresh, remove };
+				}
+				else {
+					warning.FadeOut( 200 );
+
+					ContextMenuItems = Avail.Value.HasFlagFast( Availability.AvailableOnline )
+						? new MenuItem[] { refresh, redownload, remove }
+						: new MenuItem[] { refresh, remove };
+				}
+			}
+			else if ( Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ) {
+				spinner.Alpha = 0;
+				Icon.Alpha = 1;
+				this.FadeTo( 0.6f, 200 );
+				TooltipText = "Unavailable Online";
+				warning.FadeOut( 200 );
+				Icon.Scale = new osuTK.Vector2( 1.5f );
+				Icon.Icon = FontAwesome.Solid.Download;
+
+				ContextMenuItems = new MenuItem[] { refresh };
+			}
+			else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) ) {
+				spinner.Alpha = 0;
+				Icon.Alpha = 1;
+				this.FadeTo( 1f, 200 );
+				Background.FadeColour( Colour4.FromHex( "#394642" ), 200, Easing.InOutExpo );
+				Icon.Scale = new osuTK.Vector2( 1.5f );
+				Icon.Icon = FontAwesome.Solid.Download;
+				TooltipText = "Download";
+				warning.FadeOut( 200 );
+
+				ContextMenuItems = new MenuItem[] { refresh, download };
+			}
+
+			if ( Avail.Value == Availability.Unknown ) {
+				this.FadeTo( 0.6f, 200 );
+				TooltipText = "Checking...";
+				warning.FadeOut( 200 );
+
+				ContextMenuItems = Array.Empty<MenuItem>();
+			}
+
+			if ( !ruleset.IsModifiable ) {
+				ContextMenuItems = Array.Empty<MenuItem>();
+			}
+		}
 		
 		void onClick () {
-			if ( State.Value == DownloadState.AvailableLocally && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
+			if ( Avail.Value.HasFlagFast( Availability.AvailableLocally ) && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
 				current.Value = info;
 			}
-			else if ( State.Value == DownloadState.AvailableOnline ) {
-				DownloadManager.DownloadRuleset( ruleset );
-			}
-			else if ( State.Value == DownloadState.OutdatedAvailableLocally ) {
-				DownloadManager.UpdateRuleset( ruleset );
+			else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading ) {
+				if ( Avail.Value.HasFlagFast( Availability.Outdated ) ) {
+					DownloadManager.UpdateRuleset( ruleset );
+				}
+				else if ( Avail.Value.HasFlagFast( Availability.NotAvailableLocally ) ) {
+					DownloadManager.DownloadRuleset( ruleset );
+				}
 			}
 		}
 

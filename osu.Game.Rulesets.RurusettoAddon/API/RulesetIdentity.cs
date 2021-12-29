@@ -5,7 +5,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Game.Rulesets.RurusettoAddon.UI;
 using osuTK;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
