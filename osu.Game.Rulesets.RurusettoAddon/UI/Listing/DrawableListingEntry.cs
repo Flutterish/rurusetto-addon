@@ -170,7 +170,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				}
 			} ) );
 
-			API.RequestRulesetDetail( Entry.ShortName ).ContinueWith( t => {
+			API.RequestRulesetDetail( Entry.Slug ).ContinueWith( t => {
 				if ( t.Result.IsArchived ) {
 					Schedule( () => {
 						Tags.Add( DrawableTag.CreateArchived() );

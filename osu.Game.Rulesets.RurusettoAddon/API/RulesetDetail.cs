@@ -18,7 +18,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public string Name { get; init; }
 		/// <summary> The slug of the ruleset. Use in the URL of the ruleset's wiki page. </summary>
 		[JsonProperty( "slug" )]
-		public string ShortName { get; init; }
+		public string Slug { get; init; }
 		/// <summary> The short description of the rulesets. </summary>
 		[JsonProperty( "description" )]
 		public string Description { get; init; }

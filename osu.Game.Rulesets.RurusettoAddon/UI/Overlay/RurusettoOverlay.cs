@@ -85,7 +85,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			Add( loading = new LoadingLayer( dimBackground: true ) );
 
 			Header.SelectedRuleset.ValueChanged += v => {
-				if ( v.NewValue?.ShortName == v.OldValue?.ShortName )
+				if ( v.NewValue?.Slug == v.OldValue?.Slug )
 					return;
 
 				scroll.ScrollToStart();
@@ -96,10 +96,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					currentTab = listing;
 				}
 				else {
-					if ( !infoTabs.TryGetValue( v.NewValue.ShortName, out var tab ) ) {
+					if ( !infoTabs.TryGetValue( v.NewValue.Slug, out var tab ) ) {
 						tab = new( v.NewValue );
 						tabContainer.Add( tab );
-						infoTabs.Add( v.NewValue.ShortName, tab );
+						infoTabs.Add( v.NewValue.Slug, tab );
 					}
 
 					currentTab = tab;

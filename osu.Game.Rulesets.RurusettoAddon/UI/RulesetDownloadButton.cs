@@ -45,7 +45,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Y = -7
 			} );
 
-			DownloadManager.BindWith( entry.ShortName, State );
+			DownloadManager.BindWith( entry.Slug, State );
 			State.BindValueChanged( v => Schedule( () => {
 				switch ( v.NewValue ) {
 					case DownloadState.Unknown:
@@ -111,12 +111,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				}
 			} ), true );
 
-			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( entry.ShortName ) );
-			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( entry.ShortName ) );
-			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( entry.ShortName ) );
-			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( entry.ShortName ) );
-			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( entry.ShortName ) );
-			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( entry.ShortName ) );
+			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( entry.Slug ) );
+			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( entry.Slug ) );
+			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( entry.Slug ) );
+			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( entry.Slug ) );
+			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( entry.Slug ) );
+			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( entry.Slug ) );
 
 			State.BindValueChanged( v => Schedule( () => {
 				ContextMenuItems = v.NewValue switch {
@@ -143,13 +143,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		
 		void onClick () {
 			if ( State.Value == DownloadState.AvailableLocally && currentRuleset is Bindable<RulesetInfo> current ) {
-				current.Value = DownloadManager.GetLocalRuleset( entry.ShortName, entry.Name, "" );
+				current.Value = DownloadManager.GetLocalRuleset( entry.Slug, entry.Name, "" );
 			}
 			else if ( State.Value == DownloadState.AvailableOnline ) {
-				DownloadManager.DownloadRuleset( entry.ShortName );
+				DownloadManager.DownloadRuleset( entry.Slug );
 			}
 			else if ( State.Value == DownloadState.OutdatedAvailableLocally ) {
-				DownloadManager.UpdateRuleset( entry.ShortName );
+				DownloadManager.UpdateRuleset( entry.Slug );
 			}
 		}
 

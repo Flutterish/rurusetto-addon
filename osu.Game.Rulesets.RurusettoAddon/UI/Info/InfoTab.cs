@@ -119,13 +119,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				}
 			} );
 
-			content.Add( markdown = new ContentMarkdown( API.GetEndpoint( $"/rulesets/{entry.ShortName}" ).AbsoluteUri ) {
+			content.Add( markdown = new ContentMarkdown( API.GetEndpoint( $"/rulesets/{entry.Slug}" ).AbsoluteUri ) {
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
 				Margin = new MarginPadding { Left = 6, Bottom = 400 }
 			} );
 
-			API.RequestRulesetDetail( entry.ShortName ).ContinueWith( t => {
+			API.RequestRulesetDetail( entry.Slug ).ContinueWith( t => {
 				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
 					cover.Texture = t.Result;
 				} ) );

@@ -15,7 +15,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			TabControl.AddItem( listingText );
 
 			SelectedRuleset.ValueChanged += v => {
-				if ( v.NewValue?.ShortName == v.OldValue?.ShortName )
+				if ( v.NewValue?.Slug == v.OldValue?.Slug )
 					return;
 
 				if ( v.OldValue != null ) {
@@ -26,7 +26,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					TabControl.AddItem( v.NewValue.Name.ToLower() );
 					Current.Value = v.NewValue.Name.ToLower();
 
-					API.RequestRulesetDetail( v.NewValue.ShortName ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
+					API.RequestRulesetDetail( v.NewValue.Slug ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
 						background.SetCover( t.Result );
 					} ) ) );
 				}

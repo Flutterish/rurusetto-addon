@@ -118,7 +118,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					}
 				}
 				
-				if ( UnimportedRulesets.Any( x => x.shortname == shortName ) || GetLocalRuleset( t.Result.ShortName, t.Result.Name, t.Result.GithubFilename ) != null ) {
+				if ( UnimportedRulesets.Any( x => x.shortname == shortName ) || GetLocalRuleset( t.Result.Slug, t.Result.Name, t.Result.GithubFilename ) != null ) {
 					status.Value = DownloadState.AvailableLocally;
 					return;
 				}
