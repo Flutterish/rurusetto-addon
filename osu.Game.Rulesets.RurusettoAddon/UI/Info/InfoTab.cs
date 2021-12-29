@@ -138,11 +138,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Margin = new MarginPadding { Left = 6, Bottom = 400 }
 			} );
 
+			bool isCoverLoaded = false;
+			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
+				// TODO load a default local cover defore the default web cover too
+				if ( !t.IsFaulted && !isCoverLoaded ) {
+					// TODO report failure
+					cover.Texture = t.Result;
+				}
+			} ) );
+
 			ruleset.RequestDetail().ContinueWith( t => {
 				ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
 					if ( t.Result is null )
 						return;
 
+					isCoverLoaded = true;
 					cover.Texture = t.Result;
 				} ) );
 
