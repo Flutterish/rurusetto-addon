@@ -60,6 +60,66 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			rulesetDetailCache.Clear();
 		}
 
+		private ConcurrentDictionary<string, Task<IEnumerable<SubpageListingEntry>>> subpageListingCache = new();
+		public async Task<IEnumerable<SubpageListingEntry>> RequestSubpageListing ( string slug ) {
+			if ( !subpageListingCache.TryGetValue( slug, out var listing ) ) {
+				listing = requestSubpageListing( slug );
+				subpageListingCache.TryAdd( slug, listing );
+			}
+
+			return await listing;
+		}
+		private async Task<IEnumerable<SubpageListingEntry>> requestSubpageListing ( string slug ) {
+			var raw = await client.GetStringAsync( GetEndpoint( $"/api/subpage/{slug}" ) );
+			return JsonConvert.DeserializeObject<List<SubpageListingEntry>>( raw );
+		}
+		public void FlushSubpageListingCache ( string shortName ) {
+			subpageListingCache.TryRemove( shortName, out var _ );
+		}
+		public void FlushSubpageListingCache () {
+			subpageListingCache.Clear();
+		}
+
+		private ConcurrentDictionary<string, Task<Subpage>> subpageCache = new();
+		public async Task<Subpage> RequestSubpage ( string rulesetSlug, string subpageSlug ) {
+			if ( !subpageCache.TryGetValue( $"{rulesetSlug}/{subpageSlug}", out var listing ) ) {
+				listing = requestSubpage( rulesetSlug, subpageSlug );
+				subpageCache.TryAdd( $"{rulesetSlug}/{subpageSlug}", listing );
+			}
+
+			return await listing;
+		}
+		private async Task<Subpage> requestSubpage ( string rulesetSlug, string subpageSlug ) {
+			var raw = await client.GetStringAsync( GetEndpoint( $"/api/subpage/{rulesetSlug}/{subpageSlug}" ) );
+			return JsonConvert.DeserializeObject<Subpage>( raw );
+		}
+		public void FlushSubpageCache ( string rulesetSlug, string subpageSlug ) {
+			subpageListingCache.TryRemove( $"{rulesetSlug}/{subpageSlug}", out var _ );
+		}
+		public void FlushSubpageCache () {
+			subpageListingCache.Clear();
+		}
+
+		private ConcurrentDictionary<int, Task<UserProfile>> userCache = new();
+		public async Task<UserProfile> RequestUserProfile ( int id ) {
+			if ( !userCache.TryGetValue( id, out var user ) ) {
+				user = requestUserProfile( id );
+				userCache.TryAdd( id, user );
+			}
+
+			return await user;
+		}
+		private async Task<UserProfile> requestUserProfile ( int id ) {
+			var raw = await client.GetStringAsync( GetEndpoint( $"/api/profile/{id}" ) );
+			return JsonConvert.DeserializeObject<UserProfile>( raw );
+		}
+		public void FlushUserProfileCache ( int id ) {
+			userCache.TryRemove( id, out var _ );
+		}
+		public void FlushUserProfileCache () {
+			userCache.Clear();
+		}
+
 		private ConcurrentDictionary<string, Task<Texture>> mediaTextureCache = new();
 		public async Task<Texture> RequestImage ( string uri ) {
 			if ( !mediaTextureCache.TryGetValue( uri, out var task ) ) {
@@ -100,6 +160,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			FlushImageCache();
 			FlushRulesetListingCache();
 			FlushRulesetDetailCache();
+			FlushSubpageListingCache();
+			FlushSubpageCache();
+			FlushUserProfileCache();
 		}
 
 		public void InjectLocalRuleset ( LocalRulesetWikiEntry entry ) {
