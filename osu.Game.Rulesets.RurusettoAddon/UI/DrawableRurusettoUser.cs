@@ -8,21 +8,24 @@ using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
 	public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
-		[Resolved]
+		[Resolved, MaybeNull, NotNull]
 		protected RurusettoAPI API { get; private set; }
-		private UserDetail detail;
+		private UserDetail? detail;
 		private Container pfpContainer;
 		private Sprite pfp;
 
 		FillFlowContainer usernameFlow;
 		FillFlowContainer verticalFlow;
 		private bool isVerified;
-		Drawable verifiedDrawable;
+		Drawable? verifiedDrawable;
 
-		public DrawableRurusettoUser ( UserDetail detail, bool isVerified = false ) {
+		public DrawableRurusettoUser ( UserDetail? detail, bool isVerified = false ) {
 			this.isVerified = isVerified;
 			this.detail = detail;
 			AutoSizeAxes = Axes.X;
@@ -64,7 +67,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 							Anchor = Anchor.CentreLeft,
 							Origin = Anchor.CentreLeft,
 							AutoSizeAxes = Axes.Both,
-							Text = detail.Info?.Username ?? "Unknown",
+							Text = detail?.Info?.Username ?? "Unknown",
 							Margin = new MarginPadding { Right = 5 }
 						}
 					}
@@ -89,7 +92,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			isTall = false;
 
 			if ( verifiedDrawable != null ) {
-				( verifiedDrawable.Parent as Container<Drawable> ).Remove( verifiedDrawable );
+				( verifiedDrawable.Parent as Container<Drawable> )!.Remove( verifiedDrawable );
 			}
 
 			if ( isVerified ) {
@@ -106,7 +109,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			isTall = true;
 
 			if ( verifiedDrawable != null ) {
-				( verifiedDrawable.Parent as Container<Drawable> ).Remove( verifiedDrawable );
+				( verifiedDrawable.Parent as Container<Drawable> )!.Remove( verifiedDrawable );
 			}
 
 			if ( isVerified ) {
@@ -137,11 +140,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
-			( detail.Image is null ? API.RequestImage( StaticAPIResource.DefaultProfileImage ) : API.RequestImage( detail.Image ) ).ContinueWith( t => Schedule( () => {
+			( detail?.Image is null ? API.RequestImage( StaticAPIResource.DefaultProfileImage ) : API.RequestImage( detail.Image ) ).ContinueWith( t => Schedule( () => {
 				pfp.Texture = t.Result;
 			} ) );
 		}
 
-		public LocalisableString TooltipText => detail.Info?.Username ?? "";
+		public LocalisableString TooltipText => detail?.Info?.Username ?? "";
 	}
 }

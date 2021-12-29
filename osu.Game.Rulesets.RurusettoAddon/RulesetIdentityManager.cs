@@ -1,8 +1,10 @@
-﻿using osu.Framework.Platform;
+﻿using Humanizer;
+using osu.Framework.Platform;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -26,12 +28,19 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			return await identities.Value;
 		}
 
-		private async Task<List<RulesetIdentity>> requestIdentities () {
+		private async Task<IEnumerable<RulesetIdentity>> requestIdentities () {
 			List<RulesetIdentity> identities = new();
 
 			Dictionary<string, RulesetIdentity> webFilenames = new();
+			Dictionary<string, RulesetIdentity> webNames = new();
 			if ( API != null ) {
-				var listing = await API.RequestRulesetListing();
+				IEnumerable<ListingEntry> listing = Array.Empty<ListingEntry>();
+				try {
+					listing = await API.RequestRulesetListing();
+				}
+				catch ( Exception ) {
+					// TODO report this
+				}
 
 				foreach ( var entry in listing ) {
 					RulesetIdentity id;
@@ -39,7 +48,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						Source = Source.Web,
 						API = API,
 						Name = entry.Name,
-						Slug = entry.Slug
+						Slug = entry.Slug,
+						ListingEntry = entry
 					} );
 
 					var filename = Path.GetFileName( entry.Download );
@@ -48,6 +58,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						// TODO we might want to report if this ever happens
 						webFilenames.TryAdd( filename, id );
 					}
+					webNames.TryAdd( entry.Name.Humanize().ToLower(), id );
 				}
 			}
 
@@ -67,10 +78,10 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						var filename = Path.GetFileName( path );
 						if ( string.IsNullOrWhiteSpace( filename ) ) {
 							// TODO use type name as filename and if a file with that name isnt found report this
-							continue;
+							filename = "";
 						}
 
-						if ( webFilenames.TryGetValue( filename, out var id ) ) {
+						if ( webFilenames.TryGetValue( filename, out var id ) || webNames.TryGetValue( ruleset.Name.Humanize().ToLower(), out id ) ) {
 							id.IsPresentLocally = true;
 							id.LocalPath = path;
 							id.LocalRulesetInfo = ruleset;
@@ -99,11 +110,12 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 
 				if ( storage != null ) {
-					foreach ( var path in storage.GetFiles( "./rulesets", "*.dll" ) ) {
+					foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
 						if ( !localPaths.ContainsKey( storage.GetFullPath( path ) ) ) {
 							identities.Add( new() {
 								Source = Source.Local,
 								API = API,
+								Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 								IsPresentLocally = true,
 								HasImportFailed = true,
 								LocalPath = storage.GetFullPath( path )
@@ -113,11 +125,12 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 			else if ( storage != null ) {
-				foreach ( var path in storage.GetFiles( "./rulesets", "*.dll" ) ) {
+				foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
 					if ( !webFilenames.ContainsKey( Path.GetFileName( path ) ) ) {
 						identities.Add( new() {
 							Source = Source.Local,
 							API = API,
+							Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 							IsPresentLocally = true,
 							IsModifiable = true,
 							LocalPath = storage.GetFullPath( path )

@@ -19,10 +19,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		public readonly Bindable<DownloadState> State = new();
 
 		LoadingSpinner spinner;
-		ListingEntry entry;
+		RulesetIdentity ruleset;
 		Warning warning;
-		public RulesetDownloadButton ( ListingEntry entry ) : base( FontAwesome.Solid.Download ) {
-			this.entry = entry;
+		public RulesetDownloadButton ( RulesetIdentity ruleset ) : base( FontAwesome.Solid.Download ) {
+			this.ruleset = ruleset;
 			Action = onClick;
 		}
 
@@ -45,7 +45,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Y = -7
 			} );
 
-			DownloadManager.BindWith( entry.Slug, State );
+			DownloadManager.BindWith( ruleset, State );
 			State.BindValueChanged( v => Schedule( () => {
 				switch ( v.NewValue ) {
 					case DownloadState.Unknown:
@@ -111,12 +111,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				}
 			} ), true );
 
-			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( entry.Slug ) );
-			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( entry.Slug ) );
-			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( entry.Slug ) );
-			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( entry.Slug ) );
-			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( entry.Slug ) );
-			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( entry.Slug ) );
+			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
+			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
+			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
+			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
+			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
+			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
 
 			State.BindValueChanged( v => Schedule( () => {
 				ContextMenuItems = v.NewValue switch {
@@ -130,7 +130,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 					_ or DownloadState.Unknown => Array.Empty<MenuItem>()
 				};
 
-				if ( entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( entry.LocalRulesetInfo ) ) {
+				if ( !ruleset.IsModifiable ) {
 					ContextMenuItems = Array.Empty<MenuItem>();
 				}
 			} ), true );
@@ -142,14 +142,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		private IBindable<RulesetInfo> currentRuleset { get; set; }
 		
 		void onClick () {
-			if ( State.Value == DownloadState.AvailableLocally && currentRuleset is Bindable<RulesetInfo> current ) {
-				current.Value = DownloadManager.GetLocalRuleset( entry.Slug, entry.Name, "" );
+			if ( State.Value == DownloadState.AvailableLocally && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
+				current.Value = info;
 			}
 			else if ( State.Value == DownloadState.AvailableOnline ) {
-				DownloadManager.DownloadRuleset( entry.Slug );
+				DownloadManager.DownloadRuleset( ruleset );
 			}
 			else if ( State.Value == DownloadState.OutdatedAvailableLocally ) {
-				DownloadManager.UpdateRuleset( entry.Slug );
+				DownloadManager.UpdateRuleset( ruleset );
 			}
 		}
 

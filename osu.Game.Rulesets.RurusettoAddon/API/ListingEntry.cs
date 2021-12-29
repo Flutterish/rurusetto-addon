@@ -39,10 +39,5 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		/// </summary>
 		[JsonProperty( "can_download" )]
 		public bool CanDownload { get; init; }
-
-		// TODO move these out of the record
-		public RulesetInfo LocalRulesetInfo;
-		public bool IsLocal;
-		public bool FaliedImport;
 	}
 }

@@ -1,4 +1,5 @@
-﻿using osu.Framework.Allocation;
+﻿using Humanizer;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -30,11 +31,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected RurusettoAPI API { get; private set; }
 		[Resolved]
 		protected RulesetDownloadManager DownloadManager { get; private set; }
-		protected ListingEntry Entry;
+		protected RulesetIdentity Ruleset;
 		protected FillFlowContainer Tags;
 
-		public DrawableListingEntry ( ListingEntry entry ) {
-			Entry = entry;
+		public DrawableListingEntry ( RulesetIdentity ruleset ) {
+			Ruleset = ruleset;
 
 			RelativeSizeAxes = Axes.X;
 			Width = 0.3f;
@@ -100,7 +101,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						AutoSizeAxes = Axes.Both,
 						Spacing = new Vector2( 6, 0 )
 					},
-					new RulesetLogo( entry ) {
+					new RulesetLogo( ruleset ) {
 						Width = 80f * 14 / 20,
 						Height = 80f * 14 / 20,
 						Anchor = Anchor.CentreLeft,
@@ -114,10 +115,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						X = (80 + 12) * 14 / 20,
 						Children = new Drawable[] {
 							new OsuSpriteText {
-								Text = entry.Name.ToLower(),
+								Text = ruleset.Name.Humanize().ToLower(),
 								Font = OsuFont.GetFont( size: 24 )
 							},
-							new DrawableRurusettoUser( entry.Owner, entry.IsVerified ) {
+							new DrawableRurusettoUser( ruleset.Owner, ruleset.IsVerified ) {
 								Height = 34f * 14 / 20,
 								Origin = Anchor.BottomLeft,
 								Anchor = Anchor.BottomLeft
@@ -148,10 +149,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 									Child = new OsuTextFlowContainer( s => s.Font = OsuFont.GetFont( size: 14 ) ) {
 										AutoSizeAxes = Axes.Y,
 										RelativeSizeAxes = Axes.X,
-										Text = entry.Description
+										Text = ruleset.Description
 									}
 								},
-								new RulesetDownloadButton( entry ) {
+								new RulesetDownloadButton( ruleset ) {
 									RelativeSizeAxes = Axes.Both
 								}
 							}
@@ -165,40 +166,35 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 
 			bool isCoverLoaded = false;
 			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
-				if ( !isCoverLoaded ) {
+				// TODO load a default local cover defore the default web cover too
+				if ( !t.IsFaulted && !isCoverLoaded ) {
+					// TODO report failure
 					cover.Texture = t.Result;
 				}
 			} ) );
 
-			API.RequestRulesetDetail( Entry.Slug ).ContinueWith( t => {
+			Ruleset.RequestDetail().ContinueWith( t => Schedule( () => {
 				if ( t.Result.IsArchived ) {
-					Schedule( () => {
-						Tags.Add( DrawableTag.CreateArchived() );
-					} );
+					Tags.Add( DrawableTag.CreateArchived() );
 				}
-				if ( Entry.IsLocal ) {
-					Schedule( () => {
-						Tags.Add( DrawableTag.CreateLocal() );
-					} );
-					if ( Entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( Entry.LocalRulesetInfo ) ) {
-						Schedule( () => {
-							Tags.Add( DrawableTag.CreateHardCoded() );
-						} );
-					}
+				if ( Ruleset.Source == Source.Local ) {
+					Tags.Add( DrawableTag.CreateLocal() );
 				}
-				if ( Entry.FaliedImport ) {
-					Schedule( () => {
-						Tags.Add( DrawableTag.CreateFailledImport() );
-					} );
+				if ( Ruleset.LocalRulesetInfo != null && !Ruleset.IsModifiable ) {
+					Tags.Add( DrawableTag.CreateHardCoded() );
+				}
+				if ( Ruleset.HasImportFailed ) {
+					Tags.Add( DrawableTag.CreateFailledImport() );
 				}
 
-				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => {
-					Schedule( () => {
-						cover.Texture = t.Result;
-						isCoverLoaded = true;
-					} );
-				} );
-			} );
+				Ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
+					if ( t.Result is null )
+						return;
+
+					cover.Texture = t.Result;
+					isCoverLoaded = true;
+				} ) );
+			} ) );
 
 			Add( new HoverClickSounds() );
 		}
@@ -230,7 +226,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		}
 
 		protected override bool OnClick ( ClickEvent e ) {
-			Overlay.Header.SelectedRuleset.Value = Entry;
+			Overlay.Header.SelectedRuleset.Value = Ruleset;
 			
 			return true;
 		}

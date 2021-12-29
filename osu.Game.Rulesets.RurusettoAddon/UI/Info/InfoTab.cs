@@ -14,13 +14,13 @@ using System;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class InfoTab : OverlayTab {
 		FillFlowContainer content;
-		ListingEntry entry;
+		RulesetIdentity ruleset;
 		Sprite cover;
 		ContentMarkdown markdown;
 		protected FillFlowContainer Tags;
 		FillFlowContainer buttons;
-		public InfoTab ( ListingEntry entry ) {
-			this.entry = entry;
+		public InfoTab ( RulesetIdentity ruleset ) {
+			this.ruleset = ruleset;
 
 			AddInternal( content = new FillFlowContainer {
 				Direction = FillDirection.Full,
@@ -87,12 +87,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 						RelativeSizeAxes = Axes.X,
 						Height = 170f * 14 / 20,
 						Children = new Drawable[] {
-							new RulesetLogo( entry ) {
+							new RulesetLogo( ruleset ) {
 								Height = 170f * 14 / 20,
 								Width = 170f * 14 / 20,
 								Margin = new MarginPadding { Right = 16 }
 							},
-							new DrawableRurusettoUser( entry.Owner, entry.IsVerified ) {
+							new DrawableRurusettoUser( ruleset.Owner, ruleset.IsVerified ) {
 								Anchor = Anchor.BottomLeft,
 								Origin = Anchor.BottomLeft,
 								Height = 64f * 14 / 20,
@@ -108,7 +108,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 						Origin = Anchor.BottomRight,
 						Anchor = Anchor.BottomRight,
 						Children = new Drawable[] {
-							new RulesetDownloadButton( entry ) {
+							new RulesetDownloadButton( ruleset ) {
 								Height = 40f * 14 / 20,
 								Width = 200f * 14 / 20,
 								Anchor = Anchor.CentreRight,
@@ -119,30 +119,34 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				}
 			} );
 
-			content.Add( markdown = new ContentMarkdown( API.GetEndpoint( $"/rulesets/{entry.Slug}" ).AbsoluteUri ) {
+			content.Add( markdown = new ContentMarkdown( ruleset.Slug is null ? API.GetEndpoint( "/rulesets" ).AbsoluteUri : API.GetEndpoint( $"/rulesets/{ruleset.Slug}" ).AbsoluteUri ) {
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
 				Margin = new MarginPadding { Left = 6, Bottom = 400 }
 			} );
 
-			API.RequestRulesetDetail( entry.Slug ).ContinueWith( t => {
-				API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
+			ruleset.RequestDetail().ContinueWith( t => {
+				ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
+					if ( t.Result is null )
+						return;
+
 					cover.Texture = t.Result;
 				} ) );
 
 				Schedule( () => {
 					var entry = t.Result;
 					markdown.Text = entry.Content;
+
 					if ( entry.IsArchived ) {
 						Tags.Add( DrawableTag.CreateArchived( large: true ) );
 					}
-					if ( this.entry.IsLocal ) {
+					if ( ruleset.Source == Source.Local ) {
 						Tags.Add( DrawableTag.CreateLocal( large: true ) );
-						if ( this.entry.LocalRulesetInfo != null && DownloadManager.IsHardCodedRuleset( this.entry.LocalRulesetInfo ) ) {
-							Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
-						}
 					}
-					if ( this.entry.FaliedImport ) {
+					if ( ruleset.LocalRulesetInfo != null && !ruleset.IsModifiable ) {
+						Tags.Add( DrawableTag.CreateHardCoded( large: true ) );
+					}
+					if ( ruleset.HasImportFailed ) {
 						Tags.Add( DrawableTag.CreateFailledImport( large: true ) );
 					}
 

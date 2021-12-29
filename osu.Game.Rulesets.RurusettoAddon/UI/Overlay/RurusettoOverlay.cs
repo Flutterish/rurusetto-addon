@@ -24,7 +24,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		LoadingLayer loading;
 		OverlayTab currentTab;
 		ListingTab listing;
-		Dictionary<string, InfoTab> infoTabs = new();
+		Dictionary<RulesetIdentity, InfoTab> infoTabs = new();
 
 		[Cached]
 		new RurusettoAPI API = new();
@@ -34,13 +34,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			dep.CacheAs( ruleset );
 			dep.CacheAs( new RulesetIdentityManager( dep.Get<Storage>(), dep.Get<IRulesetStore>(), API ) );
-
-			if ( dep.TryGet<IRulesetStore>( out var store ) ) {	
-				dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>(), store ) );
-			}
-			else {
-				dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
-			}
+			dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
 
 			try {
 				var rulesetconfig = dep.Get<IRulesetConfigCache>();
@@ -87,9 +81,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			Add( loading = new LoadingLayer( dimBackground: true ) );
 
 			Header.SelectedRuleset.ValueChanged += v => {
-				if ( v.NewValue?.Slug == v.OldValue?.Slug )
-					return;
-
 				scroll.ScrollToStart();
 
 				currentTab.Hide();
@@ -98,10 +89,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					currentTab = listing;
 				}
 				else {
-					if ( !infoTabs.TryGetValue( v.NewValue.Slug, out var tab ) ) {
+					if ( !infoTabs.TryGetValue( v.NewValue, out var tab ) ) {
 						tab = new( v.NewValue );
 						tabContainer.Add( tab );
-						infoTabs.Add( v.NewValue.Slug, tab );
+						infoTabs.Add( v.NewValue, tab );
 					}
 
 					currentTab = tab;

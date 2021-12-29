@@ -1,4 +1,5 @@
-﻿using osu.Framework.Allocation;
+﻿using Humanizer;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Localisation;
 using osu.Game.Overlays;
@@ -15,18 +16,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			TabControl.AddItem( listingText );
 
 			SelectedRuleset.ValueChanged += v => {
-				if ( v.NewValue?.Slug == v.OldValue?.Slug )
+				if ( v.NewValue?.Name == v.OldValue?.Name )
 					return;
 
-				if ( v.OldValue != null ) {
-					TabControl.RemoveItem( v.OldValue.Name.ToLower() );
+				var oldName = v.OldValue?.Name.Humanize().ToLower();
+				var newName = v.NewValue?.Name.Humanize().ToLower();
+
+				if ( oldName != null ) {
+					TabControl.RemoveItem( oldName );
 				}
 
-				if ( v.NewValue != null ) {
-					TabControl.AddItem( v.NewValue.Name.ToLower() );
-					Current.Value = v.NewValue.Name.ToLower();
+				if ( newName != null ) {
+					TabControl.AddItem( newName ); // TODO this can fail if there are duplicate names
+					Current.Value = newName;
 
-					API.RequestRulesetDetail( v.NewValue.Slug ).ContinueWith( t => API.RequestImage( t.Result.CoverDark ).ContinueWith( t => Schedule( () => {
+					v.NewValue.RequestDetail().ContinueWith( t => v.NewValue.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
 						background.SetCover( t.Result );
 					} ) ) );
 				}
@@ -43,7 +47,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			};
 		}
 
-		public readonly Bindable<ListingEntry> SelectedRuleset = new();
+		public readonly Bindable<RulesetIdentity> SelectedRuleset = new();
 
 		protected override OverlayTitle CreateTitle ()
 			=> new HeaderTitle();
