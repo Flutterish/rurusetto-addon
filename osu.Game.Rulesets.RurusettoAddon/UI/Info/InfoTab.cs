@@ -50,6 +50,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
+			int loadsLeft = 2;
+
 			AddInternal( new Container {
 				RelativeSizeAxes = Axes.X,
 				Height = 220,
@@ -155,21 +157,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Margin = new MarginPadding { Bottom = 12 }
 			} );
 
-
-			subpageTabControl.AddItem( main = new() { Title = "Main" } );
-			subpageDrawables.Add( main, mainPageMarkdown = createMarkdownContainer() );
-			
-			if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
-				subpageTabControl.AddItem( changelog = new() { Title = "Changelog" } );
-				subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
-			}
-
-			ruleset.RequestSubpages().ContinueWith( t => Schedule( () => {
-				foreach ( var i in t.Result ) {
-					subpageTabControl.AddItem( i );
-				}
-			} ) );
-
 			content.Add( subpageContent = new Container {
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
@@ -195,7 +182,25 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				subpageContent.Add( subpage );
 			} );
 
-			subpageTabControl.Current.Value = main;
+			subpageDrawables.Add( main = new() { Title = "Main" }, mainPageMarkdown = createMarkdownContainer() );
+
+			ruleset.RequestSubpages().ContinueWith( t => Schedule( () => {
+				subpageTabControl.AddItem( main );
+
+				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
+					subpageTabControl.AddItem( changelog = new() { Title = "Changelog" } );
+					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
+				}
+
+				foreach ( var i in t.Result ) {
+					subpageTabControl.AddItem( i );
+				}
+
+				subpageTabControl.Current.Value = main;
+
+				if ( --loadsLeft <= 0 )
+					OnContentLoaded();
+			} ) );
 
 			bool isCoverLoaded = false;
 			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
@@ -252,7 +257,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 						Origin = Anchor.CentreRight
 					} );
 
-					OnContentLoaded();
+					if ( --loadsLeft <= 0 )
+						OnContentLoaded();
 				} );
 			} );
 		}
