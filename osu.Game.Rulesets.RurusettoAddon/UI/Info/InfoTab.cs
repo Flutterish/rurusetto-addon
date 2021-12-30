@@ -12,6 +12,7 @@ using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK;
 using System;
 using System.Collections.Generic;
@@ -116,7 +117,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 								Width = 170f * 14 / 20,
 								Margin = new MarginPadding { Right = 16 }
 							},
-							new DrawableRurusettoUser( ruleset.Owner, ruleset.IsVerified ) {
+							new DrawableRurusettoUser( Users.GetUserIdentity( ruleset.Owner ), ruleset.IsVerified ) {
 								Anchor = Anchor.BottomLeft,
 								Origin = Anchor.BottomLeft,
 								Height = 64f * 14 / 20,

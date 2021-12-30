@@ -15,24 +15,31 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		public RurusettoOverlayHeader () {
 			TabControl.AddItem( listingText );
 
-			SelectedRuleset.ValueChanged += v => {
-				if ( v.NewValue?.Name == v.OldValue?.Name )
-					return;
+			SelectedInfo.ValueChanged += v => {
+				if ( v.OldValue != null )
+					TabControl.RemoveItem( selectedTab );
 
-				var oldName = v.OldValue?.Name.Humanize().ToLower();
-				var newName = v.NewValue?.Name.Humanize().ToLower();
+				if ( v.NewValue is RulesetIdentity ruleset ) {
+					var newName = ruleset.Name.Humanize().ToLower();
 
-				if ( oldName != null ) {
-					TabControl.RemoveItem( oldName );
-				}
+					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names
+					Current.Value = selectedTab;
 
-				if ( newName != null ) {
-					TabControl.AddItem( newName ); // TODO this can fail if there are duplicate names
-					Current.Value = newName;
-
-					v.NewValue.RequestDetail().ContinueWith( t => v.NewValue.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
+					ruleset.RequestDetail().ContinueWith( t => ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
 						background.SetCover( t.Result );
 					} ) ) );
+				}
+				else if ( v.NewValue is UserIdentity user ) {
+					TabControl.AddItem( selectedTab = $"user" );
+					Current.Value = selectedTab;
+
+					user.RequestDetail().ContinueWith( t => Schedule( () => {
+						if ( Current.Value == selectedTab ) {
+							TabControl.RemoveItem( selectedTab );
+							TabControl.AddItem( selectedTab = $"{t.Result.Username} (user)" );
+							Current.Value = selectedTab;
+						}
+					} ) );
 				}
 				else {
 					Current.Value = listingText;
@@ -42,12 +49,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			Current.ValueChanged += v => {
 				if ( v.NewValue == listingText ) {
-					SelectedRuleset.Value = null;
+					SelectedInfo.Value = null;
 				}
 			};
 		}
 
-		public readonly Bindable<RulesetIdentity> SelectedRuleset = new();
+		/// <summary>
+		/// Can be either <see cref="RulesetIdentity"/>, <see cref="UserIdentity"/> or <see langword="null"/>
+		/// </summary>
+		public readonly Bindable<object> SelectedInfo = new();
+		LocalisableString selectedTab;
 
 		protected override OverlayTitle CreateTitle ()
 			=> new HeaderTitle();

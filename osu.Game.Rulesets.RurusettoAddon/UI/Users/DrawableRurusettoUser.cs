@@ -4,10 +4,12 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
@@ -15,19 +17,22 @@ using System.Diagnostics.CodeAnalysis;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 	public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		[Resolved, MaybeNull, NotNull]
-		protected RurusettoAPI API { get; private set; }
-		private UserDetail? detail;
+		protected RurusettoOverlay Overlay { get; private set; }
+
+		private UserIdentity user;
 		private Container pfpContainer;
 		private Sprite pfp;
 
 		FillFlowContainer usernameFlow;
+		LocalisableString usernameText;
+		OsuTextFlowContainer username;
 		FillFlowContainer verticalFlow;
 		private bool isVerified;
 		Drawable? verifiedDrawable;
 
-		public DrawableRurusettoUser ( UserDetail? detail, bool isVerified = false ) {
+		public DrawableRurusettoUser ( UserIdentity user, bool isVerified = false ) {
 			this.isVerified = isVerified;
-			this.detail = detail;
+			this.user = user;
 			AutoSizeAxes = Axes.X;
 
 			var color2 = Colour4.FromHex( "#394642" );
@@ -62,12 +67,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 						Anchor = Anchor.CentreLeft,
 						Origin = Anchor.CentreLeft,
 						Spacing = new osuTK.Vector2( 0, 4 ),
-						Child = new OsuTextFlowContainer {
+						Child = username = new OsuTextFlowContainer {
 							TextAnchor = Anchor.CentreLeft,
 							Anchor = Anchor.CentreLeft,
 							Origin = Anchor.CentreLeft,
 							AutoSizeAxes = Axes.Both,
-							Text = detail?.Info?.Username ?? "Unknown",
 							Margin = new MarginPadding { Right = 5 }
 						}
 					}
@@ -140,11 +144,24 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
-			( detail?.Image is null ? API.RequestImage( StaticAPIResource.DefaultProfileImage ) : API.RequestImage( detail.Image ) ).ContinueWith( t => Schedule( () => {
+			user.RequestDetail().ContinueWith( t => Schedule( () => {
+				var profile = t.Result;
+				usernameText = profile.Username ?? "";
+				username.Text = profile.Username ?? "Unknown";
+			} ) );
+
+			user.RequestProfilePicture().ContinueWith( t => Schedule( () => {
 				pfp.Texture = t.Result;
 			} ) );
 		}
 
-		public LocalisableString TooltipText => detail?.Info?.Username ?? "";
+		public LocalisableString TooltipText => usernameText;
+
+		protected override bool OnClick ( ClickEvent e ) {
+			if ( user.HasProfile )
+				Overlay.Header.SelectedInfo.Value = user;
+
+			return true;
+		}
 	}
 }

@@ -24,7 +24,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			Task task = null;
 			// TODO we should allow to refresh identities too, but we would need to "update" existing ones
 			// rather than create new ones since they are reference based and we use as such
-			task = refreshTask = Identities.RequestIdentities().ContinueWith( t => {
+			task = refreshTask = Rulesets.RequestIdentities().ContinueWith( t => {
 				Schedule( () => {
 					Overlay.FinishLoadiong( this );
 					if ( task != refreshTask )

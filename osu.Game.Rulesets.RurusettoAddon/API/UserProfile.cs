@@ -22,5 +22,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		/// <summary> osu! account username of target user (Can be blank) </summary>
 		[JsonProperty( "osu_username" )]
 		public string OsuUsername { get; init; }
+
+		public string Username => Info?.Username;
+
+		public UserDetail Detail => new() {
+			ID = ID,
+			ProfilePicture = ProfilePicture,
+			Info = Info
+		};
 	}
 }

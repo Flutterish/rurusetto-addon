@@ -11,6 +11,7 @@ using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI.Info;
 using osu.Game.Rulesets.RurusettoAddon.UI.Listing;
+using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using System;
 using System.Collections.Generic;
 
@@ -26,6 +27,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		OverlayTab currentTab;
 		ListingTab listing;
 		Dictionary<RulesetIdentity, InfoTab> infoTabs = new();
+		Dictionary<UserIdentity, UserTab> userTabs = new();
 
 		[Cached]
 		new RurusettoAPI API = new();
@@ -35,6 +37,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			dep.CacheAs( ruleset );
 			dep.CacheAs( new RulesetIdentityManager( dep.Get<Storage>(), dep.Get<IRulesetStore>(), API ) );
+			dep.CacheAs( new UserIdentityManager( API ) );
 			dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
 
 			try {
@@ -81,28 +84,40 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			Add( loading = new LoadingLayer( dimBackground: true ) );
 
-			Header.SelectedRuleset.ValueChanged += v => {
-				scroll.ScrollToStart();
+			Header.SelectedInfo.ValueChanged += _ => onSelectedInfoChanged();
+		}
 
-				currentTab.Hide();
-
-				if ( v.NewValue == null ) {
-					currentTab = listing;
-				}
-				else {
-					if ( !infoTabs.TryGetValue( v.NewValue, out var tab ) ) {
-						tab = new( v.NewValue );
-						tabContainer.Add( tab );
-						infoTabs.Add( v.NewValue, tab );
-					}
-
-					currentTab = tab;
+		private void onSelectedInfoChanged () {
+			if ( Header.SelectedInfo.Value is RulesetIdentity ruleset ) {
+				if ( !infoTabs.TryGetValue( ruleset, out var tab ) ) {
+					infoTabs.Add( ruleset, tab = new( ruleset ) );
+					tabContainer.Add( tab );
 				}
 
-				currentTab.Show();
-				tabContainer.ChangeChildDepth( currentTab, (float)-Clock.CurrentTime );
-				updateLoading();
-			};
+				presentTab( tab );
+			}
+			else if ( Header.SelectedInfo.Value is UserIdentity user ) {
+				if ( !userTabs.TryGetValue( user, out var tab ) ) {
+					userTabs.Add( user, tab = new( user ) );
+					tabContainer.Add( tab );
+				}
+
+				presentTab( tab );
+			}
+			else {
+				presentTab( listing );
+			}
+		}
+
+		private void presentTab ( OverlayTab tab ) {
+			scroll.ScrollToStart();
+			currentTab.Hide();
+
+			currentTab = tab;
+
+			currentTab.Show();
+			tabContainer.ChangeChildDepth( currentTab, (float)-Clock.CurrentTime );
+			updateLoading();
 		}
 
 		protected override void PopIn () {
@@ -116,11 +131,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			loadingTabs.Clear();
 			updateLoading();
-			Header.SelectedRuleset.Value = null;
+			Header.SelectedInfo.Value = null;
 			foreach ( var i in infoTabs ) {
 				tabContainer.Remove( i.Value );
 				i.Value.Dispose();
 			}
+			userTabs.Clear();
 			infoTabs.Clear();
 			listing.ReloadListing();
 		}
@@ -160,8 +176,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			=> new();
 
 		public override bool OnPressed ( KeyBindingPressEvent<GlobalAction> e ) {
-			if ( e.Action == GlobalAction.Back && Header.SelectedRuleset.Value != null ) {
-				Header.SelectedRuleset.Value = null;
+			if ( e.Action == GlobalAction.Back && Header.SelectedInfo.Value != null ) {
+				Header.SelectedInfo.Value = null;
 				return true;
 			}
 

@@ -13,6 +13,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
+using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
@@ -31,6 +32,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected RurusettoAPI API { get; private set; }
 		[Resolved]
 		protected RulesetDownloadManager DownloadManager { get; private set; }
+		[Resolved]
+		protected UserIdentityManager Users { get; private set; }
 		protected RulesetIdentity Ruleset;
 		protected FillFlowContainer Tags;
 
@@ -44,14 +47,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			CornerRadius = 8;
 			AlwaysPresent = true;
 
-			AddInternal( content = new() {
-				RelativeSizeAxes = Axes.Both
-			} );
-
 			Margin = new MarginPadding {
 				Horizontal = 8,
 				Vertical = 8
 			};
+
+			AddInternal( content = new() {
+				RelativeSizeAxes = Axes.Both
+			} );
+		}
+		protected override void LoadComplete () {
+			base.LoadComplete();
 
 			var color = Colour4.FromHex( "#2E3835" );
 			var color2 = Colour4.FromHex( "#394642" );
@@ -101,7 +107,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						AutoSizeAxes = Axes.Both,
 						Spacing = new Vector2( 6, 0 )
 					},
-					new RulesetLogo( ruleset ) {
+					new RulesetLogo( Ruleset ) {
 						Width = 80f * 14 / 20,
 						Height = 80f * 14 / 20,
 						Anchor = Anchor.CentreLeft,
@@ -115,10 +121,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						X = (80 + 12) * 14 / 20,
 						Children = new Drawable[] {
 							new OsuSpriteText {
-								Text = ruleset.Name.Humanize().ToLower(),
+								Text = Ruleset.Name.Humanize().ToLower(),
 								Font = OsuFont.GetFont( size: 24 )
 							},
-							new DrawableRurusettoUser( ruleset.Owner, ruleset.IsVerified ) {
+							new DrawableRurusettoUser( Users.GetUserIdentity( Ruleset.Owner ), Ruleset.IsVerified ) {
 								Height = 34f * 14 / 20,
 								Origin = Anchor.BottomLeft,
 								Anchor = Anchor.BottomLeft
@@ -149,10 +155,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 									Child = new OsuTextFlowContainer( s => s.Font = OsuFont.GetFont( size: 14 ) ) {
 										AutoSizeAxes = Axes.Y,
 										RelativeSizeAxes = Axes.X,
-										Text = ruleset.Description
+										Text = Ruleset.Description
 									}
 								},
-								new RulesetDownloadButton( ruleset ) {
+								new RulesetDownloadButton( Ruleset ) {
 									RelativeSizeAxes = Axes.Both
 								}
 							}
@@ -160,9 +166,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 					}
 				}
 			} );
-		}
-		protected override void LoadComplete () {
-			base.LoadComplete();
 
 			bool isCoverLoaded = false;
 			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
@@ -215,7 +218,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		}
 
 		protected override bool OnClick ( ClickEvent e ) {
-			Overlay.Header.SelectedRuleset.Value = Ruleset;
+			Overlay.Header.SelectedInfo.Value = Ruleset;
 			
 			return true;
 		}
