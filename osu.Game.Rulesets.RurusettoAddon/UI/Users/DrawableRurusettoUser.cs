@@ -8,6 +8,9 @@ using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
+using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using System.Diagnostics.CodeAnalysis;
@@ -19,6 +22,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		[Resolved, MaybeNull, NotNull]
 		protected RurusettoOverlay Overlay { get; private set; }
 
+		[Resolved( canBeNull: true )]
+		protected UserProfileOverlay? ProfileOverlay { get; private set; }
+		[Resolved( canBeNull: true )]
+		protected IAPIProvider? OnlineAPI { get; private set; }
+
 		private UserIdentity user;
 		private Container pfpContainer;
 		private Sprite pfp;
@@ -29,6 +37,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		FillFlowContainer verticalFlow;
 		private bool isVerified;
 		Drawable? verifiedDrawable;
+		UserProfile? profile;
 
 		public DrawableRurusettoUser ( UserIdentity user, bool isVerified = false ) {
 			this.isVerified = isVerified;
@@ -145,7 +154,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			base.LoadComplete();
 
 			user.RequestDetail().ContinueWith( t => Schedule( () => {
-				var profile = t.Result;
+				profile = t.Result;
 				usernameText = profile.Username ?? "";
 				username.Text = profile.Username ?? "Unknown";
 			} ) );
@@ -158,8 +167,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		public LocalisableString TooltipText => usernameText;
 
 		protected override bool OnClick ( ClickEvent e ) {
-			if ( user.HasProfile )
-				Overlay.Header.SelectedInfo.Value = user;
+			if ( profile?.OsuUsername is string osuUsername && ProfileOverlay != null && OnlineAPI != null ) {
+				var request = new GetUserRequest( osuUsername );
+				request.Success += v => {
+					ProfileOverlay.ShowUser( v );
+				};
+				request.Failure += v => {
+					// :(
+				};
+				OnlineAPI.PerformAsync( request );
+			}
+
+			//if ( user.HasProfile )
+			//	Overlay.Header.SelectedInfo.Value = user;
 
 			return true;
 		}
