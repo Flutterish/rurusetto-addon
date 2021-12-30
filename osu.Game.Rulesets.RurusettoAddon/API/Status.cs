@@ -14,7 +14,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		[JsonProperty( "pre_realase" )]
 		public bool IsPrerelease { get; init; }
 		/// <summary> The latest changelog of the ruleset in markdown format. </summary>
-		[JsonProperty( "change_log" )]
+		[JsonProperty( "changelog" )]
 		public string Changelog { get; init; }
 		/// <summary> The size of the latest release file in bytes. </summary>
 		[JsonProperty( "file_size" )]

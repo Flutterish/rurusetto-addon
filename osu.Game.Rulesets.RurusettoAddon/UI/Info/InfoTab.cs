@@ -5,6 +5,8 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Events;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
@@ -12,15 +14,19 @@ using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osuTK;
 using System;
+using System.Collections.Generic;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class InfoTab : OverlayTab {
 		FillFlowContainer content;
 		RulesetIdentity ruleset;
 		Sprite cover;
-		ContentMarkdown markdown;
+		Container subpageContent;
+		ContentMarkdown mainPageMarkdown;
+		ContentMarkdown changelogMarkdown;
 		protected FillFlowContainer Tags;
 		protected FillFlowContainer Status;
+		SubpageSectionTabControl subpageTabControl;
 		FillFlowContainer buttons;
 		public InfoTab ( RulesetIdentity ruleset ) {
 			this.ruleset = ruleset;
@@ -38,6 +44,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		private void load ( OverlayColourProvider colourProvider ) {
 			this.colourProvider = colourProvider;
 		}
+
+		SubpageListingEntry main;
+		SubpageListingEntry changelog;
+		Dictionary<SubpageListingEntry, Drawable> subpageDrawables = new();
 
 		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
@@ -132,11 +142,59 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				}
 			} );
 
-			content.Add( markdown = new ContentMarkdown( ruleset.Slug is null ? API.GetEndpoint( "/rulesets" ).AbsoluteUri : API.GetEndpoint( $"/rulesets/{ruleset.Slug}" ).AbsoluteUri ) {
+			content.Add( new Container {
+				Height = 28,
+				RelativeSizeAxes = Axes.X,
+				Child = new Container( ) {
+					RelativeSizeAxes = Axes.Both,
+					Padding = new MarginPadding { Horizontal = 6 },
+					Y = -6,
+					Child = subpageTabControl = new() {
+						RelativeSizeAxes = Axes.X
+					}
+				},
+				Margin = new MarginPadding { Bottom = 12 }
+			} );
+
+
+			subpageTabControl.AddItem( main = new() { Title = "Main" } );
+			subpageDrawables.Add( main, mainPageMarkdown = createMarkdownContainer() );
+			
+			if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
+				subpageTabControl.AddItem( changelog = new() { Title = "Changelog" } );
+				subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
+			}
+
+			ruleset.RequestSubpages().ContinueWith( t => Schedule( () => {
+				foreach ( var i in t.Result ) {
+					subpageTabControl.AddItem( i );
+				}
+			} ) );
+
+			content.Add( subpageContent = new Container {
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
-				Margin = new MarginPadding { Left = 6, Bottom = 400 }
+				Margin = new MarginPadding { Top = 16, Bottom = 400 }
 			} );
+
+			subpageTabControl.Current.BindValueChanged( v => {
+				subpageContent.Clear( disposeChildren: false );
+
+				if ( !subpageDrawables.TryGetValue( v.NewValue, out var subpage ) ) {
+					var content = createMarkdownContainer();
+
+					ruleset.RequestSubpage( v.NewValue.Slug ).ContinueWith( t => Schedule( () => {
+						content.Text = t.Result.Content ?? "";
+					} ) );
+
+					subpage = content;
+					subpageDrawables.Add( v.NewValue, content );
+				}
+
+				subpageContent.Add( subpage );
+			} );
+
+			subpageTabControl.Current.Value = main;
 
 			bool isCoverLoaded = false;
 			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
@@ -158,7 +216,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 				Schedule( () => {
 					var entry = t.Result;
-					markdown.Text = entry.Content;
+					mainPageMarkdown.Text = entry.Content;
 
 					Tags.AddRange( ruleset.GenerateTags( t.Result, large: true, includePlayability: false ) );
 					if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
@@ -198,11 +256,56 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			} );
 		}
 
+		private ContentMarkdown createMarkdownContainer () {
+			return new ContentMarkdown( ruleset.Slug is null ? API.GetEndpoint( "/rulesets" ).AbsoluteUri : API.GetEndpoint( $"/rulesets/{ruleset.Slug}" ).AbsoluteUri ) {
+				RelativeSizeAxes = Axes.X,
+				AutoSizeAxes = Axes.Y
+			};
+		}
+
 		private class ContentMarkdown : OsuMarkdownContainer {
 			public ContentMarkdown ( string address ) {
 				DocumentUrl = address;
 				var uri = new Uri( address );
 				RootUrl = $"{uri.Scheme}://{uri.Host}";
+			}
+		}
+
+		// https://github.com/ppy/osu/blob/2fd4647e6eeb7c08861d8e526af97aff5c0e39f6/osu.Game/Overlays/UserProfileOverlay.cs#L153
+		private class SubpageSectionTabControl : OverlayTabControl<SubpageListingEntry> {
+			private const float bar_height = 2;
+
+			public SubpageSectionTabControl () {
+				TabContainer.RelativeSizeAxes &= ~Axes.X;
+				TabContainer.AutoSizeAxes |= Axes.X;
+				TabContainer.Anchor |= Anchor.x1;
+				TabContainer.Origin |= Anchor.x1;
+
+				Height = 36 + bar_height;
+				BarHeight = bar_height;
+			}
+
+			protected override TabItem<SubpageListingEntry> CreateTabItem ( SubpageListingEntry value ) => new SubpageSectionTabItem( value ) {
+				AccentColour = AccentColour,
+			};
+
+			[BackgroundDependencyLoader]
+			private void load ( OverlayColourProvider colourProvider ) {
+				AccentColour = colourProvider.Highlight1;
+			}
+
+			protected override bool OnClick ( ClickEvent e ) => true;
+
+			protected override bool OnHover ( HoverEvent e ) => true;
+
+			private class SubpageSectionTabItem : OverlayTabItem {
+				public SubpageSectionTabItem ( SubpageListingEntry value ) : base( value ) {
+					Text.Text = value.Title;
+					Text.Font = Text.Font.With( size: 16 );
+					Text.Margin = new MarginPadding { Bottom = 10 + bar_height };
+					Bar.ExpandedSize = 10;
+					Bar.Margin = new MarginPadding { Bottom = bar_height };
+				}
 			}
 		}
 	}

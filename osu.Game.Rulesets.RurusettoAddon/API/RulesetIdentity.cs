@@ -123,6 +123,32 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
+		public async Task<IEnumerable<SubpageListingEntry>> RequestSubpages () {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				try {
+					return await API.RequestSubpageListing( Slug );
+				}
+				catch ( Exception ) {
+					// TODO report this
+				}
+			}
+
+			return Array.Empty<SubpageListingEntry>();
+		}
+
+		public async Task<Subpage> RequestSubpage ( string subpageSlug ) {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) && !string.IsNullOrWhiteSpace( subpageSlug ) ) {
+				try {
+					return await API.RequestSubpage( Slug, subpageSlug );
+				}
+				catch ( Exception ) {
+					// TODO report this
+				}
+			}
+
+			return new() { Content = "Failed to fetch the subpage." };
+		}
+
 		public async Task<Texture?> RequestDarkCover ( RulesetDetail detail ) {
 			if ( API is null )
 				return null;
