@@ -2,7 +2,6 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
-using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
@@ -17,7 +16,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 	[Cached]
 	public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 		FillFlowContainer content;
-		OsuScrollContainer scroll;
+		OverlayScrollContainer scroll;
 		Container tabContainer;
 		RurusettoAddonRuleset ruleset;
 
@@ -54,7 +53,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			Add( new OsuContextMenuContainer {
 				RelativeSizeAxes = Axes.Both,
-				Child = scroll = new OsuScrollContainer( Direction.Vertical ) {
+				Child = scroll = new OverlayScrollContainer {
 					RelativeSizeAxes = Axes.Both,
 					ScrollbarVisible = false,
 
@@ -124,19 +123,30 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			listing.ReloadListing();
 		}
 
-		HashSet<OverlayTab> loadingTabs = new();
+		Dictionary<OverlayTab, int> loadingTabs = new();
 		public void StartLoading ( OverlayTab tab ) {
-			loadingTabs.Add( tab );
+			if ( loadingTabs.ContainsKey( tab ) ) {
+				loadingTabs[ tab ]++;
+			}
+			else {
+				loadingTabs.Add( tab, 1 );
+			}
 			updateLoading();
 		}
 
 		public void FinishLoadiong ( OverlayTab tab ) {
-			loadingTabs.Remove( tab );
+			if ( loadingTabs.ContainsKey( tab ) ) {
+				loadingTabs[ tab ]--;
+
+				if ( loadingTabs[ tab ] <= 0 ) {
+					loadingTabs.Remove( tab );
+				}
+			}
 			updateLoading();
 		}
 
 		private void updateLoading () {
-			if ( loadingTabs.Contains( currentTab ) ) {
+			if ( loadingTabs.ContainsKey( currentTab ) ) {
 				loading.Show();
 			}
 			else {

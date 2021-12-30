@@ -26,6 +26,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			// rather than create new ones since they are reference based and we use as such
 			task = refreshTask = Identities.RequestIdentities().ContinueWith( t => {
 				Schedule( () => {
+					Overlay.FinishLoadiong( this );
 					if ( task != refreshTask )
 						return;
 
@@ -35,13 +36,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 							Origin = Anchor.TopCentre
 						} );
 					}
-
-					OnContentLoaded();
 				} );
 			} );
 		}
 
-		protected override bool RequiresLoading => true;
+		protected override bool RequiresLoading => false;
 		protected override void LoadContent () {
 			ReloadListing();
 		}
