@@ -1,9 +1,11 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Events;
 using osu.Framework.Platform;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
@@ -156,5 +158,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 		protected override RurusettoOverlayHeader CreateHeader ()
 			=> new();
+
+		public override bool OnPressed ( KeyBindingPressEvent<GlobalAction> e ) {
+			if ( e.Action == GlobalAction.Back && Header.SelectedRuleset.Value != null ) {
+				Header.SelectedRuleset.Value = null;
+				return true;
+			}
+
+			return base.OnPressed( e );
+		}
 	}
 }
