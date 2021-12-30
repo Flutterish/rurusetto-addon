@@ -4,7 +4,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class IssueButton : GrayButton {
 		RulesetDetail entry;
 		public IssueButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Exclamation ) {
@@ -12,7 +12,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			TooltipText = "Report Issue";
 		}
 
-		[BackgroundDependencyLoader(permitNulls: true)]
+		[BackgroundDependencyLoader( permitNulls: true )]
 		private void load ( OsuGame game ) {
 			Background.Colour = Colour4.FromHex( "#FF6060" );
 			Icon.Colour = Colour4.White;

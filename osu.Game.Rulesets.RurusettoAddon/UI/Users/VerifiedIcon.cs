@@ -6,7 +6,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osuTK.Graphics;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 	public class VerifiedIcon : CompositeDrawable, IHasTooltip {
 		SpriteIcon icon;
 		public VerifiedIcon () {

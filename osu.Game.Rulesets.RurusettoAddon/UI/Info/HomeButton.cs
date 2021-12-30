@@ -4,7 +4,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class HomeButton : GrayButton {
 		RulesetDetail entry;
 		public HomeButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Home ) {
@@ -12,7 +12,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			TooltipText = "Home Page";
 		}
 
-		[BackgroundDependencyLoader(permitNulls: true)]
+		[BackgroundDependencyLoader( permitNulls: true )]
 		private void load ( OsuGame game ) {
 			Background.Colour = Colour4.FromHex( "#6291D7" );
 			Icon.Colour = Colour4.White;

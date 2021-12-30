@@ -12,7 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 	public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		[Resolved, MaybeNull, NotNull]
 		protected RurusettoAPI API { get; private set; }
