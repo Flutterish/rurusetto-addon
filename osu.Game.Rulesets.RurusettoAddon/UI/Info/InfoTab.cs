@@ -173,7 +173,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			content.Add( subpageContent = new Container {
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
-				Margin = new MarginPadding { Top = 16 }
+				Margin = new MarginPadding { Top = 16, Bottom = 400 }
 			} );
 
 			subpageTabControl.Current.BindValueChanged( v => {
