@@ -217,12 +217,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				}
 			}, failure: () => { /* TODO report this */ } );
 
-			ruleset.RequestDetail( detail => {
-				ruleset.RequestDarkCover( detail, texture => {
-					isCoverLoaded = true;
-					cover.Texture = texture;
-				}, failure: () => { /* TODO report this */ } );
+			ruleset.RequestDarkCover( texture => {
+				isCoverLoaded = true;
+				cover.Texture = texture;
+			}, failure: () => { /* TODO report this */ } );
 
+			ruleset.RequestDetail( detail => {
 				mainPageMarkdown.Text = detail.Content;
 
 				Tags.AddRange( ruleset.GenerateTags( detail, large: true, includePlayability: false ) );

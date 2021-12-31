@@ -84,11 +84,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 						Texture = logo
 					} );
 				}, () => {
-					failure( createDefault() );
+					failure?.Invoke( createDefault() );
 				} );
 			}
 			else {
-				failure( createDefault() );
+				failure?.Invoke( createDefault() );
 			}
 		}
 
@@ -140,18 +140,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		// TODO remove this "detail" requirement
-		public void RequestDarkCover ( RulesetDetail detail, Action<Texture> success, Action? failure = null ) {
+		public void RequestDarkCover ( Action<Texture> success, Action? failure = null ) {
 			if ( API is null ) {
 				failure?.Invoke();
 			}
 			else {
-				if ( string.IsNullOrWhiteSpace( detail.CoverDark ) ) {
-					API.RequestImage( StaticAPIResource.DefaultCover, success, failure );
-				}
-				else {
-					API.RequestImage( detail.CoverDark, success, failure );
-				}
+				RequestDetail( detail => {
+					if ( string.IsNullOrWhiteSpace( detail.CoverDark ) ) {
+						API.RequestImage( StaticAPIResource.DefaultCover, success, failure );
+					}
+					else {
+						API.RequestImage( detail.CoverDark, success, failure );
+					}
+				}, failure );
 			}
 		}
 

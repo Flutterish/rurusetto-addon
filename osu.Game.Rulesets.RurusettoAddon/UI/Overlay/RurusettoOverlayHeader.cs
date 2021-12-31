@@ -25,10 +25,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names
 					Current.Value = selectedTab;
 
-					ruleset.RequestDetail( detail => {
-						ruleset.RequestDarkCover( detail, texture => {
-							background.SetCover( texture );
-						}, failure: () => { /* TODO report this */ } );
+					ruleset.RequestDarkCover( texture => {
+						background.SetCover( texture );
 					}, failure: () => { /* TODO report this */ } );
 				}
 				else if ( v.NewValue is UserIdentity user ) {

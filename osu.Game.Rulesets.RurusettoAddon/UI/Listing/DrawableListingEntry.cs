@@ -175,13 +175,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				}
 			}, failure: () => { /* TODO report this */ } );
 
+			Ruleset.RequestDarkCover( texture => {
+				cover.Texture = texture;
+				isCoverLoaded = true;
+			}, failure: () => { /* TODO report this */ } );
+
 			Ruleset.RequestDetail( detail => {
 				Tags.AddRange( Ruleset.GenerateTags( detail ) );
-
-				Ruleset.RequestDarkCover( detail, texture => {
-					cover.Texture = texture;
-					isCoverLoaded = true;
-				}, failure: () => { /* TODO report this */ } );
 			}, failure: () => { /* TODO report this */ } );
 
 			Add( new HoverClickSounds() );
