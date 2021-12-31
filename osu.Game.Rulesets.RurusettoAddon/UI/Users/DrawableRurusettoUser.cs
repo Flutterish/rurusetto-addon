@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
@@ -16,17 +17,15 @@ using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 	public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		[Resolved, MaybeNull, NotNull]
 		protected RurusettoOverlay Overlay { get; private set; }
 
 		[Resolved( canBeNull: true )]
-		protected UserProfileOverlay? ProfileOverlay { get; private set; }
+		protected UserProfileOverlay ProfileOverlay { get; private set; }
 		[Resolved( canBeNull: true )]
-		protected IAPIProvider? OnlineAPI { get; private set; }
+		protected IAPIProvider OnlineAPI { get; private set; }
 
 		private UserIdentity user;
 		private Container pfpContainer;
@@ -37,15 +36,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		OsuTextFlowContainer username;
 		FillFlowContainer verticalFlow;
 		private bool isVerified;
-		Drawable? verifiedDrawable;
-		UserProfile? profile;
+		Drawable verifiedDrawable;
+		UserProfile profile;
 
 		public DrawableRurusettoUser ( UserIdentity user, bool isVerified = false ) {
 			this.isVerified = isVerified;
 			this.user = user;
 			AutoSizeAxes = Axes.X;
+		}
 
-			var color2 = Colour4.FromHex( "#394642" );
+		[Resolved]
+		OverlayColourProvider colours { get; set; }
+
+		[BackgroundDependencyLoader]
+		private void load () {
+			var color = colours.Background3;
 
 			AddInternal( new HoverClickSounds( HoverSampleSet.Button ) );
 			AddInternal( usernameFlow = new FillFlowContainer {
@@ -61,7 +66,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 								RelativeSizeAxes = Axes.Both,
 								FillAspectRatio = 1,
 								FillMode = FillMode.Fill,
-								Colour = color2
+								Colour = color
 							},
 							pfp = new Sprite {
 								RelativeSizeAxes = Axes.Both,
@@ -141,8 +146,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 							Width = 15
 						},
 						new OsuSpriteText {
-							Colour = Colour4.HotPink,
+							Colour = colours.Colour1,
 							Text = "Verified Ruleset Creator",
+							Font = OsuFont.GetFont( weight: FontWeight.Bold ),
 							Anchor = Anchor.CentreLeft,
 							Origin = Anchor.CentreLeft,
 							Margin = new MarginPadding { Left = 5 }

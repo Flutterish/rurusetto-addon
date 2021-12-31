@@ -8,7 +8,9 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
+using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using System;
 
@@ -28,12 +30,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			Action = onClick;
 		}
 
+		[Resolved]
+		private OsuColour colours { get; set; }
+
+		[Resolved]
+		private OverlayColourProvider overlayColours { get; set; }
+
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
 			Icon.Colour = Colour4.White;
 			Icon.Scale = new osuTK.Vector2( 1.5f );
-			Background.Colour = Colour4.FromHex( "#394642" );
+			Background.Colour = overlayColours.Background3;
 
 			Add( spinner = new LoadingSpinner {
 				Scale = new osuTK.Vector2( 0.45f )
@@ -75,7 +83,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Icon.Alpha = 0;
 				spinner.Alpha = 1;
 				this.FadeTo( 1f, 200 );
-				Background.FadeColour( Colour4.FromHex( "#6291D7" ), 200, Easing.InOutExpo );
+				Background.FadeColour( colours.Blue3, 200, Easing.InOutExpo );
 				TooltipText = "Downloading...";
 				warning.FadeOut( 200 );
 
@@ -142,7 +150,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				spinner.Alpha = 0;
 				Icon.Alpha = 1;
 				this.FadeTo( 1f, 200 );
-				Background.FadeColour( Colour4.FromHex( "#394642" ), 200, Easing.InOutExpo );
+				Background.FadeColour( overlayColours.Background3, 200, Easing.InOutExpo );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
 				Icon.Icon = FontAwesome.Solid.Download;
 				TooltipText = "Download";

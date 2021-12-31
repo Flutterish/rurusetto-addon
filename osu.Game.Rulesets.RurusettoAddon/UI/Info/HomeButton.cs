@@ -1,6 +1,7 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
@@ -13,8 +14,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		}
 
 		[BackgroundDependencyLoader( permitNulls: true )]
-		private void load ( OsuGame game ) {
-			Background.Colour = Colour4.FromHex( "#6291D7" );
+		private void load ( OsuGame game, OsuColour colours ) {
+			Background.Colour = colours.Blue3;
 			Icon.Colour = Colour4.White;
 			Icon.Scale = new osuTK.Vector2( 1.5f );
 

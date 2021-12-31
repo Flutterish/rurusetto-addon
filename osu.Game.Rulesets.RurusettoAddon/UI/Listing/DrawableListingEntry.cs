@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -11,6 +12,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
@@ -56,15 +58,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				RelativeSizeAxes = Axes.Both
 			} );
 		}
-		protected override void LoadComplete () {
-			base.LoadComplete();
 
-			var color = Colour4.FromHex( "#2E3835" );
-			var color2 = Colour4.FromHex( "#394642" );
+		[BackgroundDependencyLoader]
+		private void load ( OverlayColourProvider colours ) {
+			var color = colours.Background4;
 
 			Add( new Box {
 				Colour = color,
-				RelativeSizeAxes = Axes.Both,
+				RelativeSizeAxes = Axes.Both
 			} );
 			Add( coverContainer = new Container {
 				RelativeSizeAxes = Axes.X,

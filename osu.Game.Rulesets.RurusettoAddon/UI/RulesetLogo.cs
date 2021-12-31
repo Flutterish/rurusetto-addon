@@ -2,6 +2,7 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
@@ -12,18 +13,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		RulesetIdentity ruleset;
 		public RulesetLogo ( RulesetIdentity ruleset ) {
 			this.ruleset = ruleset;
-			var color2 = Colour4.FromHex( "#394642" );
+		}
+
+		[BackgroundDependencyLoader]
+		private void load ( OverlayColourProvider colours ) {
+			var color = colours.Background3;
 
 			InternalChildren = new Drawable[] {
 				new Circle {
 					RelativeSizeAxes = Axes.Both,
-					Colour = color2
+					Colour = color
 				}
 			};
-		}
-
-		protected override void LoadComplete () {
-			base.LoadComplete();
 
 			ruleset.RequestDarkLogo( logo => {
 				AddInternal( logo );
