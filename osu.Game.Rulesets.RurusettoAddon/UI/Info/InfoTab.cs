@@ -115,13 +115,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 							new RulesetLogo( ruleset ) {
 								Height = 170f * 14 / 20,
 								Width = 170f * 14 / 20,
-								Margin = new MarginPadding { Right = 16 }
+								Margin = new MarginPadding { Right = 16 },
+								UseDarkerBackground = true
 							},
 							new DrawableRurusettoUser( Users.GetUserIdentity( ruleset.Owner ), ruleset.IsVerified ) {
 								Anchor = Anchor.BottomLeft,
 								Origin = Anchor.BottomLeft,
 								Height = 64f * 14 / 20,
-								Margin = new MarginPadding { Bottom = 4 }
+								Margin = new MarginPadding { Bottom = 4 },
+								UseDarkerBackground = true
 							}
 						},
 						Margin = new MarginPadding { Bottom = 20 }
@@ -137,7 +139,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 								Height = 40f * 14 / 20,
 								Width = 200f * 14 / 20,
 								Anchor = Anchor.CentreRight,
-								Origin = Anchor.CentreRight
+								Origin = Anchor.CentreRight,
+								UseDarkerBackground = true
 							}
 						}
 					}

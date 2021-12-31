@@ -11,13 +11,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected RurusettoAPI API { get; private set; }
 
 		RulesetIdentity ruleset;
+		public bool UseDarkerBackground { get; init; }
 		public RulesetLogo ( RulesetIdentity ruleset ) {
 			this.ruleset = ruleset;
 		}
 
 		[BackgroundDependencyLoader]
 		private void load ( OverlayColourProvider colours ) {
-			var color = colours.Background3;
+			var color = UseDarkerBackground ? colours.Background4 : colours.Background3;
 
 			InternalChildren = new Drawable[] {
 				new Circle {

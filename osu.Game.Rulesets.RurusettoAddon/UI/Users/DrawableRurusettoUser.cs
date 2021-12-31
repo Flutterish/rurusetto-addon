@@ -38,7 +38,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		private bool isVerified;
 		Drawable verifiedDrawable;
 		UserProfile profile;
-
+		public bool UseDarkerBackground { get; init; }
 		public DrawableRurusettoUser ( UserIdentity user, bool isVerified = false ) {
 			this.isVerified = isVerified;
 			this.user = user;
@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 
 		[BackgroundDependencyLoader]
 		private void load () {
-			var color = colours.Background3;
+			var color = UseDarkerBackground ? colours.Background4 : colours.Background3;
 
 			AddInternal( new HoverClickSounds( HoverSampleSet.Button ) );
 			AddInternal( usernameFlow = new FillFlowContainer {

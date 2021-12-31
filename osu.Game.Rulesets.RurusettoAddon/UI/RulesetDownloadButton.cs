@@ -25,6 +25,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		LoadingSpinner spinner;
 		RulesetIdentity ruleset;
 		Warning warning;
+		public bool UseDarkerBackground { get; init; }
 		public RulesetDownloadButton ( RulesetIdentity ruleset ) : base( FontAwesome.Solid.Download ) {
 			this.ruleset = ruleset;
 			Action = onClick;
@@ -139,6 +140,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				spinner.Alpha = 0;
 				Icon.Alpha = 1;
 				this.FadeTo( 0.6f, 200 );
+				Background.FadeColour( UseDarkerBackground ? overlayColours.Background4 : overlayColours.Background3, 200, Easing.InOutExpo );
 				TooltipText = "Unavailable Online";
 				warning.FadeOut( 200 );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
@@ -150,7 +152,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				spinner.Alpha = 0;
 				Icon.Alpha = 1;
 				this.FadeTo( 1f, 200 );
-				Background.FadeColour( overlayColours.Background3, 200, Easing.InOutExpo );
+				Background.FadeColour( UseDarkerBackground ? overlayColours.Background4 : overlayColours.Background3, 200, Easing.InOutExpo );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
 				Icon.Icon = FontAwesome.Solid.Download;
 				TooltipText = "Download";
