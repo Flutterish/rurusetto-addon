@@ -168,25 +168,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			} );
 
 			bool isCoverLoaded = false;
-			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
+			API.RequestImage( StaticAPIResource.DefaultCover, texture => {
 				// TODO load a default local cover defore the default web cover too
-				if ( !t.IsFaulted && !isCoverLoaded ) {
-					// TODO report failure
-					cover.Texture = t.Result;
+				if ( !isCoverLoaded ) {
+					cover.Texture = texture;
 				}
-			} ) );
+			}, failure: () => { /* TODO report this */ } );
 
-			Ruleset.RequestDetail().ContinueWith( t => Schedule( () => {
-				Tags.AddRange( Ruleset.GenerateTags( t.Result ) );
+			Ruleset.RequestDetail( detail => {
+				Tags.AddRange( Ruleset.GenerateTags( detail ) );
 
-				Ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
-					if ( t.Result is null )
-						return;
-
-					cover.Texture = t.Result;
+				Ruleset.RequestDarkCover( detail, texture => {
+					cover.Texture = texture;
 					isCoverLoaded = true;
-				} ) );
-			} ) );
+				}, failure: () => { /* TODO report this */ } );
+			}, failure: () => { /* TODO report this */ } );
 
 			Add( new HoverClickSounds() );
 		}

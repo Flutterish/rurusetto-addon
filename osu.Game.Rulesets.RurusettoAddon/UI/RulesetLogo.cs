@@ -25,9 +25,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
-			ruleset.RequestDarkLogo().ContinueWith( t => Schedule( () => {
-				AddInternal( t.Result );
-			} ) );
+			ruleset.RequestDarkLogo( logo => {
+				AddInternal( logo );
+			}, fallback => {
+				AddInternal( fallback );
+			} );
 		}
 	}
 }

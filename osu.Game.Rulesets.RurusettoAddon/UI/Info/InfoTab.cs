@@ -171,10 +171,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					var content = createMarkdownContainer();
 
 					Overlay.StartLoading( this );
-					ruleset.RequestSubpage( v.NewValue.Slug ).ContinueWith( t => Schedule( () => {
-						content.Text = t.Result.Content ?? "";
+					ruleset.RequestSubpage( v.NewValue.Slug, subpage => {
+						content.Text = subpage.Content ?? "";
 						Overlay.FinishLoadiong( this );
-					} ) );
+					}, failure: () => { /* TODO report this */ } );
 
 					subpage = content;
 					subpageDrawables.Add( v.NewValue, content );
@@ -185,7 +185,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 			subpageDrawables.Add( main = new() { Title = "Main" }, mainPageMarkdown = createMarkdownContainer() );
 
-			ruleset.RequestSubpages().ContinueWith( t => Schedule( () => {
+			ruleset.RequestSubpages( subpages => {
 				subpageTabControl.AddItem( main );
 
 				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
@@ -193,7 +193,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
 				}
 
-				foreach ( var i in t.Result ) {
+				foreach ( var i in subpages ) {
 					subpageTabControl.AddItem( i );
 				}
 
@@ -201,66 +201,71 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 				if ( --loadsLeft <= 0 )
 					OnContentLoaded();
-			} ) );
+
+			}, failure: () => {
+				// TODO report this 
+
+				if ( --loadsLeft <= 0 )
+					OnContentLoaded();
+			} );
 
 			bool isCoverLoaded = false;
-			API.RequestImage( StaticAPIResource.DefaultCover ).ContinueWith( t => Schedule( () => {
+			API.RequestImage( StaticAPIResource.DefaultCover, texture => {
 				// TODO load a default local cover defore the default web cover too
-				if ( !t.IsFaulted && !isCoverLoaded ) {
-					// TODO report failure
-					cover.Texture = t.Result;
+				if ( !isCoverLoaded ) {
+					cover.Texture = texture;
 				}
-			} ) );
+			}, failure: () => { /* TODO report this */ } );
 
-			ruleset.RequestDetail().ContinueWith( t => {
-				ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
-					if ( t.Result is null )
-						return;
-
+			ruleset.RequestDetail( detail => {
+				ruleset.RequestDarkCover( detail, texture => {
 					isCoverLoaded = true;
-					cover.Texture = t.Result;
-				} ) );
+					cover.Texture = texture;
+				}, failure: () => { /* TODO report this */ } );
 
-				Schedule( () => {
-					var entry = t.Result;
-					mainPageMarkdown.Text = entry.Content;
+				mainPageMarkdown.Text = detail.Content;
 
-					Tags.AddRange( ruleset.GenerateTags( t.Result, large: true, includePlayability: false ) );
-					if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
-						Status.Add( DrawableTag.CreatePlayable( large: true ).With( d => {
-							d.Anchor = Anchor.TopRight;
-							d.Origin = Anchor.TopRight;
-						} ) );
-					}
-					else if ( ruleset.ListingEntry?.Status?.IsBorked == true ) {
-						Status.Add( DrawableTag.CreateBorked( large: true ).With( d => {
-							d.Anchor = Anchor.TopRight;
-							d.Origin = Anchor.TopRight;
-						} ) );
-					}
-					Status.Add( new OsuSpriteText {
-						Anchor = Anchor.TopRight,
-						Origin = Anchor.TopRight,
-						Font = OsuFont.GetFont( Typeface.Inter, size: 14 ),
-						Text = ruleset.ListingEntry?.Status?.LatestVersion ?? "Unknown version"
-					} );
-
-					buttons.Add( new HomeButton( entry ) {
-						Height = 40f * 14 / 20,
-						Width = 120f * 14 / 20,
-						Anchor = Anchor.CentreRight,
-						Origin = Anchor.CentreRight
-					} );
-					buttons.Add( new IssueButton( entry ) {
-						Height = 40f * 14 / 20,
-						Width = 40f * 14 / 20,
-						Anchor = Anchor.CentreRight,
-						Origin = Anchor.CentreRight
-					} );
-
-					if ( --loadsLeft <= 0 )
-						OnContentLoaded();
+				Tags.AddRange( ruleset.GenerateTags( detail, large: true, includePlayability: false ) );
+				if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
+					Status.Add( DrawableTag.CreatePlayable( large: true ).With( d => {
+						d.Anchor = Anchor.TopRight;
+						d.Origin = Anchor.TopRight;
+					} ) );
+				}
+				else if ( ruleset.ListingEntry?.Status?.IsBorked == true ) {
+					Status.Add( DrawableTag.CreateBorked( large: true ).With( d => {
+						d.Anchor = Anchor.TopRight;
+						d.Origin = Anchor.TopRight;
+					} ) );
+				}
+				Status.Add( new OsuSpriteText {
+					Anchor = Anchor.TopRight,
+					Origin = Anchor.TopRight,
+					Font = OsuFont.GetFont( Typeface.Inter, size: 14 ),
+					Text = ruleset.ListingEntry?.Status?.LatestVersion ?? "Unknown version"
 				} );
+
+				buttons.Add( new HomeButton( detail ) {
+					Height = 40f * 14 / 20,
+					Width = 120f * 14 / 20,
+					Anchor = Anchor.CentreRight,
+					Origin = Anchor.CentreRight
+				} );
+				buttons.Add( new IssueButton( detail ) {
+					Height = 40f * 14 / 20,
+					Width = 40f * 14 / 20,
+					Anchor = Anchor.CentreRight,
+					Origin = Anchor.CentreRight
+				} );
+
+				if ( --loadsLeft <= 0 )
+					OnContentLoaded();
+
+			}, failure: () => {
+				// TODO report this
+
+				if ( --loadsLeft <= 0 )
+					OnContentLoaded();
 			} );
 		}
 

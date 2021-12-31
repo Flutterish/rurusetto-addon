@@ -6,7 +6,6 @@ using osu.Game.Rulesets.RurusettoAddon.UI;
 using osuTK;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 #nullable enable
 
@@ -43,7 +42,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		/// <summary>
 		/// Creates the dark mode variant of the ruleset logo as a drawable with relative size axes
 		/// </summary>
-		public async Task<Drawable> RequestDarkLogo () {
+		public void RequestDarkLogo ( Action<Drawable> success, Action<Drawable>? failure = null ) {
+			static Drawable createDefault () {
+				return new SpriteIcon {
+					RelativeSizeAxes = Axes.Both,
+					FillMode = FillMode.Fit,
+					Icon = FontAwesome.Solid.QuestionCircle
+				};
+			}
+
 			if ( LocalRulesetInfo != null ) {
 				var icon = LocalRulesetInfo.CreateInstance()?.CreateIcon();
 
@@ -57,60 +64,52 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 						c.Scale = Vector2.Divide( c.DrawSize, icon.DrawSize );
 					};
 
-					return container;
+					success( container );
 				}
 				else if ( icon != null ) {
 					icon.RelativeSizeAxes = Axes.Both;
 					icon.Size = new Vector2( 1 );
 
-					return icon;
+					success( icon );
+				}
+				else {
+					failure( createDefault() );
 				}
 			}
 			else if ( !string.IsNullOrWhiteSpace( ListingEntry?.DarkIcon ) && API != null ) {
-				try {
-					var logo = await API.RequestImage( ListingEntry.DarkIcon );
-					return new Sprite {
+				API.RequestImage( ListingEntry.DarkIcon, logo => {
+					success( new Sprite {
 						RelativeSizeAxes = Axes.Both,
 						FillMode = FillMode.Fit,
 						Texture = logo
-					};
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
-			}
-
-			return new SpriteIcon {
-				RelativeSizeAxes = Axes.Both,
-				FillMode = FillMode.Fit,
-				Icon = FontAwesome.Solid.QuestionCircle
-			};
-		}
-
-		public async Task<RulesetDetail> RequestDetail () {
-			if ( Source == Source.Web && !string.IsNullOrWhiteSpace( Slug ) && API != null ) {
-				try {
-					var detail = await API.RequestRulesetDetail( Slug );
-
-					return detail;
-				}
-				catch ( Exception ) {
-					API.FlushRulesetDetailCache( Slug );
-
-					return new RulesetDetail {
-						CanDownload = CanDownload,
-						Download = Download,
-						Content = $"Failed to fetch the ruleset wiki page. Sorry!\nYou can still try visiting it at [rurusetto]({API.Address.Value.TrimEnd('/')}/rulesets/{Slug}).",
-						CreatedAt = DateTime.Now,
-						Description = Description,
-						LastEditedAt = DateTime.Now,
-						Name = Name,
-						Slug = Slug
-					};
-				}
+					} );
+				}, () => {
+					failure( createDefault() );
+				} );
 			}
 			else {
-				return new RulesetDetail {
+				failure( createDefault() );
+			}
+		}
+
+		public void RequestDetail ( Action<RulesetDetail> success, Action? failure = null ) {
+			if ( Source == Source.Web && !string.IsNullOrWhiteSpace( Slug ) && API != null ) {
+				API.RequestRulesetDetail( Slug, success, failure );
+				// TODO this on failures
+				//API.FlushRulesetDetailCache( Slug );
+				//new RulesetDetail {
+				//	CanDownload = CanDownload,
+				//	Download = Download,
+				//	Content = $"Failed to fetch the ruleset wiki page. Sorry!\nYou can still try visiting it at [rurusetto]({API.Address.Value.TrimEnd('/')}/rulesets/{Slug}).",
+				//	CreatedAt = DateTime.Now,
+				//	Description = Description,
+				//	LastEditedAt = DateTime.Now,
+				//	Name = Name,
+				//	Slug = Slug
+				//};
+			}
+			else {
+				success( new RulesetDetail {
 					CanDownload = CanDownload,
 					Download = Download,
 					Content = "Local ruleset, not listed on the wiki.",
@@ -119,50 +118,40 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 					LastEditedAt = DateTime.Now,
 					Name = Name,
 					Slug = Slug
-				};
+				} );
 			}
 		}
 
-		public async Task<IEnumerable<SubpageListingEntry>> RequestSubpages () {
+		public void RequestSubpages ( Action<IEnumerable<SubpageListingEntry>> success, Action? failure = null ) {
 			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
-				try {
-					return await API.RequestSubpageListing( Slug );
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
+				API.RequestSubpageListing( Slug, success, failure );
 			}
-
-			return Array.Empty<SubpageListingEntry>();
+			else {
+				success( Array.Empty<SubpageListingEntry>() );
+			}
 		}
 
-		public async Task<Subpage> RequestSubpage ( string subpageSlug ) {
+		public void RequestSubpage ( string subpageSlug, Action<Subpage> success, Action? failure = null ) {
 			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) && !string.IsNullOrWhiteSpace( subpageSlug ) ) {
-				try {
-					return await API.RequestSubpage( Slug, subpageSlug );
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
+				API.RequestSubpage( Slug, subpageSlug, success, failure );
 			}
-
-			return new() { Content = "Failed to fetch the subpage." };
+			else {
+				failure?.Invoke();
+			}
 		}
 
-		public async Task<Texture?> RequestDarkCover ( RulesetDetail detail ) {
-			if ( API is null )
-				return null;
-
-			try {
+		// TODO remove this "detail" requirement
+		public void RequestDarkCover ( RulesetDetail detail, Action<Texture> success, Action? failure = null ) {
+			if ( API is null ) {
+				failure?.Invoke();
+			}
+			else {
 				if ( string.IsNullOrWhiteSpace( detail.CoverDark ) ) {
-					return await API.RequestImage( StaticAPIResource.DefaultCover );
+					API.RequestImage( StaticAPIResource.DefaultCover, success, failure );
 				}
 				else {
-					return await API.RequestImage( detail.CoverDark );
+					API.RequestImage( detail.CoverDark, success, failure );
 				}
-			}
-			catch ( Exception ) {
-				return null; // TODO report failure
 			}
 		}
 

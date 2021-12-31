@@ -153,15 +153,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
-			user.RequestDetail().ContinueWith( t => Schedule( () => {
-				profile = t.Result;
+			user.RequestDetail( profile => {
 				usernameText = profile.Username ?? "";
 				username.Text = profile.Username ?? "Unknown";
-			} ) );
+			}, failure: () => { /* TODO report this */ } );
 
-			user.RequestProfilePicture().ContinueWith( t => Schedule( () => {
-				pfp.Texture = t.Result;
-			} ) );
+			user.RequestProfilePicture( texture => {
+				pfp.Texture = texture;
+			}, fallback => {
+				pfp.Texture = fallback;
+			} );
 		}
 
 		public LocalisableString TooltipText => usernameText;

@@ -1,33 +1,49 @@
 ﻿using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace osu.Game.Rulesets.RurusettoAddon.API {
-	public class RurusettoAPI {
+	public class RurusettoAPI : Component {
 		private HttpClient client = new();
 		public readonly Bindable<string> Address = new( "https://rulesets.info/api/" );
 		public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
 
-		private ConcurrentDictionary<string, LocalRulesetWikiEntry> localWiki = new();
-
-		private Task<List<ListingEntry>> listingCache = null;
-		public async Task<IEnumerable<ListingEntry>> RequestRulesetListing () {
-			if ( listingCache is null ) {
-				listingCache = requestRulesetListing();
+		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action? failure = null ) {
+			if ( task.Status == TaskStatus.RanToCompletion ) {
+				if ( task.Result is null )
+					failure?.Invoke();
+				else
+					success?.Invoke( task.Result );
 			}
+			else {
+				try {
+					var value = await task;
 
-			var value = await listingCache;
-			return value.Concat( localWiki.Values.Select( x => x.ListingEntry ) );
+					if ( value is null )
+						Schedule( () => failure?.Invoke() );
+					else
+						Schedule( () => success?.Invoke( value ) );
+				}
+				catch ( Exception ) {
+					Schedule( () => failure?.Invoke() );
+				}
+			}
 		}
-		private async Task<List<ListingEntry>> requestRulesetListing () {
+
+		private Task<IEnumerable<ListingEntry>?>? listingCache = null;
+		public void RequestRulesetListing ( Action<IEnumerable<ListingEntry>>? success = null, Action? failure = null ) {
+			queue( listingCache ??= requestRulesetListing(), success, failure );
+		}
+		private async Task<IEnumerable<ListingEntry>?> requestRulesetListing () {
 			var raw = await client.GetStringAsync( GetEndpoint( "/api/rulesets" ) );
 			return JsonConvert.DeserializeObject<List<ListingEntry>>( raw );
 		}
@@ -35,101 +51,91 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			listingCache = null;
 		}
 
-		private ConcurrentDictionary<string, Task<RulesetDetail>> rulesetDetailCache = new();
-		public async Task<RulesetDetail> RequestRulesetDetail ( string slug ) {
+		private Dictionary<string, Task<RulesetDetail?>> rulesetDetailCache = new();
+		public void RequestRulesetDetail ( string slug, Action<RulesetDetail>? success = null, Action? failure = null ) {
 			if ( !rulesetDetailCache.TryGetValue( slug, out var detail ) ) {
-				if ( localWiki.TryGetValue( slug, out var local ) ) {
-					return local.Detail;
-				}
-				else {
-					detail = requestRulesetDetail( slug );
-					rulesetDetailCache.TryAdd( slug, detail );
-				}
+				rulesetDetailCache.Add( slug, detail = requestRulesetDetail( slug ) );
 			}
 
-			return await detail;
+			queue( detail, success, failure );
 		}
-		private async Task<RulesetDetail> requestRulesetDetail ( string slug ) {
+		private async Task<RulesetDetail?> requestRulesetDetail ( string slug ) {
 			var raw = await client.GetStringAsync( GetEndpoint( $"/api/rulesets/{slug}" ) );
 			return JsonConvert.DeserializeObject<RulesetDetail>( raw );
 		}
 		public void FlushRulesetDetailCache ( string shortName ) {
-			rulesetDetailCache.TryRemove( shortName, out var _ );
+			rulesetDetailCache.Remove( shortName );
 		}
 		public void FlushRulesetDetailCache () {
 			rulesetDetailCache.Clear();
 		}
 
-		private ConcurrentDictionary<string, Task<IEnumerable<SubpageListingEntry>>> subpageListingCache = new();
-		public async Task<IEnumerable<SubpageListingEntry>> RequestSubpageListing ( string slug ) {
+		private Dictionary<string, Task<IEnumerable<SubpageListingEntry>?>> subpageListingCache = new();
+		public void RequestSubpageListing ( string slug, Action<IEnumerable<SubpageListingEntry>>? success = null, Action? failure = null ) {
 			if ( !subpageListingCache.TryGetValue( slug, out var listing ) ) {
-				listing = requestSubpageListing( slug );
-				subpageListingCache.TryAdd( slug, listing );
+				subpageListingCache.TryAdd( slug, listing = requestSubpageListing( slug ) );
 			}
 
-			return await listing;
+			queue( listing, success, failure );
 		}
-		private async Task<IEnumerable<SubpageListingEntry>> requestSubpageListing ( string slug ) {
+		private async Task<IEnumerable<SubpageListingEntry>?> requestSubpageListing ( string slug ) {
 			var raw = await client.GetStringAsync( GetEndpoint( $"/api/subpage/{slug}" ) );
 			return JsonConvert.DeserializeObject<List<SubpageListingEntry>>( raw );
 		}
 		public void FlushSubpageListingCache ( string shortName ) {
-			subpageListingCache.TryRemove( shortName, out var _ );
+			subpageListingCache.Remove( shortName );
 		}
 		public void FlushSubpageListingCache () {
 			subpageListingCache.Clear();
 		}
 
-		private ConcurrentDictionary<string, Task<Subpage>> subpageCache = new();
-		public async Task<Subpage> RequestSubpage ( string rulesetSlug, string subpageSlug ) {
+		private Dictionary<string, Task<Subpage?>> subpageCache = new();
+		public void RequestSubpage ( string rulesetSlug, string subpageSlug, Action<Subpage>? success = null, Action? failure = null ) {
 			if ( !subpageCache.TryGetValue( $"{rulesetSlug}/{subpageSlug}", out var listing ) ) {
-				listing = requestSubpage( rulesetSlug, subpageSlug );
-				subpageCache.TryAdd( $"{rulesetSlug}/{subpageSlug}", listing );
+				subpageCache.TryAdd( $"{rulesetSlug}/{subpageSlug}", listing = requestSubpage( rulesetSlug, subpageSlug ) );
 			}
 
-			return await listing;
+			queue( listing, success, failure );
 		}
-		private async Task<Subpage> requestSubpage ( string rulesetSlug, string subpageSlug ) {
+		private async Task<Subpage?> requestSubpage ( string rulesetSlug, string subpageSlug ) {
 			var raw = await client.GetStringAsync( GetEndpoint( $"/api/subpage/{rulesetSlug}/{subpageSlug}" ) );
 			return JsonConvert.DeserializeObject<Subpage>( raw );
 		}
 		public void FlushSubpageCache ( string rulesetSlug, string subpageSlug ) {
-			subpageListingCache.TryRemove( $"{rulesetSlug}/{subpageSlug}", out var _ );
+			subpageListingCache.Remove( $"{rulesetSlug}/{subpageSlug}" );
 		}
 		public void FlushSubpageCache () {
 			subpageListingCache.Clear();
 		}
 
-		private ConcurrentDictionary<int, Task<UserProfile>> userCache = new();
-		public async Task<UserProfile> RequestUserProfile ( int id ) {
+		private Dictionary<int, Task<UserProfile?>> userCache = new();
+		public void RequestUserProfile ( int id, Action<UserProfile>? success = null, Action? failure = null ) {
 			if ( !userCache.TryGetValue( id, out var user ) ) {
-				user = requestUserProfile( id );
-				userCache.TryAdd( id, user );
+				userCache.TryAdd( id, user = requestUserProfile( id ) );
 			}
 
-			return await user;
+			queue( user, success, failure );
 		}
-		private async Task<UserProfile> requestUserProfile ( int id ) {
+		private async Task<UserProfile?> requestUserProfile ( int id ) {
 			var raw = await client.GetStringAsync( GetEndpoint( $"/api/profile/{id}" ) );
 			return JsonConvert.DeserializeObject<UserProfile>( raw );
 		}
 		public void FlushUserProfileCache ( int id ) {
-			userCache.TryRemove( id, out var _ );
+			userCache.Remove( id );
 		}
 		public void FlushUserProfileCache () {
 			userCache.Clear();
 		}
 
-		private ConcurrentDictionary<string, Task<Texture>> mediaTextureCache = new();
-		public async Task<Texture> RequestImage ( string uri ) {
+		private Dictionary<string, Task<Texture?>> mediaTextureCache = new();
+		public void RequestImage ( string uri, Action<Texture>? success = null, Action? failure = null ) {
 			if ( !mediaTextureCache.TryGetValue( uri, out var task ) ) {
-				task = requestImage( uri );
-				mediaTextureCache.TryAdd( uri, task );
+				mediaTextureCache.TryAdd( uri, task = requestImage( uri ) );
 			}
 
-			return await task;
+			queue( task, success, failure );
 		}
-		private async Task<Texture> requestImage ( string uri ) {
+		private async Task<Texture?> requestImage ( string uri ) {
 			if ( !uri.StartsWith( "/media/" ) && !uri.StartsWith( "media/" ) && !uri.StartsWith( "/static/" ) && !uri.StartsWith( "static/" ) )
 				throw new InvalidOperationException( $"Images can only be requested from `/media/` and `/static/` endpoints, but `{uri}` was requested." );
 
@@ -143,14 +149,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return texture;
 		}
 		public void FlushImageCache ( string uri ) {
-			mediaTextureCache.TryRemove( uri, out var _ );
+			mediaTextureCache.Remove( uri );
 		}
 		public void FlushImageCache () {
 			mediaTextureCache.Clear();
 		}
 
-		public async Task<Texture> RequestImage ( StaticAPIResource resource ) {
-			return await RequestImage( resource.GetURI() );
+		public void RequestImage ( StaticAPIResource resource, Action<Texture>? success = null, Action? failure = null ) {
+			RequestImage( resource.GetURI(), success, failure );
 		}
 		public void FlushImageCache ( StaticAPIResource resource ) {
 			FlushImageCache( resource.GetURI() );
@@ -164,43 +170,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			FlushSubpageCache();
 			FlushUserProfileCache();
 		}
-
-		public void InjectLocalRuleset ( LocalRulesetWikiEntry entry ) {
-			localWiki.TryAdd( entry.ListingEntry.Slug, entry );
-		}
-		public void ClearLocalWiki () {
-			localWiki.Clear();
-		}
-		public LocalRulesetWikiEntry CreateLocalEntry ( string shortname, string name ) {
-			return new LocalRulesetWikiEntry {
-				ListingEntry = new() {
-					Slug = shortname,
-					Name = name,
-					Description = "Local ruleset, not listed on the wiki.",
-					CanDownload = false,
-					Owner = new UserDetail()
-				},
-				Detail = new RulesetDetail {
-					CanDownload = false,
-					Content = "Local ruleset, not listed on the wiki.",
-					CreatedAt = DateTime.Now,
-					Creator = new(),
-					Description = "Local ruleset, not listed on the wiki.",
-					LastEditedAt = DateTime.Now,
-					LastEditedBy = new(),
-					Name = name,
-					Slug = shortname,
-					CoverDark = StaticAPIResource.DefaultCover.GetURI(),
-					CoverLight = StaticAPIResource.DefaultCover.GetURI(),
-					Owner = new()
-				}
-			};
-		}
-	}
-
-	public record LocalRulesetWikiEntry {
-		public ListingEntry ListingEntry { get; init; }
-		public RulesetDetail Detail { get; init; }
 	}
 
 	public enum StaticAPIResource {

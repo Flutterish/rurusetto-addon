@@ -25,21 +25,23 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names
 					Current.Value = selectedTab;
 
-					ruleset.RequestDetail().ContinueWith( t => ruleset.RequestDarkCover( t.Result ).ContinueWith( t => Schedule( () => {
-						background.SetCover( t.Result );
-					} ) ) );
+					ruleset.RequestDetail( detail => {
+						ruleset.RequestDarkCover( detail, texture => {
+							background.SetCover( texture );
+						}, failure: () => { /* TODO report this */ } );
+					}, failure: () => { /* TODO report this */ } );
 				}
 				else if ( v.NewValue is UserIdentity user ) {
 					TabControl.AddItem( selectedTab = $"user" );
 					Current.Value = selectedTab;
 
-					user.RequestDetail().ContinueWith( t => Schedule( () => {
+					user.RequestDetail( detail => {
 						if ( Current.Value == selectedTab ) {
 							TabControl.RemoveItem( selectedTab );
-							TabControl.AddItem( selectedTab = $"{t.Result.Username} (user)" );
+							TabControl.AddItem( selectedTab = $"{detail.Username} (user)" );
 							Current.Value = selectedTab;
 						}
-					} ) );
+					}, failure: () => { /* TODO report this */ } );
 				}
 				else {
 					Current.Value = listingText;

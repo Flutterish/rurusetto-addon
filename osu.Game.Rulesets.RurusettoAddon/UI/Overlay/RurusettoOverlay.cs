@@ -40,6 +40,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			dep.CacheAs( new UserIdentityManager( API ) );
 			dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
 
+			Schedule( () => {
+				AddInternal( API );
+			} );
+
 			try {
 				var rulesetconfig = dep.Get<IRulesetConfigCache>();
 				var config = rulesetconfig?.GetConfigFor( ruleset ) as RurusettoConfigManager;
@@ -48,7 +52,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			}
 			catch ( Exception ) { }
 
-			_ = API.RequestImage( StaticAPIResource.DefaultCover );
+			API.RequestImage( StaticAPIResource.DefaultCover ); // cache it since its used while loading
+			API.RequestImage( StaticAPIResource.DefaultProfileImage );
 
 			return dep;
 		}

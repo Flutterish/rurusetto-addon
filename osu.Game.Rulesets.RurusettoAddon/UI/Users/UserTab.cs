@@ -11,12 +11,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		protected override void LoadContent () {
 			Add( new DrawableRurusettoUser( User, false ) { Height = 80 } );
 
-			User.RequestDetail().ContinueWith( t => Schedule( () => {
-				var user = t.Result;
+			User.RequestDetail( profile => {
 
-				
 				OnContentLoaded();
-			} ) );
+			}, failure: () => {
+				// TODO report this
+
+				OnContentLoaded();
+			} );
 		}
 	}
 }

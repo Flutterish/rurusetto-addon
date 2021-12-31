@@ -35,12 +35,13 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			Dictionary<string, RulesetIdentity> webNames = new();
 			if ( API != null ) {
 				IEnumerable<ListingEntry> listing = Array.Empty<ListingEntry>();
-				try {
-					listing = await API.RequestRulesetListing();
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
+				var task = new TaskCompletionSource();
+				API.RequestRulesetListing( result => {
+					listing = result;
+					task.SetResult();
+				}, failure: () => task.SetResult() /* TODO report this */ );
+
+				await task.Task;
 
 				foreach ( var entry in listing ) {
 					RulesetIdentity id;

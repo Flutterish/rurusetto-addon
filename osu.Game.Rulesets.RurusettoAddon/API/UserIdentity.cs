@@ -1,6 +1,5 @@
 ﻿using osu.Framework.Graphics.Textures;
 using System;
-using System.Threading.Tasks;
 
 #nullable enable
 
@@ -28,43 +27,37 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 
 		public bool HasProfile { get; private set; }
 
-		public async Task<UserProfile> RequestDetail () {
+		public void RequestDetail ( Action<UserProfile> success, Action? failure = null ) {
 			if ( Source == Source.Web && API != null ) {
-				try {
-					return await API.RequestUserProfile( ID );
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
+				API.RequestUserProfile( ID, success, failure );
 			}
-
-			return new();
+			else {
+				success( new() );
+			}
 		}
 
-		public async Task<Texture> RequestProfilePicture () {
-			var detail = await RequestDetail();
+		public void RequestProfilePicture ( Action<Texture> success, Action<Texture>? failure = null ) {
+			void requestDefault () {
+				if ( API != null ) {
+					API.RequestImage( StaticAPIResource.DefaultProfileImage, success, failure: () => {
+						failure?.Invoke( Texture.WhitePixel );
+					} );
+				}
+			}
 
 			if ( Source == Source.Web && API != null ) {
-				if ( !string.IsNullOrWhiteSpace( detail.ProfilePicture ) ) {
-					try {
-						return await API.RequestImage( detail.ProfilePicture );
+				RequestDetail( detail => {
+					if ( !string.IsNullOrWhiteSpace( detail.ProfilePicture ) ) {
+						API.RequestImage( detail.ProfilePicture, success, requestDefault );
 					}
-					catch ( Exception ) {
-						// TODO report this
+					else {
+						requestDefault();
 					}
-				}
+				}, failure: requestDefault );
 			}
-
-			if ( API != null ) {
-				try {
-					return await API.RequestImage( StaticAPIResource.DefaultProfileImage );
-				}
-				catch ( Exception ) {
-					// TODO report this
-				}
+			else {
+				requestDefault();
 			}
-
-			return Texture.WhitePixel;
 		}
 	}
 }

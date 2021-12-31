@@ -60,36 +60,31 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 
 			if ( ruleset.Source == Source.Web ) {
-				ruleset.RequestDetail().ContinueWith( t => {
-					if ( t.IsFaulted ) {
-						availability.Value |= Availability.NotAvailableOnline;
-						return; // TODO report this
-					}
-
-					if ( t.Result.CanDownload ) {
+				ruleset.RequestDetail( detail => {
+					if ( detail.CanDownload )
 						availability.Value |= Availability.AvailableOnline;
-					}
-					else {
+					else
 						availability.Value |= Availability.NotAvailableOnline;
-					}
+				}, failure: () => {
+					availability.Value |= Availability.NotAvailableOnline;
+				} );
 
-					if ( ruleset.ListingEntry?.Status is Status s ) {
-						if ( File.Exists( ruleset.LocalPath ) ) {
-							var info = new FileInfo( ruleset.LocalPath );
-							info.Refresh();
+				if ( ruleset.ListingEntry?.Status is Status s ) {
+					if ( File.Exists( ruleset.LocalPath ) ) {
+						var info = new FileInfo( ruleset.LocalPath );
+						info.Refresh();
 
-							if ( s.LatestUpdate.HasValue && info.CreationTimeUtc < s.LatestUpdate.Value ) {
-								availability.Value |= Availability.Outdated;
-							}
-							else if ( info.Length != s.FileSize ) {
-								availability.Value |= Availability.Outdated;
-							}
+						if ( s.LatestUpdate.HasValue && info.CreationTimeUtc < s.LatestUpdate.Value ) {
+							availability.Value |= Availability.Outdated;
 						}
-						else {
+						else if ( info.Length != s.FileSize ) {
 							availability.Value |= Availability.Outdated;
 						}
 					}
-				} );
+					else {
+						availability.Value |= Availability.Outdated;
+					}
+				}
 			}
 			else {
 				availability.Value |= Availability.NotAvailableOnline;
@@ -107,17 +102,17 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 			GetStateBindable( ruleset ).Value = duringState;
 
-			ruleset.RequestDetail().ContinueWith( async t => {
+			ruleset.RequestDetail( async detail => {
 				if ( wasTaskCancelled( ruleset, task ) ) return;
 
-				if ( !t.Result.CanDownload ) {
+				if ( !detail.CanDownload ) {
 					tasks.Remove( ruleset );
 					return;
 				}
-				
-				var filename = $"./rurusetto-addon-temp/{t.Result.GithubFilename}";
+
+				var filename = $"./rurusetto-addon-temp/{detail.GithubFilename}";
 				if ( !storage.Exists( filename ) ) {
-					var data = await new HttpClient().GetStreamAsync( t.Result.Download );
+					var data = await new HttpClient().GetStreamAsync( detail.Download );
 					if ( wasTaskCancelled( ruleset, task ) ) return;
 
 					var file = storage.GetStream( filename, FileAccess.Write, FileMode.OpenOrCreate );
@@ -130,6 +125,11 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 				tasks[ ruleset ] = task with { Source = filename };
 				GetStateBindable( ruleset ).Value = finishedState;
+
+			}, failure: () => {
+				if ( wasTaskCancelled( ruleset, task ) ) return;
+				tasks.Remove( ruleset );
+				// TODO report this
 			} );
 		}
 
