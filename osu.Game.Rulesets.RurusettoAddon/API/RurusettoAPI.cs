@@ -17,6 +17,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public readonly Bindable<string> Address = new( "https://rulesets.info/api/" );
 		public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
 
+		public RurusettoAPI () {
+			Address.ValueChanged += _ => FlushAllCaches();
+		}
+
 		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action? failure = null ) {
 			if ( task.Status == TaskStatus.RanToCompletion ) {
 				if ( task.Result is null )
