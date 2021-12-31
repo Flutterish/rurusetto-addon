@@ -73,7 +73,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 					success( icon );
 				}
 				else {
-					failure( createDefault() );
+					failure?.Invoke( createDefault() );
 				}
 			}
 			else if ( !string.IsNullOrWhiteSpace( ListingEntry?.DarkIcon ) && API != null ) {
