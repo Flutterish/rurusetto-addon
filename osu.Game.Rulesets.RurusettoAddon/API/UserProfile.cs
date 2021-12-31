@@ -4,9 +4,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 	public record UserProfile {
 		/// <summary> The ID of the user. Use in URL path to target user's profile page. </summary>
 		[JsonProperty( "id" )]
-		public int ID { get; init; }
+		public int? ID { get; init; }
 		[JsonProperty( "user" )]
-		public UserInfo Info { get; init; }
+		private UserInfo info { get; init; }
 		/// <summary> URL of the user's profile picture. </summary>
 		[JsonProperty( "image" )]
 		public string ProfilePicture { get; init; }
@@ -23,12 +23,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		[JsonProperty( "osu_username" )]
 		public string OsuUsername { get; init; }
 
-		public string Username => Info?.Username;
+		/// <inheritdoc cref="UserInfo.Username"/>
+		public string Username => info?.Username;
 
-		public UserDetail Detail => new() {
-			ID = ID,
-			ProfilePicture = ProfilePicture,
-			Info = Info
-		};
+		/// <inheritdoc cref="UserInfo.Email"/>
+		public string Email => info?.Email;
 	}
 }

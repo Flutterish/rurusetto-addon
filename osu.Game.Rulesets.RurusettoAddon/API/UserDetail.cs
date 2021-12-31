@@ -7,10 +7,26 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public int? ID { get; init; }
 
 		[JsonProperty( "user" )]
-		public UserInfo Info { get; init; }
+		private UserInfo info { get; init; }
+
+		/// <inheritdoc cref="UserInfo.Username"/>
+		public string Username => info.Username;
+
+		/// <inheritdoc cref="UserInfo.Email"/>
+		public string Email => info.Email;
 
 		/// <summary> The URL of the user's profile image. </summary>
 		[JsonProperty( "image" )]
 		public string ProfilePicture { get; init; }
+	}
+
+	public record UserInfo {
+		/// <summary> Username of request user. </summary>
+		[JsonProperty( "username" )]
+		public string Username { get; init; }
+
+		/// <summary> Email of request user. (Can be blank) </summary>
+		[JsonProperty( "email" )]
+		public string Email { get; init; }
 	}
 }
