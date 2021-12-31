@@ -156,6 +156,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			base.LoadComplete();
 
 			user.RequestDetail( profile => {
+				this.profile = profile;
 				usernameText = profile.Username ?? "";
 				username.Text = profile.Username ?? "Unknown";
 			}, failure: () => { /* TODO report this */ } );
