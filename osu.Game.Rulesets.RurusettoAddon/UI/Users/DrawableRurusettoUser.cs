@@ -8,6 +8,7 @@ using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Overlays;
@@ -46,6 +47,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 
 			var color2 = Colour4.FromHex( "#394642" );
 
+			AddInternal( new HoverClickSounds( HoverSampleSet.Button ) );
 			AddInternal( usernameFlow = new FillFlowContainer {
 				RelativeSizeAxes = Axes.Y,
 				AutoSizeAxes = Axes.X,
