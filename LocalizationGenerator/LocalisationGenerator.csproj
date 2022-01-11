@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Source\en-us.jsonc" />
+    <None Remove="Source\en.jsonc" />
     <None Remove="Source\meta.jsonc" />
+    <None Remove="Source\pl.jsonc" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿{
-    "default": "en-US",
+    "default": "en",
     "args": {
         "page-load-failed": [ "wikiLink" ],
         "load-error": [ "errorCode" ]

@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="local-ruleset-description"><value>Lokalny tryb gry, nie wymieniony na wiki.</value></data>
+  <data name="page-load-failed"><value>Nie udało się pobrać strony o tym trybie gry.
+Jeśli chcesz, ciągle możesz spróbować na oficjalnej stronie [rurusetto]({0}).</value></data>
+  <data name="listing-tab"><value>katalog</value></data>
+  <data name="rurusetto-description"><value>przeglądaj i zarządzaj trybami gry</value></data>
+  <data name="user-unknown"><value>Nieznany Użytkownik</value></data>
+  <data name="tag-archived"><value>ARCHIWUM</value></data>
+  <data name="tag-archived-tooltip"><value>Ten tryb gry nie jest już utrzymywany</value></data>
+  <data name="tag-local"><value>LOKALNY</value></data>
+  <data name="tag-local-tooltip"><value>Ten tryb gry jest zainstalowany lokalnie, ale nie ma go na wiki</value></data>
+  <data name="tag-hardcoded"><value>WBUDOWANY</value></data>
+  <data name="tag-hardcoded-tooltip"><value>Ten tryb gry jest wbudowany w grę i nie da się go modyfikować</value></data>
+  <data name="tag-failed-import"><value>BŁĄD IMPORTU</value></data>
+  <data name="tag-failed-import-tooltip"><value>Ten tryb gry jest pobrany, ale nie udało się go zaimportować</value></data>
+  <data name="tag-borked"><value>ZDZBANIONY</value></data>
+  <data name="tag-borked-tooltip"><value>Ten tryb gry nie działa</value></data>
+  <data name="tag-playable"><value>GRYWALNY</value></data>
+  <data name="tag-playable-tooltip"><value>Ten tryb gry działa</value></data>
+  <data name="tag-prerelease"><value>PRE-RELEASE</value></data>
+  <data name="tag-prerelease-tooltip"><value>Obecna wersja tego trybu gry jest niedokończona</value></data>
+  <data name="home-page"><value>Strona domowa</value></data>
+  <data name="report-issue"><value>Zgłoś problem</value></data>
+  <data name="download-checking"><value>Sprawdzanie...</value></data>
+  <data name="unavailable-online"><value>Niedostępny Online</value></data>
+  <data name="installed-unavailable-online"><value>Zainstalowany, ale niedostępny online</value></data>
+  <data name="download"><value>Pobierz</value></data>
+  <data name="redownload"><value>Pobierz ponownie</value></data>
+  <data name="downloading"><value>Pobieranie...</value></data>
+  <data name="update"><value>Uaktualnij</value></data>
+  <data name="remove"><value>Usuń</value></data>
+  <data name="cancel-download"><value>Anuluj Pobieranie</value></data>
+  <data name="cancel-remove"><value>Anuluj Usuwanie</value></data>
+  <data name="cancel-update"><value>Anujuj Aktualizacje</value></data>
+  <data name="refresh"><value>Odśwież</value></data>
+  <data name="to-be-removed"><value>Zostanie usunięty przy następnym uruchomieniu!</value></data>
+  <data name="to-be-installed"><value>Zostanie zainstalowany przy następnym uruchomieniu!</value></data>
+  <data name="to-be-updated"><value>Zostanie uaktualniony przy następnym uruchomieniu!</value></data>
+  <data name="installed"><value>Zainstalowany</value></data>
+  <data name="outdated"><value>Przestarzały</value></data>
+  <data name="creator-verified"><value>Zweryfikowani Twórcy Trybu</value></data>
+  <data name="load-error"><value>Nie udało się uruchomić rurusetto-addon: Proszę, zgłoś to do repozytorium rurusetto-addon i NIE do repozytorium osu!lazer: Kod {0}</value></data>
+  <data name="main-page"><value>Główna</value></data>
+  <data name="changelog-page"><value>Zmiany</value></data>
+  <data name="unknown-version"><value>Nieznana Wersja</value></data>
+  <data name="settings-header"><value>Zintegrowane Rurusetto</value></data>
+  <data name="settings-api-address"><value>Adres API</value></data>
+  <data name="untitled-ruleset"><value>Nienazwany Tryb Gry</value></data>
+  </root>
