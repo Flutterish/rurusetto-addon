@@ -12,6 +12,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using osu.Game.Rulesets.RurusettoAddon.UI.Menus;
 using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
@@ -72,14 +73,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 
 		private void updateVisuals () {
 			// TODO localize these. we will need out own menuitem since these ones are non-localisable
-			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
-			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-			OsuMenuItem redownload = new( "Re-download", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-			OsuMenuItem remove = new( "Remove", MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
-			OsuMenuItem cancelDownload = new( "Cancel Download", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-			OsuMenuItem cancelUpdate = new( "Cancel Update", MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-			OsuMenuItem cancelRemoval = new( "Cancel Removal", MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
-			OsuMenuItem refresh = new( "Refresh", MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
+			LocalisableOsuMenuItem download = new( Localisation.Strings.Download, MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
+			LocalisableOsuMenuItem update = new( Localisation.Strings.Update, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
+			LocalisableOsuMenuItem redownload = new( Localisation.Strings.Redownload, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
+			LocalisableOsuMenuItem remove = new( Localisation.Strings.Remove, MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
+			LocalisableOsuMenuItem cancelDownload = new( Localisation.Strings.CancelDownload, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
+			LocalisableOsuMenuItem cancelUpdate = new( Localisation.Strings.CancelUpdate, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
+			LocalisableOsuMenuItem cancelRemoval = new( Localisation.Strings.CancelRemove, MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
+			LocalisableOsuMenuItem refresh = new( Localisation.Strings.Refresh, MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
+			
 
 			if ( State.Value == DownloadState.Downloading ) {
 				Icon.Alpha = 0;
