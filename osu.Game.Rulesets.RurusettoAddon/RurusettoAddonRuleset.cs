@@ -31,8 +31,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
         public override IRulesetConfigManager CreateConfig ( SettingsStore settings )
             => new RurusettoConfigManager( settings, RulesetInfo );
-        public override RulesetSettingsSubsection CreateSettings ()
-            => new RurusettoAddonConfigSubsection( this );
+        //public override RulesetSettingsSubsection CreateSettings ()
+        //    => new RurusettoAddonConfigSubsection( this );
 
 		public override DrawableRuleset CreateDrawableRulesetWith(IBeatmap beatmap, IReadOnlyList<Mod> mods = null) =>
             new DrawableRurusettoAddonRuleset(this, beatmap, mods);
