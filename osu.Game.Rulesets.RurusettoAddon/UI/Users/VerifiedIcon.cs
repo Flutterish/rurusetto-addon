@@ -27,6 +27,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			return true;
 		}
 
-		public LocalisableString TooltipText => "Verified Ruleset Creator";
+		public LocalisableString TooltipText => Localisation.Strings.CreatorVerified;
 	}
 }

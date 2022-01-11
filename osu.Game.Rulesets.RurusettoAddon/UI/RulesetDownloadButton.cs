@@ -71,6 +71,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		private IBindable<RulesetInfo> currentRuleset { get; set; }
 
 		private void updateVisuals () {
+			// TODO localize these. we will need out own menuitem since these ones are non-localisable
 			OsuMenuItem download = new( "Download", MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
 			OsuMenuItem update = new( "Update", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
 			OsuMenuItem redownload = new( "Re-download", MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
@@ -85,7 +86,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				spinner.Alpha = 1;
 				this.FadeTo( 1f, 200 );
 				Background.FadeColour( colours.Blue3, 200, Easing.InOutExpo );
-				TooltipText = "Downloading...";
+				TooltipText = Localisation.Strings.Downloading;
 				warning.FadeOut( 200 );
 
 				ContextMenuItems = new MenuItem[] { Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : cancelDownload };
@@ -99,30 +100,30 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 					Icon.Scale = new osuTK.Vector2( 1.5f );
 					Icon.Icon = FontAwesome.Solid.Download;
 
-					TooltipText = "Update";
+					TooltipText = Localisation.Strings.Update;
 				}
 				else {
 					Icon.Scale = new osuTK.Vector2( 1.7f );
 					Icon.Icon = FontAwesome.Regular.CheckCircle;
 
-					TooltipText = Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ? "Installed, not available online" : "Installed";
+					TooltipText = Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ? Localisation.Strings.InstalledUnavailableOnline : Localisation.Strings.Installed;
 				}
 
 				if ( State.Value == DownloadState.ToBeImported ) {
 					warning.FadeIn( 200 );
-					warning.TooltipText = Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? "Will be updated on restart!" : "Will be installed on restart!";
+					warning.TooltipText = Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? Localisation.Strings.ToBeUpdated : Localisation.Strings.ToBeInstalled;
 
 					ContextMenuItems = new MenuItem[] { refresh, Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : remove };
 				}
 				else if ( State.Value == DownloadState.ToBeRemoved ) {
 					warning.FadeIn( 200 );
-					warning.TooltipText = "Will be removed on restart!";
+					warning.TooltipText = Localisation.Strings.ToBeRemoved;
 
 					ContextMenuItems = new MenuItem[] { refresh, cancelRemoval };
 				}
 				else if ( Avail.Value.HasFlagFast( Availability.Outdated ) ) {
 					warning.FadeIn( 200 );
-					warning.TooltipText = "Outdated";
+					warning.TooltipText = Localisation.Strings.Outdated;
 
 					ContextMenuItems = Avail.Value.HasFlagFast( Availability.AvailableOnline )
 						? new MenuItem[] { refresh, update, remove }
@@ -141,7 +142,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Icon.Alpha = 1;
 				this.FadeTo( 0.6f, 200 );
 				Background.FadeColour( UseDarkerBackground ? overlayColours.Background4 : overlayColours.Background3, 200, Easing.InOutExpo );
-				TooltipText = "Unavailable Online";
+				TooltipText = Localisation.Strings.UnavailableOnline;
 				warning.FadeOut( 200 );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
 				Icon.Icon = FontAwesome.Solid.Download;
@@ -155,7 +156,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Background.FadeColour( UseDarkerBackground ? overlayColours.Background4 : overlayColours.Background3, 200, Easing.InOutExpo );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
 				Icon.Icon = FontAwesome.Solid.Download;
-				TooltipText = "Download";
+				TooltipText = Localisation.Strings.Download;
 				warning.FadeOut( 200 );
 
 				ContextMenuItems = new MenuItem[] { refresh, download };
@@ -163,7 +164,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 
 			if ( Avail.Value == Availability.Unknown ) {
 				this.FadeTo( 0.6f, 200 );
-				TooltipText = "Checking...";
+				TooltipText = Localisation.Strings.DownloadChecking;
 				warning.FadeOut( 200 );
 
 				ContextMenuItems = Array.Empty<MenuItem>();

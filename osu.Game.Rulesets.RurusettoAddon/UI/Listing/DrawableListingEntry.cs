@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -59,8 +60,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			} );
 		}
 
+		ILocalisedBindableString nameBindable;
+
 		[BackgroundDependencyLoader]
-		private void load ( OverlayColourProvider colours ) {
+		private void load ( OverlayColourProvider colours, LocalisationManager localisation ) {
 			var color = colours.Background4;
 
 			Add( new Box {
@@ -99,6 +102,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				Origin = Anchor.BottomLeft,
 				Anchor = Anchor.BottomLeft
 			} );
+			OsuSpriteText rulesetName;
 			Add( new Container {
 				Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
 				RelativeSizeAxes = Axes.Both,
@@ -121,8 +125,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						Height = 80f * 14 / 20,
 						X = (80 + 12) * 14 / 20,
 						Children = new Drawable[] {
-							new OsuSpriteText {
-								Text = Ruleset.Name.Humanize().ToLower(),
+							rulesetName = new OsuSpriteText {
 								Font = OsuFont.GetFont( size: 24 )
 							},
 							new DrawableRurusettoUser( Users.GetUserIdentity( Ruleset.Owner ), Ruleset.IsVerified ) {
@@ -167,6 +170,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 					}
 				}
 			} );
+
+			nameBindable = localisation.GetLocalisedBindableString( Ruleset.Name );
+			
+			nameBindable.BindValueChanged( v => {
+				rulesetName.Text = v.NewValue.Humanize().ToLower();
+			}, true );
 
 			bool isCoverLoaded = false;
 			API.RequestImage( StaticAPIResource.DefaultCover, texture => {

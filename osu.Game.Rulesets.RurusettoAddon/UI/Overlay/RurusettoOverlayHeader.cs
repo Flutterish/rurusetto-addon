@@ -7,7 +7,7 @@ using osu.Game.Rulesets.RurusettoAddon.API;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 	public class RurusettoOverlayHeader : BreadcrumbControlOverlayHeader {
-		static readonly LocalisableString listingText = "listing";
+		static readonly LocalisableString listingText = Localisation.Strings.ListingTab;
 
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
@@ -20,9 +20,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					TabControl.RemoveItem( selectedTab );
 
 				if ( v.NewValue is RulesetIdentity ruleset ) {
-					var newName = ruleset.Name.Humanize().ToLower();
+					LocalisableString newName = ruleset.Name == Localisation.Strings.UntitledRuleset
+					 ? ruleset.Name
+					 : ruleset.Name.ToString().Humanize().ToLower();
 
-					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names
+					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names?
 					Current.Value = selectedTab;
 
 					ruleset.RequestDarkCover( texture => {
@@ -70,7 +72,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		private class HeaderTitle : OverlayTitle {
 			public HeaderTitle () {
 				Title = "rūrusetto";
-				Description = "browse and manage rulesets";
+				Description = Localisation.Strings.RurusettoDescription;
 				IconTexture = "Icons/Hexacons/chart";
 			}
 		}

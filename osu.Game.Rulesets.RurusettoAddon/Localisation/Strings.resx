@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="local-ruleset-description"><value>Local ruleset, not listed on the wiki.</value></data>
+  <data name="page-load-failed"><value>Failed to fetch the ruleset wiki page. Sorry!
+You can still try visiting it at [rurusetto]({0}).</value></data>
+  <data name="listing-tab"><value>listing</value></data>
+  <data name="rurusetto-description"><value>browse and manage rulesets</value></data>
+  <data name="user-unknown"><value>Unknown</value></data>
+  <data name="tag-archived"><value>ARCHIVED</value></data>
+  <data name="tag-archived-tooltip"><value>This ruleset is no longer maintained</value></data>
+  <data name="tag-local"><value>UNLISTED</value></data>
+  <data name="tag-local-tooltip"><value>This ruleset is installed locally, but is not listed on the wiki</value></data>
+  <data name="tag-hardcoded"><value>HARD CODED</value></data>
+  <data name="tag-hardcoded-tooltip"><value>This ruleset is hard coded into the game and cannot be modified</value></data>
+  <data name="tag-failed-import"><value>FAILED IMPORT</value></data>
+  <data name="tag-failed-import-tooltip"><value>This ruleset is downloaded, but failed to import</value></data>
+  <data name="tag-borked"><value>BORKED</value></data>
+  <data name="tag-borked-tooltip"><value>This ruleset does not work</value></data>
+  <data name="tag-playable"><value>PLAYABLE</value></data>
+  <data name="tag-playable-tooltip"><value>This ruleset works</value></data>
+  <data name="tag-prerelease"><value>PRE-RELEASE</value></data>
+  <data name="tag-prerelease-tooltip"><value>The current version is a pre-release</value></data>
+  <data name="home-page"><value>Home Page</value></data>
+  <data name="report-issue"><value>Report Issue</value></data>
+  <data name="download-checking"><value>Checking...</value></data>
+  <data name="unavailable-online"><value>Unavailable Online</value></data>
+  <data name="installed-unavailable-online"><value>Installed, not available online</value></data>
+  <data name="download"><value>Download</value></data>
+  <data name="redownload"><value>Re-download</value></data>
+  <data name="downloading"><value>Downloading...</value></data>
+  <data name="update"><value>Update</value></data>
+  <data name="remove"><value>Remove</value></data>
+  <data name="cancel-download"><value>Cancel Download</value></data>
+  <data name="cancel-remove"><value>Cancel Removal</value></data>
+  <data name="cancel-update"><value>Cancel Update</value></data>
+  <data name="refresh"><value>Refresh</value></data>
+  <data name="to-be-removed"><value>Will be removed on restart!</value></data>
+  <data name="to-be-installed"><value>Will be installed on restart!</value></data>
+  <data name="to-be-updated"><value>Will be updated on restart!</value></data>
+  <data name="installed"><value>Installed</value></data>
+  <data name="outdated"><value>Outdated</value></data>
+  <data name="creator-verified"><value>Verified Ruleset Creator</value></data>
+  <data name="load-error"><value>Could not load rurusetto-addon: Please report this to the rurusetto-addon repository NOT the osu!lazer repository: Code {0}</value></data>
+  <data name="main-page"><value>Main</value></data>
+  <data name="changelog-page"><value>Changelog</value></data>
+  <data name="unknown-version"><value>Unknown Version</value></data>
+  <data name="settings-header"><value>Rurusetto Addon</value></data>
+  <data name="settings-api-address"><value>API Address</value></data>
+  <data name="untitled-ruleset"><value>Untitled Ruleset</value></data>
+  </root>

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using osu.Framework.Localisation;
 using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.API {
@@ -15,13 +16,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 
 		/// <summary> The name of the ruleset. </summary>
 		[JsonProperty( "name" )]
-		public string Name { get; init; }
+		public LocalisableString Name { get; init; }
 		/// <summary> The slug of the ruleset. Use in the URL of the ruleset's wiki page. </summary>
 		[JsonProperty( "slug" )]
 		public string Slug { get; init; }
 		/// <summary> The short description of the rulesets. </summary>
 		[JsonProperty( "description" )]
-		public string Description { get; init; }
+		public LocalisableString Description { get; init; }
 
 		/// <summary> The URL of the ruleset icon that use in website's default theme (dark theme). </summary>
 		[JsonProperty( "icon" )]
@@ -47,7 +48,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public string CustomCSS { get; init; }
 		/// <summary> Wiki main content in markdown format. </summary>
 		[JsonProperty( "content" )]
-		public string Content { get; init; }
+		public LocalisableString Content { get; init; }
 
 		/// <summary> The URL source of the rulesets. </summary>
 		[JsonProperty( "source" )]

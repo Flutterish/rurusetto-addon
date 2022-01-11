@@ -147,7 +147,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 						},
 						new OsuSpriteText {
 							Colour = colours.Colour1,
-							Text = "Verified Ruleset Creator",
+							Text = Localisation.Strings.CreatorVerified,
 							Font = OsuFont.GetFont( weight: FontWeight.Bold ),
 							Anchor = Anchor.CentreLeft,
 							Origin = Anchor.CentreLeft,
@@ -164,7 +164,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			user.RequestDetail( profile => {
 				this.profile = profile;
 				usernameText = profile.Username ?? "";
-				username.Text = profile.Username ?? "Unknown";
+				username.Text = profile.Username ?? Localisation.Strings.UserUnknown;
 			}, failure: () => { /* TODO report this */ } );
 
 			user.RequestProfilePicture( texture => {

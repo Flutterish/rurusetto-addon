@@ -9,7 +9,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		RulesetDetail entry;
 		public IssueButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Exclamation ) {
 			this.entry = entry;
-			TooltipText = "Report Issue";
+			TooltipText = Localisation.Strings.ReportIssue;
 		}
 
 		[BackgroundDependencyLoader( permitNulls: true )]

@@ -3,13 +3,13 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Bindings;
+using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
-using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Rulesets.Difficulty;
@@ -26,6 +26,12 @@ using System.Reflection;
 namespace osu.Game.Rulesets.RurusettoAddon {
 	public class RurusettoAddonRuleset : Ruleset
     {
+        static RurusettoAddonRuleset () {
+            AppDomain.CurrentDomain.AssemblyResolve += ( sender, args ) => {
+                return typeof( RurusettoAddonRuleset ).Assembly;
+            };
+		}
+
         public override string Description => "rūrusetto addon";
         public override string ShortName => "rurusettoaddon";
 
@@ -49,8 +55,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
         public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
             => Array.Empty<KeyBinding>();
 
-        public static string ErrorMessage ( string code )
-            => $"Could not load rurusetto-addon: Please report this to the rurusetto-addon repository NOT the osu!lazer repository: Code {code}";
+        public static LocalisableString ErrorMessage ( string code )
+            => Localisation.Strings.LoadError( code );
 
         public override Drawable CreateIcon() => new Icon( this );
 

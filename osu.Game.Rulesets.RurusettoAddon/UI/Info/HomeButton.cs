@@ -10,7 +10,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		RulesetDetail entry;
 		public HomeButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Home ) {
 			this.entry = entry;
-			TooltipText = "Home Page";
+			TooltipText = Localisation.Strings.HomePage;
 		}
 
 		[BackgroundDependencyLoader( permitNulls: true )]

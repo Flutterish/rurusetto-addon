@@ -2,6 +2,7 @@
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Localisation;
 using osu.Game.Rulesets.RurusettoAddon.UI;
 using osuTK;
 using System;
@@ -16,8 +17,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public RurusettoAPI? API;
 		public string? Slug;
 
+		public LocalisableString Name = Localisation.Strings.UntitledRuleset;
 		public string? LocalPath;
-		public string  Name = "Untitled Ruleset";
 		public string? ShortName;
 		public bool IsModifiable;
 		public bool IsPresentLocally;
@@ -33,7 +34,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		/// <inheritdoc cref="ListingEntry.IsVerified"/>
 		public bool IsVerified => ListingEntry?.IsVerified ?? false;
 		/// <inheritdoc cref="ListingEntry.Description"/>
-		public string Description => ListingEntry?.Description ?? "Local ruleset, not listed on the wiki.";
+		public LocalisableString Description => string.IsNullOrWhiteSpace( ListingEntry?.Description ) ? Localisation.Strings.LocalRulesetDescription : ListingEntry.Description;
 		/// <inheritdoc cref="ListingEntry.CanDownload"/>
 		public bool CanDownload => ListingEntry?.CanDownload ?? false;
 		/// <inheritdoc cref="ListingEntry.Download"/>
@@ -112,7 +113,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				success( new RulesetDetail {
 					CanDownload = CanDownload,
 					Download = Download,
-					Content = "Local ruleset, not listed on the wiki.",
+					Content = Localisation.Strings.LocalRulesetDescription,
 					CreatedAt = DateTime.Now,
 					Description = Description,
 					LastEditedAt = DateTime.Now,

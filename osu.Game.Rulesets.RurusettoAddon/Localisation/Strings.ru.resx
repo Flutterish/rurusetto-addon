@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="local-ruleset-description"><value>Локальный режим, которого нет на вики</value></data>
+  <data name="page-load-failed"><value>Не удалось загрузить страницу режима на вики. Извините!
+Попробуйте открыть ее на сайте [rurusetto]({1}).</value></data>
+  <data name="listing-tab"><value>список</value></data>
+  <data name="rurusetto-description"><value>открыть список доступных режимов</value></data>
+  <data name="user-unknown"><value>Аноним</value></data>
+  <data name="tag-archived"><value>В архиве</value></data>
+  <data name="tag-archived-tooltip"><value>Этот режим больше не поддерживается</value></data>
+  <data name="tag-local"><value>Локальный</value></data>
+  <data name="tag-local-tooltip"><value>Этот режим установлен только у вас, его нет на вики</value></data>
+  <data name="tag-hardcoded"><value>Встроенный</value></data>
+  <data name="tag-hardcoded-tooltip"><value>Этот режим встроен в игру и не может быть изменён</value></data>
+  <data name="tag-failed-import"><value>Ошибка импорта</value></data>
+  <data name="tag-failed-import-tooltip"><value>Режим скачан, но его не удалось импортировать</value></data>
+  <data name="tag-borked"><value>Нерабочий</value></data>
+  <data name="tag-borked-tooltip"><value>Этот режим не работает</value></data>
+  <data name="tag-playable"><value>Рабочий</value></data>
+  <data name="tag-playable-tooltip"><value>Этот режим работает</value></data>
+  <data name="tag-prerelease"><value>Бета</value></data>
+  <data name="tag-prerelease-tooltip"><value>Текущая версия находится в стадии активной разработки</value></data>
+  <data name="home-page"><value>Домашняя страница</value></data>
+  <data name="report-issue"><value>Сообщить о проблеме</value></data>
+  <data name="download-checking"><value>Проверка...</value></data>
+  <data name="unavailable-online"><value>Недоступно для прямого скачивания</value></data>
+  <data name="download"><value>Скачать</value></data>
+  <data name="redownload"><value>Скачать заново</value></data>
+  <data name="downloading"><value>Загрузка...</value></data>
+  <data name="update"><value>Обновить</value></data>
+  <data name="remove"><value>Удалить</value></data>
+  <data name="installed"><value>Установлен</value></data>
+  <data name="installed-unavailable-online"><value>Установлен, не доступен онлайн</value></data>
+  <data name="cancel-download"><value>Отменить загрузку</value></data>
+  <data name="cancel-remove"><value>Отменить удаление</value></data>
+  <data name="refresh"><value>Обновить</value></data>
+  <data name="to-be-removed"><value>Будет удалён при следующем входе в игру!</value></data>
+  <data name="to-be-installed"><value>Будет установлен при следующем входе в игру!</value></data>
+  <data name="to-be-updated"><value>Будет обновлён при следующем входе в игру!</value></data>
+  <data name="outdated"><value>Устарел</value></data>
+  <data name="creator-verified"><value>Подтверждённый создатель режима</value></data>
+  <data name="cancel-update"><value>Отменить обновление</value></data>
+  <data name="load-error"><value>Не удалось загрузить rurusetto-addon: Пожалуйста, сообщите об этом в репозиторий rurusetto-addon, НЕ в репозиторий osu!lazer: Code {1}</value></data>
+  <data name="main-page"><value>Главная</value></data>
+  <data name="changelog-page"><value>Список изменений</value></data>
+  <data name="unknown-version"><value>Версия неизвестна</value></data>
+  </root>

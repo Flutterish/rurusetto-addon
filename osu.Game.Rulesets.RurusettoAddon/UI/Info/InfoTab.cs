@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
@@ -48,6 +49,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		SubpageListingEntry main;
 		SubpageListingEntry changelog;
 		Dictionary<SubpageListingEntry, Drawable> subpageDrawables = new();
+
+		[Resolved]
+		private LocalisationManager localisation { get; set; }
+
+		ILocalisedBindableString contentBindable;
 
 		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
@@ -186,13 +192,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				subpageContent.Add( subpage );
 			} );
 
-			subpageDrawables.Add( main = new() { Title = "Main" }, mainPageMarkdown = createMarkdownContainer() );
+			subpageDrawables.Add( main = new() { Title = Localisation.Strings.MainPage }, mainPageMarkdown = createMarkdownContainer() );
 
 			ruleset.RequestSubpages( subpages => {
 				subpageTabControl.AddItem( main );
 
 				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
-					subpageTabControl.AddItem( changelog = new() { Title = "Changelog" } );
+					subpageTabControl.AddItem( changelog = new() { Title = Localisation.Strings.ChangelogPage } );
 					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
 				}
 
@@ -226,7 +232,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			}, failure: () => { /* TODO report this */ } );
 
 			ruleset.RequestDetail( detail => {
-				mainPageMarkdown.Text = detail.Content;
+				contentBindable = localisation.GetLocalisedBindableString( detail.Content );
+				
+				contentBindable.BindValueChanged( v => {
+					mainPageMarkdown.Text = v.NewValue;
+				}, true );
 
 				Tags.AddRange( ruleset.GenerateTags( detail, large: true, includePlayability: false ) );
 				if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
@@ -245,7 +255,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					Anchor = Anchor.TopRight,
 					Origin = Anchor.TopRight,
 					Font = OsuFont.GetFont( Typeface.Inter, size: 14 ),
-					Text = ruleset.ListingEntry?.Status?.LatestVersion ?? "Unknown version"
+					Text = string.IsNullOrWhiteSpace( ruleset.ListingEntry?.Status?.LatestVersion ) ? Localisation.Strings.UnknownVersion : ruleset.ListingEntry.Status.LatestVersion
 				} );
 
 				buttons.Add( new HomeButton( detail ) {
