@@ -3,6 +3,7 @@ An addon for osu!lazer which allows you to browse the [rūrusetto](https://rules
 
 ## Special thanks
 To [Nao](https://github.com/naoei) for graphical design for the addon and [Yulianna](https://github.com/HelloYeew) for making Rurūsetto.
+To [Loreos](https://github.com/Loreos7) for the russian locale.
 
 ## Installing
 * Open osu!lazer
