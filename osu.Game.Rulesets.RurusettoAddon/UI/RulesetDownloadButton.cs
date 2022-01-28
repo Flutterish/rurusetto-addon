@@ -6,17 +6,14 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
-using osu.Game.Rulesets.RurusettoAddon.UI.Menus;
-using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
-	public class RulesetDownloadButton : GrayButton, IHasContextMenu {
+	public class RulesetDownloadButton : GrayButton {
 		[Resolved]
 		public RulesetDownloadManager DownloadManager { get; private set; }
 
@@ -27,6 +24,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		RulesetIdentity ruleset;
 		Warning warning;
 		public bool UseDarkerBackground { get; init; }
+		public bool ProvideContextMenu { get; init; } = true;
 		public RulesetDownloadButton ( RulesetIdentity ruleset ) : base( FontAwesome.Solid.Download ) {
 			this.ruleset = ruleset;
 			Action = onClick;
@@ -57,6 +55,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Y = -7
 			} );
 
+			if ( ProvideContextMenu )
+				AddInternal( new RulesetManagementContextMenu( ruleset ) );
+
 			DownloadManager.BindWith( ruleset, State );
 			DownloadManager.BindWith( ruleset, Avail );
 
@@ -72,17 +73,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		private IBindable<RulesetInfo> currentRuleset { get; set; }
 
 		private void updateVisuals () {
-			// TODO localize these. we will need out own menuitem since these ones are non-localisable
-			LocalisableOsuMenuItem download = new( Localisation.Strings.Download, MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
-			LocalisableOsuMenuItem update = new( Localisation.Strings.Update, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-			LocalisableOsuMenuItem redownload = new( Localisation.Strings.Redownload, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-			LocalisableOsuMenuItem remove = new( Localisation.Strings.Remove, MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
-			LocalisableOsuMenuItem cancelDownload = new( Localisation.Strings.CancelDownload, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-			LocalisableOsuMenuItem cancelUpdate = new( Localisation.Strings.CancelUpdate, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-			LocalisableOsuMenuItem cancelRemoval = new( Localisation.Strings.CancelRemove, MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
-			LocalisableOsuMenuItem refresh = new( Localisation.Strings.Refresh, MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
-			
-
 			if ( State.Value == DownloadState.Downloading ) {
 				Icon.Alpha = 0;
 				spinner.Alpha = 1;
@@ -90,8 +80,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Background.FadeColour( colours.Blue3, 200, Easing.InOutExpo );
 				TooltipText = Localisation.Strings.Downloading;
 				warning.FadeOut( 200 );
-
-				ContextMenuItems = new MenuItem[] { Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : cancelDownload };
 			}
 			else if ( State.Value is DownloadState.ToBeImported or DownloadState.ToBeRemoved || Avail.Value.HasFlagFast( Availability.AvailableLocally ) ) {
 				spinner.Alpha = 0;
@@ -114,29 +102,17 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				if ( State.Value == DownloadState.ToBeImported ) {
 					warning.FadeIn( 200 );
 					warning.TooltipText = Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? Localisation.Strings.ToBeUpdated : Localisation.Strings.ToBeInstalled;
-
-					ContextMenuItems = new MenuItem[] { refresh, Avail.Value.HasFlagFast( Availability.AvailableLocally ) ? cancelUpdate : remove };
 				}
 				else if ( State.Value == DownloadState.ToBeRemoved ) {
 					warning.FadeIn( 200 );
 					warning.TooltipText = Localisation.Strings.ToBeRemoved;
-
-					ContextMenuItems = new MenuItem[] { refresh, cancelRemoval };
 				}
 				else if ( Avail.Value.HasFlagFast( Availability.Outdated ) ) {
 					warning.FadeIn( 200 );
 					warning.TooltipText = Localisation.Strings.Outdated;
-
-					ContextMenuItems = Avail.Value.HasFlagFast( Availability.AvailableOnline )
-						? new MenuItem[] { refresh, update, remove }
-						: new MenuItem[] { refresh, remove };
 				}
 				else {
 					warning.FadeOut( 200 );
-
-					ContextMenuItems = Avail.Value.HasFlagFast( Availability.AvailableOnline )
-						? new MenuItem[] { refresh, redownload, remove }
-						: new MenuItem[] { refresh, remove };
 				}
 			}
 			else if ( Avail.Value.HasFlagFast( Availability.NotAvailableOnline ) ) {
@@ -148,8 +124,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				warning.FadeOut( 200 );
 				Icon.Scale = new osuTK.Vector2( 1.5f );
 				Icon.Icon = FontAwesome.Solid.Download;
-
-				ContextMenuItems = new MenuItem[] { refresh };
 			}
 			else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) ) {
 				spinner.Alpha = 0;
@@ -160,20 +134,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				Icon.Icon = FontAwesome.Solid.Download;
 				TooltipText = Localisation.Strings.Download;
 				warning.FadeOut( 200 );
-
-				ContextMenuItems = new MenuItem[] { refresh, download };
 			}
 
 			if ( Avail.Value == Availability.Unknown ) {
 				this.FadeTo( 0.6f, 200 );
 				TooltipText = Localisation.Strings.DownloadChecking;
 				warning.FadeOut( 200 );
-
-				ContextMenuItems = Array.Empty<MenuItem>();
-			}
-
-			if ( !ruleset.IsModifiable ) {
-				ContextMenuItems = Array.Empty<MenuItem>();
 			}
 		}
 		
@@ -188,8 +154,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 				current.Value = info;
 			}
 		}
-
-		public MenuItem[] ContextMenuItems { get; private set; }
 
 		private class Warning : CircularContainer, IHasTooltip {
 			public Warning () {

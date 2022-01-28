@@ -58,6 +58,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			AddInternal( content = new() {
 				RelativeSizeAxes = Axes.Both
 			} );
+
+			AddInternal( new RulesetManagementContextMenu( ruleset ) );
 		}
 
 		ILocalisedBindableString nameBindable;
@@ -163,7 +165,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 									}
 								},
 								new RulesetDownloadButton( Ruleset ) {
-									RelativeSizeAxes = Axes.Both
+									RelativeSizeAxes = Axes.Both,
+									ProvideContextMenu = false
 								}
 							}
 						}
