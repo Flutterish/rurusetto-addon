@@ -27,7 +27,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		[Resolved( canBeNull: true )]
 		protected IAPIProvider OnlineAPI { get; private set; }
 
-		private UserIdentity user;
+		private APIUser user;
 		private Container pfpContainer;
 		private Sprite pfp;
 
@@ -39,7 +39,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		Drawable verifiedDrawable;
 		UserProfile profile;
 		public bool UseDarkerBackground { get; init; }
-		public DrawableRurusettoUser ( UserIdentity user, bool isVerified = false ) {
+		public DrawableRurusettoUser ( APIUser user, bool isVerified = false ) {
 			this.isVerified = isVerified;
 			this.user = user;
 			AutoSizeAxes = Axes.X;

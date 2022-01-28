@@ -21,11 +21,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		public readonly Bindable<Availability> Avail = new( Availability.Unknown );
 
 		LoadingSpinner spinner;
-		RulesetIdentity ruleset;
+		APIRuleset ruleset;
 		Warning warning;
 		public bool UseDarkerBackground { get; init; }
 		public bool ProvideContextMenu { get; init; } = true;
-		public RulesetDownloadButton ( RulesetIdentity ruleset ) : base( FontAwesome.Solid.Download ) {
+		public RulesetDownloadButton ( APIRuleset ruleset ) : base( FontAwesome.Solid.Download ) {
 			this.ruleset = ruleset;
 			Action = onClick;
 		}

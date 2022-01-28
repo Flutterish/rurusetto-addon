@@ -49,7 +49,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		}
 
 		private class ListingEntryContainer : FillFlowContainer<DrawableListingEntry> {
-			Dictionary<Drawable, RulesetIdentity> rulesets = new();
+			Dictionary<Drawable, APIRuleset> rulesets = new();
 			public override IEnumerable<Drawable> FlowingChildren => base.FlowingChildren.OrderBy( x => 
 				(rulesets[x].Source == Source.Local) ? 2 : 1
 			).ThenBy( x =>

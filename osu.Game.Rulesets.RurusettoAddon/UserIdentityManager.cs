@@ -7,19 +7,19 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 		public UserIdentityManager ( RurusettoAPI API ) {
 			this.API = API;
-			unknownUser = UserIdentity.Local( API );
+			unknownUser = APIUser.Local( API );
 		}
 
-		UserIdentity unknownUser;
-		private Dictionary<int, UserIdentity> users = new();
-		public UserIdentity GetUserIdentity ( int id ) {
+		APIUser unknownUser;
+		private Dictionary<int, APIUser> users = new();
+		public APIUser GetUserIdentity ( int id ) {
 			if ( !users.TryGetValue( id, out var user ) ) {
-				users.Add( id, user = UserIdentity.FromID( API, id ) );
+				users.Add( id, user = APIUser.FromID( API, id ) );
 			}
 
 			return user;
 		}
-		public UserIdentity GetUserIdentity ( UserDetail detail ) {
+		public APIUser GetUserIdentity ( UserDetail detail ) {
 			if ( detail?.ID is not int id )
 				return unknownUser;
 			else

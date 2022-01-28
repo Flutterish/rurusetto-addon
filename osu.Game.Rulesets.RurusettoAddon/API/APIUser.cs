@@ -4,9 +4,9 @@ using System;
 #nullable enable
 
 namespace osu.Game.Rulesets.RurusettoAddon.API {
-	public class UserIdentity {
-		private UserIdentity () { }
-		public static UserIdentity FromID ( RurusettoAPI API, int ID ) {
+	public class APIUser {
+		private APIUser () { }
+		public static APIUser FromID ( RurusettoAPI API, int ID ) {
 			return new() {
 				Source = Source.Web,
 				API = API,
@@ -14,7 +14,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				HasProfile = true
 			};
 		}
-		public static UserIdentity Local ( RurusettoAPI API ) {
+		public static APIUser Local ( RurusettoAPI API ) {
 			return new() {
 				Source = Source.Local,
 				API = API

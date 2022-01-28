@@ -18,9 +18,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			PerformPreCleanup();
 		}
 
-		private Dictionary<RulesetIdentity, Bindable<DownloadState>> downloadStates = new();
-		private Dictionary<RulesetIdentity, Bindable<Availability>> availabilities = new();
-		public Bindable<DownloadState> GetStateBindable ( RulesetIdentity ruleset ) {
+		private Dictionary<APIRuleset, Bindable<DownloadState>> downloadStates = new();
+		private Dictionary<APIRuleset, Bindable<Availability>> availabilities = new();
+		public Bindable<DownloadState> GetStateBindable ( APIRuleset ruleset ) {
 			if ( !downloadStates.TryGetValue( ruleset, out var state ) ) {
 				downloadStates.Add( ruleset, state = new Bindable<DownloadState>( DownloadState.NotDownloading ) );
 			}
@@ -28,7 +28,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			return state;
 		}
 
-		private Bindable<Availability> getAvailabilityBindable ( RulesetIdentity ruleset, bool checkOnCreate = true ) {
+		private Bindable<Availability> getAvailabilityBindable ( APIRuleset ruleset, bool checkOnCreate = true ) {
 			if ( !availabilities.TryGetValue( ruleset, out var state ) ) {
 				availabilities.Add( ruleset, state = new Bindable<Availability>( Availability.Unknown ) );
 				if ( checkOnCreate ) CheckAvailability( ruleset );
@@ -36,18 +36,18 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 			return state;
 		}
-		public Bindable<Availability> GetAvailabilityBindable ( RulesetIdentity ruleset ) {
+		public Bindable<Availability> GetAvailabilityBindable ( APIRuleset ruleset ) {
 			return getAvailabilityBindable( ruleset, true );
 		}
 
-		public void BindWith ( RulesetIdentity ruleset, IBindable<DownloadState> bindable ) {
+		public void BindWith ( APIRuleset ruleset, IBindable<DownloadState> bindable ) {
 			bindable.BindTo( GetStateBindable( ruleset ) );
 		}
-		public void BindWith ( RulesetIdentity ruleset, IBindable<Availability> bindable ) {
+		public void BindWith ( APIRuleset ruleset, IBindable<Availability> bindable ) {
 			bindable.BindTo( GetAvailabilityBindable( ruleset ) );
 		}
 
-		public void CheckAvailability ( RulesetIdentity ruleset ) {
+		public void CheckAvailability ( APIRuleset ruleset ) {
 			var availability = getAvailabilityBindable( ruleset, false );
 
 			availability.Value = Availability.Unknown;
@@ -91,12 +91,12 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 		}
 
-		private bool wasTaskCancelled ( RulesetIdentity ruleset, RulesetManagerTask task ) {
+		private bool wasTaskCancelled ( APIRuleset ruleset, RulesetManagerTask task ) {
 			return !tasks.TryGetValue( ruleset, out var currentTask ) || !ReferenceEquals( task, currentTask );
 		}
 
-		Dictionary<RulesetIdentity, RulesetManagerTask> tasks = new();
-		private void createDownloadTask ( RulesetIdentity ruleset, TaskType type, DownloadState duringState, DownloadState finishedState ) {
+		Dictionary<APIRuleset, RulesetManagerTask> tasks = new();
+		private void createDownloadTask ( APIRuleset ruleset, TaskType type, DownloadState duringState, DownloadState finishedState ) {
 			var task = new RulesetManagerTask( type, null );
 			tasks[ ruleset ] = task;
 
@@ -133,27 +133,27 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			} );
 		}
 
-		public void DownloadRuleset ( RulesetIdentity ruleset ) {
+		public void DownloadRuleset ( APIRuleset ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type == TaskType.Install )
 				return;
 
 			createDownloadTask( ruleset, TaskType.Install, DownloadState.Downloading, DownloadState.ToBeImported );
 		}
-		public void CancelRulesetDownload ( RulesetIdentity ruleset ) {
+		public void CancelRulesetDownload ( APIRuleset ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type is TaskType.Install or TaskType.Update ) {
 				tasks.Remove( ruleset );
 				GetStateBindable( ruleset ).Value = DownloadState.NotDownloading;
 			}
 		}
 
-		public void UpdateRuleset ( RulesetIdentity ruleset ) {
+		public void UpdateRuleset ( APIRuleset ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type == TaskType.Update )
 				return;
 
 			createDownloadTask( ruleset, TaskType.Install, DownloadState.Downloading, DownloadState.ToBeImported );
 		}
 
-		public void RemoveRuleset ( RulesetIdentity ruleset ) {
+		public void RemoveRuleset ( APIRuleset ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) ) {
 				if ( task.Type == TaskType.Remove ) return;
 
@@ -172,7 +172,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			tasks[ ruleset ] = new RulesetManagerTask( TaskType.Remove, ruleset.LocalPath );
 			GetStateBindable( ruleset ).Value = DownloadState.ToBeRemoved;
 		}
-		public void CancelRulesetRemoval ( RulesetIdentity ruleset ) {
+		public void CancelRulesetRemoval ( APIRuleset ruleset ) {
 			if ( tasks.TryGetValue( ruleset, out var task ) && task.Type == TaskType.Remove ) {
 				tasks.Remove( ruleset );
 				GetStateBindable( ruleset ).Value = DownloadState.NotDownloading;

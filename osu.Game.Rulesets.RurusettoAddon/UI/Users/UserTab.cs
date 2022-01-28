@@ -2,8 +2,8 @@
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 	public class UserTab : OverlayTab {
-		public readonly UserIdentity User;
-		public UserTab ( UserIdentity user ) {
+		public readonly APIUser User;
+		public UserTab ( APIUser user ) {
 			User = user;
 		}
 

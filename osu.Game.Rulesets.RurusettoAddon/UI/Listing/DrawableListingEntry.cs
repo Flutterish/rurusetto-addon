@@ -37,10 +37,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected RulesetDownloadManager DownloadManager { get; private set; }
 		[Resolved]
 		protected UserIdentityManager Users { get; private set; }
-		public RulesetIdentity Ruleset { get; private set; }
+		public APIRuleset Ruleset { get; private set; }
 		protected FillFlowContainer Tags;
 
-		public DrawableListingEntry ( RulesetIdentity ruleset ) {
+		public DrawableListingEntry ( APIRuleset ruleset ) {
 			Ruleset = ruleset;
 
 			RelativeSizeAxes = Axes.X;

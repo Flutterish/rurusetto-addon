@@ -21,7 +21,7 @@ using System.Collections.Generic;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class InfoTab : OverlayTab {
 		FillFlowContainer content;
-		RulesetIdentity ruleset;
+		APIRuleset ruleset;
 		Sprite cover;
 		Container subpageContent;
 		ContentMarkdown mainPageMarkdown;
@@ -29,7 +29,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		protected FillFlowContainer Status;
 		SubpageSectionTabControl subpageTabControl;
 		FillFlowContainer buttons;
-		public InfoTab ( RulesetIdentity ruleset ) {
+		public InfoTab ( APIRuleset ruleset ) {
 			this.ruleset = ruleset;
 
 			AddInternal( content = new FillFlowContainer {

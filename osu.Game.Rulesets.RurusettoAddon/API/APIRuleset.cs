@@ -11,7 +11,7 @@ using System.Collections.Generic;
 #nullable enable
 
 namespace osu.Game.Rulesets.RurusettoAddon.API {
-	public class RulesetIdentity {
+	public class APIRuleset {
 		public Source Source;
 
 		public RurusettoAPI? API;

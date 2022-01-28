@@ -23,16 +23,16 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			identities = new( async () => await requestIdentities() );
 		}
 
-		AsyncLazy<IEnumerable<RulesetIdentity>> identities;
-		public async Task<IEnumerable<RulesetIdentity>> RequestIdentities () {
+		AsyncLazy<IEnumerable<APIRuleset>> identities;
+		public async Task<IEnumerable<APIRuleset>> RequestIdentities () {
 			return await identities.Value;
 		}
 
-		private async Task<IEnumerable<RulesetIdentity>> requestIdentities () {
-			List<RulesetIdentity> identities = new();
+		private async Task<IEnumerable<APIRuleset>> requestIdentities () {
+			List<APIRuleset> identities = new();
 
-			Dictionary<string, RulesetIdentity> webFilenames = new();
-			Dictionary<string, RulesetIdentity> webNames = new();
+			Dictionary<string, APIRuleset> webFilenames = new();
+			Dictionary<string, APIRuleset> webNames = new();
 			if ( API != null ) {
 				IEnumerable<ListingEntry> listing = Array.Empty<ListingEntry>();
 				var task = new TaskCompletionSource();
@@ -44,7 +44,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				await task.Task;
 
 				foreach ( var entry in listing ) {
-					RulesetIdentity id;
+					APIRuleset id;
 					identities.Add( id = new() {
 						Source = Source.Web,
 						API = API,
@@ -65,7 +65,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 
 			if ( rulesetStore != null ) {
-				Dictionary<string, RulesetIdentity> localPaths = new();
+				Dictionary<string, APIRuleset> localPaths = new();
 				var imported = rulesetStore.AvailableRulesets;
 
 				foreach ( var ruleset in imported ) {

@@ -10,9 +10,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
 
-		RulesetIdentity ruleset;
+		APIRuleset ruleset;
 		public bool UseDarkerBackground { get; init; }
-		public RulesetLogo ( RulesetIdentity ruleset ) {
+		public RulesetLogo ( APIRuleset ruleset ) {
 			this.ruleset = ruleset;
 		}
 

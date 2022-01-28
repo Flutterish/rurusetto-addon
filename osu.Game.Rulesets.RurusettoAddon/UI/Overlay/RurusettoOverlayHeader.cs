@@ -19,7 +19,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 				if ( v.OldValue != null )
 					TabControl.RemoveItem( selectedTab );
 
-				if ( v.NewValue is RulesetIdentity ruleset ) {
+				if ( v.NewValue is APIRuleset ruleset ) {
 					LocalisableString newName = ruleset.Name == Localisation.Strings.UntitledRuleset
 					 ? ruleset.Name
 					 : ruleset.Name.ToString().Humanize().ToLower();
@@ -31,7 +31,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 						background.SetCover( texture );
 					}, failure: () => { /* TODO report this */ } );
 				}
-				else if ( v.NewValue is UserIdentity user ) {
+				else if ( v.NewValue is APIUser user ) {
 					TabControl.AddItem( selectedTab = $"user" );
 					Current.Value = selectedTab;
 
@@ -57,7 +57,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		}
 
 		/// <summary>
-		/// Can be either <see cref="RulesetIdentity"/>, <see cref="UserIdentity"/> or <see langword="null"/>
+		/// Can be either <see cref="APIRuleset"/>, <see cref="APIUser"/> or <see langword="null"/>
 		/// </summary>
 		public readonly Bindable<object> SelectedInfo = new();
 		LocalisableString selectedTab;

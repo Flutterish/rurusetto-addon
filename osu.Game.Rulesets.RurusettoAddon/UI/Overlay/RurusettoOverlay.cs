@@ -26,8 +26,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		LoadingLayer loading;
 		OverlayTab currentTab;
 		ListingTab listing;
-		Dictionary<RulesetIdentity, InfoTab> infoTabs = new();
-		Dictionary<UserIdentity, UserTab> userTabs = new();
+		Dictionary<APIRuleset, InfoTab> infoTabs = new();
+		Dictionary<APIUser, UserTab> userTabs = new();
 
 		[Cached]
 		new RurusettoAPI API = new();
@@ -93,7 +93,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		}
 
 		private void onSelectedInfoChanged () {
-			if ( Header.SelectedInfo.Value is RulesetIdentity ruleset ) {
+			if ( Header.SelectedInfo.Value is APIRuleset ruleset ) {
 				if ( !infoTabs.TryGetValue( ruleset, out var tab ) ) {
 					infoTabs.Add( ruleset, tab = new( ruleset ) );
 					tabContainer.Add( tab );
@@ -101,7 +101,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 				presentTab( tab );
 			}
-			else if ( Header.SelectedInfo.Value is UserIdentity user ) {
+			else if ( Header.SelectedInfo.Value is APIUser user ) {
 				if ( !userTabs.TryGetValue( user, out var tab ) ) {
 					userTabs.Add( user, tab = new( user ) );
 					tabContainer.Add( tab );

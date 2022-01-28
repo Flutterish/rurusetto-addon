@@ -18,7 +18,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
 		public readonly Bindable<Availability> Avail = new( Availability.Unknown );
 
-		RulesetIdentity ruleset;
+		APIRuleset ruleset;
 		LocalisableOsuMenuItem download;
 		LocalisableOsuMenuItem update;
 		LocalisableOsuMenuItem redownload;
@@ -28,7 +28,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		LocalisableOsuMenuItem cancelRemoval;
 		LocalisableOsuMenuItem refresh;
 
-		public RulesetManagementContextMenu ( RulesetIdentity ruleset ) {
+		public RulesetManagementContextMenu ( APIRuleset ruleset ) {
 			this.ruleset = ruleset;
 
 			RelativeSizeAxes = Axes.Both;
