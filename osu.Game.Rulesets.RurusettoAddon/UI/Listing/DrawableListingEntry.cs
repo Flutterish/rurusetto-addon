@@ -20,6 +20,7 @@ using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK;
+using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class DrawableListingEntry : VisibilityContainer {
@@ -45,8 +46,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		public DrawableListingEntry ( APIRuleset ruleset ) {
 			Ruleset = ruleset;
 
-			RelativeSizeAxes = Axes.X;
-			Width = 0.3f;
 			Height = 160;
 			Masking = true;
 			CornerRadius = 8;
@@ -209,6 +208,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 
 		protected override void Update () {
 			base.Update();
+
+			var availableSize = Parent.ChildSize.X * 0.9f;
+			const float minWidth = 280;
+			int entriesPerLine = (int)Math.Max( 1, availableSize / (minWidth + Margin.Left + Margin.Right) );
+			Width = availableSize / entriesPerLine - Margin.Left - Margin.Right;
 
 			if ( State.Value == Visibility.Hidden && !isMaskedAway ) {
 				Show();
