@@ -187,7 +187,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
                     };
 
                     host.Exited += () => {
-                        overlay.Dependencies.Get<RulesetDownloadManager>().PerformTasks();
+                        overlay.Dependencies?.Get<RulesetDownloadManager>().PerformTasks();
                     };
                 }
             }
