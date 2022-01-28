@@ -5,9 +5,11 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Framework.Platform;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
@@ -54,6 +56,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		private LocalisationManager localisation { get; set; }
 
 		ILocalisedBindableString contentBindable;
+
+		Texture defaultCover;
+		private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
+			defaultCover = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
+		}
 
 		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
@@ -219,8 +226,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			} );
 
 			bool isCoverLoaded = false;
+			cover.Texture = defaultCover;
 			API.RequestImage( StaticAPIResource.DefaultCover, texture => {
-				// TODO load a default local cover defore the default web cover too
 				if ( !isCoverLoaded ) {
 					cover.Texture = texture;
 				}

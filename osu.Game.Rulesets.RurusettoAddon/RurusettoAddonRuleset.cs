@@ -2,6 +2,7 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
@@ -58,6 +59,13 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
         public static LocalisableString ErrorMessage ( string code )
             => Localisation.Strings.LoadError( code );
+
+        public Texture GetTexture ( GameHost host, TextureStore textures, string path ) {
+            if ( !textures.GetAvailableResources().Contains( path ) )
+                textures.AddStore( host.CreateTextureLoaderStore( CreateResourceStore() ) );
+
+            return textures.Get( path );
+        }
 
         public override Drawable CreateIcon() => new Icon( this );
 

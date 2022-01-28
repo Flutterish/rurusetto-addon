@@ -52,9 +52,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			}
 			catch ( Exception ) { }
 
-			API.RequestImage( StaticAPIResource.DefaultCover ); // cache it since its used while loading
-			API.RequestImage( StaticAPIResource.DefaultProfileImage );
-
 			return dep;
 		}
 

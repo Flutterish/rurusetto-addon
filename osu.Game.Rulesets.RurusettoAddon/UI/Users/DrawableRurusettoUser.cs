@@ -4,8 +4,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Framework.Platform;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -49,7 +51,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		OverlayColourProvider colours { get; set; }
 
 		[BackgroundDependencyLoader]
-		private void load () {
+		private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
 			var color = UseDarkerBackground ? colours.Background4 : colours.Background3;
 
 			AddInternal( new HoverClickSounds( HoverSampleSet.Button ) );
@@ -70,7 +72,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 							},
 							pfp = new Sprite {
 								RelativeSizeAxes = Axes.Both,
-								FillMode = FillMode.Fit
+								FillMode = FillMode.Fit,
+								Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultAvatar )
 							}
 						},
 						Masking = true,

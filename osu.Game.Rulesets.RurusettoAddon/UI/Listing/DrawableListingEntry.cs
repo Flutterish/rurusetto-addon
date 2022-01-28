@@ -7,8 +7,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Framework.Platform;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -65,7 +67,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		ILocalisedBindableString nameBindable;
 
 		[BackgroundDependencyLoader]
-		private void load ( OverlayColourProvider colours, LocalisationManager localisation ) {
+		private void load ( OverlayColourProvider colours, LocalisationManager localisation, GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
 			var color = colours.Background4;
 
 			Add( new Box {
@@ -181,8 +183,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			}, true );
 
 			bool isCoverLoaded = false;
+			cover.Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
 			API.RequestImage( StaticAPIResource.DefaultCover, texture => {
-				// TODO load a default local cover defore the default web cover too
 				if ( !isCoverLoaded ) {
 					cover.Texture = texture;
 				}
