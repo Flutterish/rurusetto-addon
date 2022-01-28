@@ -50,7 +50,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			apiAddress.BindValueChanged( _ => Refresh() );
 		}
 
-		protected override bool Refresh () {
+		public override bool Refresh () {
 			Rulesets.Refresh();
 			ReloadListing();
 

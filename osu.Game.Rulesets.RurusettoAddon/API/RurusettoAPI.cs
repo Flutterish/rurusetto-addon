@@ -22,7 +22,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			Address.ValueChanged += _ => FlushAllCaches();
 		}
 
-		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action? failure = null ) {
+		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action? failure = null, Action? cancelled = null ) {
 			if ( task.Status == TaskStatus.RanToCompletion ) {
 				if ( task.Result is null )
 					failure?.Invoke();
@@ -36,9 +36,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 					Schedule( () => {
 						// if we changed the address, everyone depending on that address will either be disposed or request again
 						if ( address != Address.Value )
-							return;
-
-						if ( value is null )
+							cancelled?.Invoke();
+						else if ( value is null )
 							failure?.Invoke();
 						else
 							success?.Invoke( value );
@@ -48,14 +47,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 					Schedule( () => {
 						if ( address == Address.Value )
 							failure?.Invoke();
+						else
+							cancelled?.Invoke();
 					} );
 				}
 			}
 		}
 
 		private Task<IEnumerable<ListingEntry>?>? listingCache = null;
-		public void RequestRulesetListing ( Action<IEnumerable<ListingEntry>>? success = null, Action? failure = null ) {
-			queue( listingCache ??= requestRulesetListing(), success, failure );
+		public void RequestRulesetListing ( Action<IEnumerable<ListingEntry>>? success = null, Action? failure = null, Action? cancelled = null ) {
+			queue( listingCache ??= requestRulesetListing(), success, failure, cancelled );
 		}
 		private async Task<IEnumerable<ListingEntry>?> requestRulesetListing () {
 			var raw = await client.GetStringAsync( GetEndpoint( "/api/rulesets" ) );

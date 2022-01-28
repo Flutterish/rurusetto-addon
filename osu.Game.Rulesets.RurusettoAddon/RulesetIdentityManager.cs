@@ -74,7 +74,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				API.RequestRulesetListing( result => {
 					listing = result;
 					task.SetResult();
-				}, failure: () => task.SetResult() /* TODO report this */ );
+				},	failure:	() => task.SetResult(), /* TODO report this */
+					cancelled:	() => task.SetResult()
+				);
 
 				await task.Task;
 

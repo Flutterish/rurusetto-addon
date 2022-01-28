@@ -63,7 +63,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 			return false;
 		}
 
-		protected virtual bool Refresh () {
+		public virtual bool Refresh () {
 			return false;
 		}
 	}

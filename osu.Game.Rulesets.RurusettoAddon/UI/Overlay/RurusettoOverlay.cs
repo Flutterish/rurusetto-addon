@@ -125,8 +125,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			updateLoading();
 		}
 
+		bool isFullHidden;
 		protected override void PopIn () {
 			base.PopIn();
+
+			if ( isFullHidden ) {
+				listing.Refresh();
+				isFullHidden = false;
+			}
 
 			scroll.ScrollToStart();
 		}
@@ -143,7 +149,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			}
 			userTabs.Clear();
 			infoTabs.Clear();
-			listing.ReloadListing();
+			isFullHidden = true;
 		}
 
 		Dictionary<OverlayTab, int> loadingTabs = new();

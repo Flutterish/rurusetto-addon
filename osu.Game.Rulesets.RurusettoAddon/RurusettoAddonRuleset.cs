@@ -10,6 +10,7 @@ using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
+using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Rulesets.Difficulty;
@@ -37,8 +38,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
         public override IRulesetConfigManager CreateConfig ( SettingsStore settings )
             => new RurusettoConfigManager( settings, RulesetInfo );
-        //public override RulesetSettingsSubsection CreateSettings ()
-        //    => new RurusettoAddonConfigSubsection( this );
+        public override RulesetSettingsSubsection CreateSettings ()
+            => new RurusettoAddonConfigSubsection( this );
 
 		public override DrawableRuleset CreateDrawableRulesetWith(IBeatmap beatmap, IReadOnlyList<Mod> mods = null) =>
             new DrawableRurusettoAddonRuleset(this, beatmap, mods);
