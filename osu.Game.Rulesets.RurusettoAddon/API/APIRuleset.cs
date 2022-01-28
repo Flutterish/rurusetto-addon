@@ -41,6 +41,22 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		public string? Download => ListingEntry?.Download;
 
 		/// <summary>
+		/// Merges info from <paramref name="other"/> into itself
+		/// </summary>
+		public void Merge ( APIRuleset other ) {
+			Source = other.Source;
+			Slug = other.Slug;
+			Name = other.Name;
+			LocalPath = other.LocalPath;
+			ShortName = other.ShortName;
+			IsModifiable = other.IsModifiable;
+			IsPresentLocally = other.IsPresentLocally;
+			HasImportFailed = other.HasImportFailed;
+			LocalRulesetInfo = other.LocalRulesetInfo;
+			ListingEntry = other.ListingEntry;
+		}
+
+		/// <summary>
 		/// Creates the dark mode variant of the ruleset logo as a drawable with relative size axes
 		/// </summary>
 		public void RequestDarkLogo ( Action<Drawable> success, Action<Drawable>? failure = null ) {

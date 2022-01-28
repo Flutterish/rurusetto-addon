@@ -1,4 +1,6 @@
-﻿using osu.Framework.Graphics;
+﻿using osu.Framework.Allocation;
+using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ using System.Threading.Tasks;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class ListingTab : OverlayTab {
 		ListingEntryContainer content;
+		Bindable<string> apiAddress = new( RurusettoAPI.DefaultAPIAddress );
 		public ListingTab () {
 			AddInternal( content = new() {
 				Direction = FillDirection.Full,
@@ -25,8 +28,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			} );
 
 			Task task = null;
-			// TODO we should allow to refresh identities too, but we would need to "update" existing ones
-			// rather than create new ones since they are reference based and we use as such
 			task = refreshTask = Rulesets.RequestIdentities().ContinueWith( t => {
 				Schedule( () => {
 					Overlay.FinishLoadiong( this );
@@ -41,6 +42,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 					}
 				} );
 			} );
+		}
+
+		[BackgroundDependencyLoader]
+		private void load () {
+			apiAddress.BindTo( API.Address );
+			apiAddress.BindValueChanged( _ => Refresh() );
+		}
+
+		protected override bool Refresh () {
+			Rulesets.Refresh();
+			ReloadListing();
+
+			return true;
 		}
 
 		protected override bool RequiresLoading => false;

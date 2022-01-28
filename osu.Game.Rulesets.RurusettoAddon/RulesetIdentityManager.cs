@@ -18,17 +18,51 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public RulesetIdentityManager ( Storage? storage, IRulesetStore? rulesetStore, RurusettoAPI? API ) {
 			this.storage = storage;
 			this.rulesetStore = rulesetStore;
-			this.API = API;
-
-			identities = new( async () => await requestIdentities() );
+			this.API = API;	
 		}
 
-		AsyncLazy<IEnumerable<APIRuleset>> identities;
+		List<APIRuleset> cachedIdentities = new();
+		AsyncLazy<IEnumerable<APIRuleset>>? identities;
 		public async Task<IEnumerable<APIRuleset>> RequestIdentities () {
+			if ( identities is null ) {
+				identities = new( async () => await getIdentities() );
+			}
 			return await identities.Value;
 		}
 
-		private async Task<IEnumerable<APIRuleset>> requestIdentities () {
+		public void Refresh () {
+			identities = null;
+		}
+
+		private async Task<IEnumerable<APIRuleset>> getIdentities () {
+			var newIdentities = await requestIdentities();
+
+			// we need to merge them since we dont want anything to get out of sync, like the download manager which uses a given APIRuleset instance
+			lock ( cachedIdentities ) {
+				for ( int i = 0; i < newIdentities.Count; i++ ) {
+					var ruleset = newIdentities[ i ];
+
+					var match = cachedIdentities.FirstOrDefault( x =>
+						(x.Source is Source.Web && ruleset.Source is Source.Web && x.Slug == ruleset.Slug) ||
+						(x.Source is Source.Local && ruleset.Source is Source.Local && x.LocalPath == ruleset.LocalPath) ||
+						(x.Source is Source.Local && ruleset.Source is Source.Web && Path.GetFileName( x.LocalPath ) == Path.GetFileName( ruleset.ListingEntry?.Download )) ||
+						(x.Source is Source.Web && ruleset.Source is Source.Local && Path.GetFileName( ruleset.LocalPath ) == Path.GetFileName( x.ListingEntry?.Download ))
+					);
+
+					if ( match != null ) {
+						match.Merge( ruleset );
+						newIdentities[ i ] = match;
+					}
+					else {
+						cachedIdentities.Add( ruleset );
+					}
+				}
+			}
+
+			return newIdentities;
+		}
+
+		private async Task<List<APIRuleset>> requestIdentities () {
 			List<APIRuleset> identities = new();
 
 			Dictionary<string, APIRuleset> webFilenames = new();
@@ -36,6 +70,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			if ( API != null ) {
 				IEnumerable<ListingEntry> listing = Array.Empty<ListingEntry>();
 				var task = new TaskCompletionSource();
+
 				API.RequestRulesetListing( result => {
 					listing = result;
 					task.SetResult();

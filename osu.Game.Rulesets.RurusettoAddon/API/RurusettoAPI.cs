@@ -14,7 +14,8 @@ using System.Threading.Tasks;
 namespace osu.Game.Rulesets.RurusettoAddon.API {
 	public class RurusettoAPI : Component {
 		private HttpClient client = new();
-		public readonly Bindable<string> Address = new( "https://rulesets.info/api/" );
+		public const string DefaultAPIAddress = "https://rulesets.info/api/";
+		public readonly Bindable<string> Address = new( DefaultAPIAddress );
 		public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
 
 		public RurusettoAPI () {
@@ -29,16 +30,25 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 					success?.Invoke( task.Result );
 			}
 			else {
+				var address = Address.Value;
 				try {
 					var value = await task;
+					Schedule( () => {
+						// if we changed the address, everyone depending on that address will either be disposed or request again
+						if ( address != Address.Value )
+							return;
 
-					if ( value is null )
-						Schedule( () => failure?.Invoke() );
-					else
-						Schedule( () => success?.Invoke( value ) );
+						if ( value is null )
+							failure?.Invoke();
+						else
+							success?.Invoke( value );
+					} );
 				}
 				catch ( Exception ) {
-					Schedule( () => failure?.Invoke() );
+					Schedule( () => {
+						if ( address == Address.Value )
+							failure?.Invoke();
+					} );
 				}
 			}
 		}

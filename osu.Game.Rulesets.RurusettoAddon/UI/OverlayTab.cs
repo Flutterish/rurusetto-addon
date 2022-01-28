@@ -1,8 +1,10 @@
 ﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Events;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
+using osuTK.Input;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI {
 	public abstract class OverlayTab : VisibilityContainer {
@@ -49,6 +51,20 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected abstract void LoadContent ();
 		protected virtual void OnContentLoaded () {
 			Overlay.FinishLoadiong( this );
+		}
+
+		public override bool AcceptsFocus => true;
+		public override bool RequestsFocus => true;
+		protected override bool OnKeyDown ( KeyDownEvent e ) {
+			if ( e.Key is Key.F5 ) { // NOTE o!f doenst seem to have a 'refresh' action
+				return Refresh();
+			}
+
+			return false;
+		}
+
+		protected virtual bool Refresh () {
+			return false;
 		}
 	}
 }
