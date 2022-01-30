@@ -63,10 +63,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			defaultCover = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
 		}
 
-		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
-			int loadsLeft = 2;
-
 			AddInternal( new Container {
 				RelativeSizeAxes = Axes.X,
 				Height = 220,
@@ -188,50 +185,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Margin = new MarginPadding { Top = 16, Bottom = 400 }
 			} );
 
-			subpageTabControl.Current.BindValueChanged( v => {
-				subpageContent.Clear( disposeChildren: false );
-
-				if ( !subpageDrawables.TryGetValue( v.NewValue, out var subpage ) ) {
-					var content = createMarkdownContainer();
-
-					Overlay.StartLoading( this );
-					ruleset.RequestSubpage( v.NewValue.Slug, subpage => {
-						content.Text = subpage.Content ?? "";
-						Overlay.FinishLoadiong( this );
-					}, failure: () => { /* TODO report this */ } );
-
-					subpage = content;
-					subpageDrawables.Add( v.NewValue, content );
-				}
-
-				subpageContent.Add( subpage );
+			subpageTabControl.Current.BindValueChanged( _ => {
+				loadCurrentPage();
 			} );
 
-			subpageDrawables.Add( main = new() { Title = Localisation.Strings.MainPage }, mainPageMarkdown = createMarkdownContainer() );
-
-			ruleset.RequestSubpages( subpages => {
-				subpageTabControl.AddItem( main );
-
-				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
-					subpageTabControl.AddItem( changelog = new() { Title = Localisation.Strings.ChangelogPage } );
-					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
-				}
-
-				foreach ( var i in subpages ) {
-					subpageTabControl.AddItem( i );
-				}
-
-				subpageTabControl.Current.Value = main;
-
-				if ( --loadsLeft <= 0 )
-					OnContentLoaded();
-
-			}, failure: () => {
-				// TODO report this 
-
-				if ( --loadsLeft <= 0 )
-					OnContentLoaded();
-			} );
+			main = new() { Title = Localisation.Strings.MainPage };
+			mainPageMarkdown = createMarkdownContainer();
+			loadSubpages();
 
 			bool isCoverLoaded = false;
 			cover.Texture = defaultCover;
@@ -246,12 +206,139 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				cover.Texture = texture;
 			}, failure: () => { /* TODO report this */ } );
 
+			loadHeader();
+		}
+
+		void loadSubpages () {
+			Overlay.StartLoading( this );
+
+			subpageTabControl.Current.Value = null;
+			subpageTabControl.Clear();
+			subpageDrawables.Clear();
+
+			subpageDrawables.Add( main, mainPageMarkdown );
+			changelog = null;
+
+			void addDefaultSubpages () {
+				subpageTabControl.AddItem( main );
+
+				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
+					changelog = new() { Title = Localisation.Strings.ChangelogPage };
+					subpageTabControl.AddItem( changelog );
+					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
+				}
+			}
+
+			ruleset.RequestSubpages( subpages => {
+				addDefaultSubpages();
+
+				foreach ( var i in subpages ) {
+					subpageTabControl.AddItem( i );
+				}
+
+				subpageTabControl.Current.Value = main;
+				Overlay.FinishLoadiong( this );
+
+			}, failure: () => {
+				addDefaultSubpages();
+
+				info.Add( new RequestFailedDrawable {
+					ContentText = Localisation.Strings.SubpagesFetchError,
+					ButtonClicked = RefreshSubpages
+				} );
+
+				subpageTabControl.Current.Value = main;
+				Overlay.FinishLoadiong( this );
+			} );
+		}
+
+		public void RefreshSubpages () {
+			info.Clear();
+			ruleset.FlushSubpageListing();
+			loadSubpages();
+		}
+
+		void loadCurrentPage () {
+			var page = subpageTabControl.Current.Value;
+
+			subpageContent.Clear( disposeChildren: false );
+			if ( page is null )
+				return;
+
+			if ( page == main ) {
+				loadMainPage();
+			}
+
+			if ( !subpageDrawables.TryGetValue( page, out var subpage ) ) {
+				var markdown = createMarkdownContainer();
+				var content = new FillFlowContainer {
+					RelativeSizeAxes = Axes.X,
+					AutoSizeAxes = Axes.Y,
+					Direction = FillDirection.Vertical,
+					Child = markdown
+				};
+
+				Overlay.StartLoading( this );
+				ruleset.RequestSubpage( page.Slug, subpage => {
+					markdown.Text = subpage.Content ?? "";
+					Overlay.FinishLoadiong( this );
+
+				}, failure: () => {
+					content.Insert( -1, new Container {
+						Padding = new MarginPadding { Horizontal = -32 },
+						AutoSizeAxes = Axes.Y,
+						RelativeSizeAxes = Axes.X,
+						Child = new RequestFailedDrawable {
+							ContentText = Localisation.Strings.PageFetchError,
+							ButtonClicked = RefreshCurrentPage
+						}
+					} );
+
+					Overlay.FinishLoadiong( this );
+				} );
+
+				subpage = content;
+				subpageDrawables.Add( page, content );
+			}
+
+			subpageContent.Add( subpage );
+		}
+
+		public void RefreshCurrentPage () {
+			var page = subpageTabControl.Current.Value;
+			if ( page is null )
+				return;
+
+			if ( page != main && page != changelog ) {
+				subpageDrawables.Remove( page );
+				ruleset.FlushSubpage( page.Slug );
+			}
+
+			loadCurrentPage();
+		}
+
+		void loadMainPage () {
+			Overlay.StartLoading( this );
 			ruleset.RequestDetail( detail => {
+				contentBindable?.UnbindAll();
 				contentBindable = localisation.GetLocalisedBindableString( detail.Content );
-				
+
 				contentBindable.BindValueChanged( v => {
 					mainPageMarkdown.Text = v.NewValue;
 				}, true );
+				Overlay.FinishLoadiong( this );
+
+			}, failure: () => {
+				// TODO report this
+				Overlay.FinishLoadiong( this );
+			} );
+		}
+
+		void loadHeader () {
+			Overlay.StartLoading( this );
+			ruleset.RequestDetail( detail => {
+				Tags.Clear();
+				Status.Clear();
 
 				Tags.AddRange( ruleset.GenerateTags( detail, large: true, includePlayability: false ) );
 				if ( ruleset.ListingEntry?.Status?.IsPlayable == true ) {
@@ -285,16 +372,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					Anchor = Anchor.CentreRight,
 					Origin = Anchor.CentreRight
 				} );
-
-				if ( --loadsLeft <= 0 )
-					OnContentLoaded();
+				Overlay.FinishLoadiong( this );
 
 			}, failure: () => {
 				// TODO report this
-
-				if ( --loadsLeft <= 0 )
-					OnContentLoaded();
+				Overlay.FinishLoadiong( this );
 			} );
+		}
+
+		public override bool Refresh () {
+			RefreshSubpages();
+
+			return true;
 		}
 
 		private ContentMarkdown createMarkdownContainer () {

@@ -6,6 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -117,10 +118,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			return JsonConvert.DeserializeObject<Subpage>( raw );
 		}
 		public void FlushSubpageCache ( string rulesetSlug, string subpageSlug ) {
-			subpageListingCache.Remove( $"{rulesetSlug}/{subpageSlug}" );
+			subpageCache.Remove( $"{rulesetSlug}/{subpageSlug}" );
+		}
+		public void FlushSubpageCache ( string rulesetSlug ) {
+			foreach ( var i in subpageCache.Keys.Where( x => x.StartsWith( $"{rulesetSlug}/" ) ).ToArray() ) {
+				subpageCache.Remove( i );
+			}
 		}
 		public void FlushSubpageCache () {
-			subpageListingCache.Clear();
+			subpageCache.Clear();
 		}
 
 		private Dictionary<int, Task<UserProfile?>> userCache = new();

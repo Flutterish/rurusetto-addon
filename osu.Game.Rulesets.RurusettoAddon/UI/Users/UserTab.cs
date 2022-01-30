@@ -7,7 +7,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			User = user;
 		}
 
-		protected override bool RequiresLoading => true;
 		protected override void LoadContent () {
 			Add( new DrawableRurusettoUser( User, false ) { Height = 80 } );
 

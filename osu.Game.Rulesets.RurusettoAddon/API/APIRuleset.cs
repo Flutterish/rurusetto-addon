@@ -147,6 +147,21 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				success( Array.Empty<SubpageListingEntry>() );
 			}
 		}
+		public void FlushSubpageListing () {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				API.FlushSubpageListingCache( Slug );
+			}
+		}
+		public void FlushSubpage ( string slug ) {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				API.FlushSubpageCache( Slug, slug );
+			}
+		}
+		public void FlushSubpages () { // NOTE this doesnt refresh changlog and main
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				API.FlushSubpageCache( Slug );
+			}
+		}
 
 		public void RequestSubpage ( string subpageSlug, Action<Subpage> success, Action? failure = null ) {
 			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) && !string.IsNullOrWhiteSpace( subpageSlug ) ) {

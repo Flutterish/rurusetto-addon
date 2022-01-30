@@ -22,8 +22,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		}
 
 		List<APIRuleset> cachedIdentities = new();
-		AsyncLazy<IEnumerable<APIRuleset>>? identities;
-		public async Task<IEnumerable<APIRuleset>> RequestIdentities () {
+		AsyncLazy<RulesetIdentities>? identities;
+		public async Task<RulesetIdentities> RequestIdentities () {
 			if ( identities is null ) {
 				identities = new( async () => await getIdentities() );
 			}
@@ -34,8 +34,8 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			identities = null;
 		}
 
-		private async Task<IEnumerable<APIRuleset>> getIdentities () {
-			var newIdentities = await requestIdentities();
+		private async Task<RulesetIdentities> getIdentities () {
+			var (newIdentities, hasLocal, hasWeb) = await requestIdentities();
 
 			// we need to merge them since we dont want anything to get out of sync, like the download manager which uses a given APIRuleset instance
 			lock ( cachedIdentities ) {
@@ -59,20 +59,28 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 
-			return newIdentities;
+			return new( newIdentities ) {
+				ContainsWebListing = hasWeb,
+				ContainsLocalListing = hasLocal
+			};
 		}
 
-		private async Task<List<APIRuleset>> requestIdentities () {
+		private async Task<(List<APIRuleset> rulesets, bool hasLocal, bool hasWeb)> requestIdentities () {
 			List<APIRuleset> identities = new();
 
 			Dictionary<string, APIRuleset> webFilenames = new();
 			Dictionary<string, APIRuleset> webNames = new();
+
+			bool hasLocal = storage != null;
+			bool hasWeb = false;
+
 			if ( API != null ) {
 				IEnumerable<ListingEntry> listing = Array.Empty<ListingEntry>();
 				var task = new TaskCompletionSource();
 
 				API.RequestRulesetListing( result => {
 					listing = result;
+					hasWeb = true;
 					task.SetResult();
 				},	failure:	() => task.SetResult(), /* TODO report this */
 					cancelled:	() => task.SetResult()
@@ -193,7 +201,20 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				}
 			}
 
-			return identities;
+			return (identities, hasLocal, hasWeb);
+		}
+	}
+
+	public record RulesetIdentities ( IEnumerable<APIRuleset> Rulesets ) : IEnumerable<APIRuleset> {
+		public bool ContainsWebListing { get; init; }
+		public bool ContainsLocalListing { get; init; }
+
+		public IEnumerator<APIRuleset> GetEnumerator () {
+			return Rulesets.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator () {
+			return ( (System.Collections.IEnumerable)Rulesets ).GetEnumerator();
 		}
 	}
 }

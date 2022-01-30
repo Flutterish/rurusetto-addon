@@ -49,6 +49,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 					if ( task != refreshTask )
 						return;
 
+					if ( !t.Result.ContainsWebListing ) {
+						info.Add( new RequestFailedDrawable {
+							ContentText = Localisation.Strings.ListingFetchError,
+							ButtonClicked = () => Refresh()
+						} );
+					}
+
 					foreach ( var i in t.Result ) {
 						content.Add( new DrawableListingEntry( i ) {
 							Anchor = Anchor.TopCentre,
@@ -66,13 +73,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		}
 
 		public override bool Refresh () {
+			API.FlushRulesetListingCache();
 			Rulesets.Refresh();
 			ReloadListing();
 
 			return true;
 		}
 
-		protected override bool RequiresLoading => false;
 		protected override void LoadContent () {
 			ReloadListing();
 		}

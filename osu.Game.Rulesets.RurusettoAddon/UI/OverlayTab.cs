@@ -30,10 +30,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected override void LoadComplete () {
 			base.LoadComplete();
 
-			if ( RequiresLoading ) {
-				Overlay.StartLoading( this );
-			}
-
 			LoadContent();
 		}
 
@@ -47,11 +43,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 
 		protected override bool StartHidden => true;
 
-		protected virtual bool RequiresLoading => false;
 		protected abstract void LoadContent ();
-		protected virtual void OnContentLoaded () {
-			Overlay.FinishLoadiong( this );
-		}
+		protected virtual void OnContentLoaded () { }
 
 		public override bool AcceptsFocus => true;
 		public override bool RequestsFocus => true;
