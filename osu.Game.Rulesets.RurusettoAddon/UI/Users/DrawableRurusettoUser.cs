@@ -180,8 +180,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 		public LocalisableString TooltipText => usernameText;
 
 		protected override bool OnClick ( ClickEvent e ) {
-			if ( profile?.OsuUsername is string osuUsername && ProfileOverlay != null && OnlineAPI != null ) {
-				var request = new GetUserRequest( osuUsername );
+			if ( !string.IsNullOrWhiteSpace( profile?.OsuUsername ) && ProfileOverlay != null && OnlineAPI != null ) {
+				var request = new GetUserRequest( profile.OsuUsername );
 				request.Success += v => {
 					ProfileOverlay.ShowUser( v );
 				};
