@@ -237,6 +237,41 @@ namespace osu.Game.Rulesets.RurusettoAddon.Localisation {
 		/// </summary>
 		public static LocalisableString UntitledRuleset => new TranslatableString( getKey( "untitled-ruleset" ), "Untitled Ruleset" );
 		
+		/// <summary>
+		/// Oh no!
+		/// </summary>
+		public static LocalisableString ErrorHeader => new TranslatableString( getKey( "error-header" ), "Oh no!" );
+		
+		/// <summary>
+		/// Please make sure you have an internet connection and the API address in settings is correct
+		/// </summary>
+		public static LocalisableString ErrorFooter => new TranslatableString( getKey( "error-footer" ), "Please make sure you have an internet connection and the API address in settings is correct" );
+		
+		/// <summary>
+		/// Retry
+		/// </summary>
+		public static LocalisableString Retry => new TranslatableString( getKey( "retry" ), "Retry" );
+		
+		/// <summary>
+		/// Could not retrieve the ruleset listing
+		/// </summary>
+		public static LocalisableString ListingFetchError => new TranslatableString( getKey( "listing-fetch-error" ), "Could not retrieve the ruleset listing" );
+		
+		/// <summary>
+		/// Could not load the page
+		/// </summary>
+		public static LocalisableString PageFetchError => new TranslatableString( getKey( "page-fetch-error" ), "Could not load the page" );
+		
+		/// <summary>
+		/// Could not retrieve subpages
+		/// </summary>
+		public static LocalisableString SubpagesFetchError => new TranslatableString( getKey( "subpages-fetch-error" ), "Could not retrieve subpages" );
+		
+		/// <summary>
+		/// Something went wrong, but I don't know what!
+		/// </summary>
+		public static LocalisableString ErrorMessageGeneric => new TranslatableString( getKey( "error-message-generic" ), "Something went wrong, but I don't know what!" );
+		
 		private static string getKey ( string key ) => $"{prefix}:{key}";
 	}
 }

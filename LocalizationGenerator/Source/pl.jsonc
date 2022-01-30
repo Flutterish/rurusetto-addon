@@ -48,5 +48,12 @@
     "unknown-version": "Nieznana Wersja",
     "settings-header": "Zintegrowane Rurusetto",
     "settings-api-address": "Adres API",
-    "untitled-ruleset": "Nienazwany Tryb Gry"
+    "untitled-ruleset": "Nienazwany Tryb Gry",
+    "error-header": "Ups!",
+    "error-footer": "Upewnij się, że masz połączenie z internetem, a adres API w ustawieniach jest poprawny",
+    "retry": "Odśwież",
+    "listing-fetch-error": "Nie udało się pobrać katalogu",
+    "page-fetch-error": "Nie udało się załadować strony",
+    "subpages-fetch-error": "Nie udało się pobrać listy podstron",
+    "error-message-generic": "Coś poszło nie tak, ale nie wiem co!"
 }

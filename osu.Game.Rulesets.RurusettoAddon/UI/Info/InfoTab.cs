@@ -25,6 +25,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		FillFlowContainer content;
 		APIRuleset ruleset;
 		Sprite cover;
+		FillFlowContainer info;
 		Container subpageContent;
 		ContentMarkdown mainPageMarkdown;
 		protected FillFlowContainer Tags;
@@ -163,7 +164,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 			content.Add( new Container {
 				Height = 28,
 				RelativeSizeAxes = Axes.X,
-				Child = new Container( ) {
+				Child = new Container {
 					RelativeSizeAxes = Axes.Both,
 					Padding = new MarginPadding { Horizontal = 6 },
 					Y = -6,
@@ -172,6 +173,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					}
 				},
 				Margin = new MarginPadding { Bottom = 12 }
+			} );
+
+			content.Add( info = new FillFlowContainer {
+				Padding = new MarginPadding { Horizontal = -32 },
+				Direction = FillDirection.Vertical,
+				RelativeSizeAxes = Axes.X,
+				AutoSizeAxes = Axes.Y
 			} );
 
 			content.Add( subpageContent = new Container {

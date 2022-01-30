@@ -48,5 +48,12 @@
     "unknown-version": "Unknown Version",
     "settings-header": "Rurusetto Addon",
     "settings-api-address": "API Address",
-    "untitled-ruleset": "Untitled Ruleset"
+    "untitled-ruleset": "Untitled Ruleset",
+    "error-header": "Oh no!",
+    "error-footer": "Please make sure you have an internet connection and the API address in settings is correct",
+    "retry": "Retry",
+    "listing-fetch-error": "Could not retrieve the ruleset listing",
+    "page-fetch-error": "Could not load the page",
+    "subpages-fetch-error": "Could not retrieve subpages",
+    "error-message-generic":  "Something went wrong, but I don't know what!"
 }

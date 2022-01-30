@@ -74,4 +74,11 @@ You can still try visiting it at [rurusetto]({0}).</value></data>
   <data name="settings-header"><value>Rurusetto Addon</value></data>
   <data name="settings-api-address"><value>API Address</value></data>
   <data name="untitled-ruleset"><value>Untitled Ruleset</value></data>
+  <data name="error-header"><value>Oh no!</value></data>
+  <data name="error-footer"><value>Please make sure you have an internet connection and the API address in settings is correct</value></data>
+  <data name="retry"><value>Retry</value></data>
+  <data name="listing-fetch-error"><value>Could not retrieve the ruleset listing</value></data>
+  <data name="page-fetch-error"><value>Could not load the page</value></data>
+  <data name="subpages-fetch-error"><value>Could not retrieve subpages</value></data>
+  <data name="error-message-generic"><value>Something went wrong, but I don't know what!</value></data>
   </root>

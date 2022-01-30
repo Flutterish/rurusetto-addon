@@ -209,7 +209,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		protected override void Update () {
 			base.Update();
 
-			var availableSize = Parent.ChildSize.X * 0.9f;
+			var availableSize = Parent.ChildSize.X * 0.9f + Margin.Left + Margin.Right;
 			const float minWidth = 280;
 			int entriesPerLine = (int)Math.Max( 1, availableSize / (minWidth + Margin.Left + Margin.Right) );
 			Width = availableSize / entriesPerLine - Margin.Left - Margin.Right;

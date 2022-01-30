@@ -74,4 +74,11 @@ Jeśli chcesz, ciągle możesz spróbować na oficjalnej stronie [rurusetto]({0}
   <data name="settings-header"><value>Zintegrowane Rurusetto</value></data>
   <data name="settings-api-address"><value>Adres API</value></data>
   <data name="untitled-ruleset"><value>Nienazwany Tryb Gry</value></data>
+  <data name="error-header"><value>Ups!</value></data>
+  <data name="error-footer"><value>Upewnij się, że masz połączenie z internetem, a adres API w ustawieniach jest poprawny</value></data>
+  <data name="retry"><value>Odśwież</value></data>
+  <data name="listing-fetch-error"><value>Nie udało się pobrać katalogu</value></data>
+  <data name="page-fetch-error"><value>Nie udało się załadować strony</value></data>
+  <data name="subpages-fetch-error"><value>Nie udało się pobrać listy podstron</value></data>
+  <data name="error-message-generic"><value>Coś poszło nie tak, ale nie wiem co!</value></data>
   </root>

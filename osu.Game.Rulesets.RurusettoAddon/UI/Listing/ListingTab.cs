@@ -9,14 +9,28 @@ using System.Threading.Tasks;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 	public class ListingTab : OverlayTab {
+		FillFlowContainer info;
 		ListingEntryContainer content;
 		Bindable<string> apiAddress = new( RurusettoAPI.DefaultAPIAddress );
 		public ListingTab () {
-			AddInternal( content = new() {
-				Direction = FillDirection.Full,
+			AddInternal( new FillFlowContainer() {
+				Direction = FillDirection.Vertical,
 				RelativeSizeAxes = Axes.X,
 				AutoSizeAxes = Axes.Y,
-				Padding = new MarginPadding { Horizontal = 32, Top = 8 }
+				
+				Children = new Drawable[] {
+					info = new() {
+						Direction = FillDirection.Full,
+						RelativeSizeAxes = Axes.X,
+						AutoSizeAxes = Axes.Y
+					},
+					content = new() {
+						Direction = FillDirection.Full,
+						RelativeSizeAxes = Axes.X,
+						AutoSizeAxes = Axes.Y,
+						Padding = new MarginPadding { Horizontal = 32, Top = 8 }
+					}
+				}
 			} );
 		}
 
@@ -25,6 +39,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 			Schedule( () => {
 				Overlay.StartLoading( this );
 				content.Clear();
+				info.Clear();
 			} );
 
 			Task task = null;
