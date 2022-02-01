@@ -172,8 +172,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 
 			user.RequestProfilePicture( texture => {
 				pfp.Texture = texture;
-			}, fallback => {
-				pfp.Texture = fallback;
 			} );
 		}
 

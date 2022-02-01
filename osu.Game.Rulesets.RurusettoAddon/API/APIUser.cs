@@ -36,11 +36,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public void RequestProfilePicture ( Action<Texture> success, Action<Texture>? failure = null ) {
+		public void RequestProfilePicture ( Action<Texture> success, Action? failure = null ) {
 			void requestDefault () {
 				if ( API != null ) {
 					API.RequestImage( StaticAPIResource.DefaultProfileImage, success, failure: () => {
-						failure?.Invoke( Texture.WhitePixel );
+						failure?.Invoke();
 					} );
 				}
 			}

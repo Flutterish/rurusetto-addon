@@ -44,9 +44,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		}
 
 		OverlayColourProvider colourProvider;
+		Texture defaultCover;
 		[BackgroundDependencyLoader]
-		private void load ( OverlayColourProvider colourProvider ) {
+		private void load ( OverlayColourProvider colourProvider, GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
 			this.colourProvider = colourProvider;
+			defaultCover = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
 		}
 
 		SubpageListingEntry main;
@@ -57,11 +59,6 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		private LocalisationManager localisation { get; set; }
 
 		ILocalisedBindableString contentBindable;
-
-		Texture defaultCover;
-		private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
-			defaultCover = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
-		}
 
 		protected override void LoadContent () {
 			AddInternal( new Container {
