@@ -39,7 +39,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
             };
             button = new RetryButton {
                 Margin = new MarginPadding { Top = 10 },
-                Width = 110,
+                MinWidth = 110,
                 Height = 38,
                 Origin = Anchor.BottomCentre,
                 Anchor = Anchor.BottomCentre,
@@ -163,7 +163,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
         }
 
         private class RetryButton : OsuButton {
-			protected override SpriteText CreateText () => new OsuSpriteText {
+            SpriteText text;
+            public float MinWidth;
+
+			protected override void Update () {
+				base.Update();
+                Width = Math.Max( MinWidth, text.DrawWidth + 18 );
+			}
+
+			protected override SpriteText CreateText () => text = new OsuSpriteText {
                 Depth = -1,
                 Origin = Anchor.Centre,
                 Anchor = Anchor.Centre,
