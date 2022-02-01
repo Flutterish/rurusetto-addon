@@ -55,5 +55,6 @@
     "listing-fetch-error": "Could not retrieve the ruleset listing",
     "page-fetch-error": "Could not load the page",
     "subpages-fetch-error": "Could not retrieve subpages",
-    "error-message-generic":  "Something went wrong, but I don't know what!"
+    "error-message-generic": "Something went wrong, but I don't know what!",
+    "notification-work-incomplete": "It seems rurusetto addon couldn't finish some work. Please make sure all your changes were applied correctly"
 }

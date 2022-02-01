@@ -272,6 +272,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.Localisation {
 		/// </summary>
 		public static LocalisableString ErrorMessageGeneric => new TranslatableString( getKey( "error-message-generic" ), "Something went wrong, but I don't know what!" );
 		
+		/// <summary>
+		/// It seems rurusetto addon couldn't finish some work. Please make sure all your changes were applied correctly
+		/// </summary>
+		public static LocalisableString NotificationWorkIncomplete => new TranslatableString( getKey( "notification-work-incomplete" ), "It seems rurusetto addon couldn't finish some work. Please make sure all your changes were applied correctly" );
+		
 		private static string getKey ( string key ) => $"{prefix}:{key}";
 	}
 }

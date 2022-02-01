@@ -14,8 +14,6 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		public RulesetDownloadManager ( RurusettoAPI API, Storage storage ) {
 			this.API = API;
 			this.storage = storage;
-
-			PerformPreCleanup();
 		}
 
 		private Dictionary<APIRuleset, Bindable<DownloadState>> downloadStates = new();
@@ -179,7 +177,11 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}
 		}
 
-		public void PerformPreCleanup () {
+		/// <summary>
+		/// Cleans up all files used by previous instances
+		/// </summary>
+		/// <returns>Whether the previous instance possibly finished finish its work. A value of <see langword="false"/> means it definitely did not finish the work.</returns>
+		public bool PerformPreCleanup () {
 			foreach ( var i in storage.GetFiles( "./rulesets", "*.dll-removed" ) ) {
 				storage.Delete( i );
 			}
@@ -190,7 +192,10 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 			if ( storage.ExistsDirectory( "./rurusetto-addon-temp/" ) ) {
 				storage.DeleteDirectory( "./rurusetto-addon-temp/" );
+				return false;
 			}
+
+			return true;
 		}
 
 		public void PerformTasks () {

@@ -81,4 +81,5 @@ Jeśli chcesz, ciągle możesz spróbować na oficjalnej stronie [rurusetto]({0}
   <data name="page-fetch-error"><value>Nie udało się załadować strony</value></data>
   <data name="subpages-fetch-error"><value>Nie udało się pobrać listy podstron</value></data>
   <data name="error-message-generic"><value>Coś poszło nie tak, ale nie wiem co!</value></data>
+  <data name="notification-work-incomplete"><value>Wygląda na to, że wtyczka rurusetto nie dokończyła pracy. Sprawdź, czy wszystkie twoje zmiany zostały pomyślnie zaaplikowane</value></data>
   </root>

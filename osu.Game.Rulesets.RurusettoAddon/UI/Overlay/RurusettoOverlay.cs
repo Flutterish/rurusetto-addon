@@ -7,6 +7,7 @@ using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Input.Bindings;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI.Info;
@@ -38,7 +39,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			dep.CacheAs( ruleset );
 			dep.CacheAs( new RulesetIdentityManager( dep.Get<Storage>(), dep.Get<IRulesetStore>(), API ) );
 			dep.CacheAs( new UserIdentityManager( API ) );
-			dep.CacheAs( new RulesetDownloadManager( API, dep.Get<Storage>() ) );
+			RulesetDownloadManager download;
+			dep.CacheAs( download = new( API, dep.Get<Storage>() ) );
+			if ( !download.PerformPreCleanup() ) {
+				Schedule( () => dep.Get<NotificationOverlay>()?.Post( new SimpleErrorNotification { Text = Localisation.Strings.NotificationWorkIncomplete } ) );
+			}
 
 			Schedule( () => {
 				AddInternal( API );

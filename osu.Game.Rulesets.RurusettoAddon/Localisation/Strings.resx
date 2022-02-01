@@ -81,4 +81,5 @@ You can still try visiting it at [rurusetto]({0}).</value></data>
   <data name="page-fetch-error"><value>Could not load the page</value></data>
   <data name="subpages-fetch-error"><value>Could not retrieve subpages</value></data>
   <data name="error-message-generic"><value>Something went wrong, but I don't know what!</value></data>
+  <data name="notification-work-incomplete"><value>It seems rurusetto addon couldn't finish some work. Please make sure all your changes were applied correctly</value></data>
   </root>

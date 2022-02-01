@@ -55,5 +55,6 @@
     "listing-fetch-error": "Nie udało się pobrać katalogu",
     "page-fetch-error": "Nie udało się załadować strony",
     "subpages-fetch-error": "Nie udało się pobrać listy podstron",
-    "error-message-generic": "Coś poszło nie tak, ale nie wiem co!"
+    "error-message-generic": "Coś poszło nie tak, ale nie wiem co!",
+    "notification-work-incomplete": "Wygląda na to, że wtyczka rurusetto nie dokończyła pracy. Sprawdź, czy wszystkie twoje zmiany zostały pomyślnie zaaplikowane"
 }
