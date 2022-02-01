@@ -1,7 +1,6 @@
 ﻿using Humanizer;
 using ICSharpCode.Decompiler.Util;
 using Newtonsoft.Json;
-using osu.Game.Rulesets.RurusettoAddon;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,13 +12,13 @@ namespace LocalisationGenerator {
 		static void Main () {
 			// TODO split this into several files (currently its 'Strings', but we might want 'Tags', 'Defaults' etc.)
 
-			Console.WriteLine( $"Loading {yellow("'meta.jsonc'")}..." );
+			print( $"Loading {yellow("'meta.jsonc'")}..." );
 			var errors = new List<string>();
 
 			Meta meta;
 			try {
 				meta = JsonConvert.DeserializeObject<Meta>( File.ReadAllText( "./Source/meta.jsonc" ) );
-				Console.WriteLine( $"Default locale: {meta.Default}" );
+				print( $"Default locale: {meta.Default}" );
 			}
 			catch ( Exception e ) {
 				fail( $"Could not load {yellow("'meta.jsonc'")} - {e.Message}" );
@@ -36,8 +35,8 @@ namespace LocalisationGenerator {
 				}
 
 				var filename = Path.GetFileName( file );
-				Console.WriteLine( "---------------" );
-				Console.WriteLine( $"Loading {yellow($"'{filename}'")}..." );
+				print( "---------------" );
+				print( $"Loading {yellow($"'{filename}'")}..." );
 				Dictionary<string, string> contents;
 				try {
 					contents = JsonConvert.DeserializeObject<Dictionary<string, string>>( File.ReadAllText( file ) );
@@ -53,7 +52,7 @@ namespace LocalisationGenerator {
 				}
 				contents.Remove( "locale" );
 
-				Console.WriteLine( $"Locale: {locale}" );
+				print( $"Locale: {locale}" );
 				if ( locale != filenameWithoutExtension ) {
 					logError( $"File '{filename}' does not match its defined locale {yellow($"'{locale}'")}" );
 				}
@@ -76,8 +75,8 @@ namespace LocalisationGenerator {
 				// TODO check argcount
 			}
 
-			Console.WriteLine( "---------------" );
-			Console.WriteLine( "Checking keys..." );
+			print( "---------------" );
+			print( "Checking keys..." );
 
 			foreach ( var (key, localesWithKey) in localesWithKeys ) {
 				if ( localesWithKey.Count != locales.Count ) {
@@ -92,10 +91,10 @@ namespace LocalisationGenerator {
 				return;
 			}
 
-			Console.WriteLine( "---------------" );
+			print( "---------------" );
 
 			string generateLocalisationClass () {
-				var ns = $"{typeof( RurusettoAddonRuleset ).Namespace}.Localisation";
+				var ns = $"osu.Game.Rulesets.RurusettoAddon.Localisation";
 				StringBuilder sb = new();
 				sb.AppendLine( $"using osu.Framework.Localisation;" );
 				sb.AppendLine();
@@ -126,8 +125,15 @@ namespace LocalisationGenerator {
 				return sb.ToString();
 			}
 
-			var l12nDir = "./../../../../osu.Game.Rulesets.RurusettoAddon/Localisation/";
-			Console.WriteLine( $"Generating files in {Path.GetFullPath(l12nDir)}\nContinue? [Y]/N" );
+			var l12nDir = ".";
+
+			while ( Path.GetFileName( Path.GetFullPath( l12nDir ) ) != "LocalizationGenerator" ) {
+				l12nDir += "/..";
+			}
+
+			l12nDir += "/../osu.Game.Rulesets.RurusettoAddon/Localisation/";
+
+			print( $"Generating files in {Path.GetFullPath(l12nDir)}\nContinue? [Y]/N" );
 			if ( Console.ReadLine() is "n" or "N" ) {
 				fail( "Cancelled." );
 				return;
@@ -146,7 +152,7 @@ namespace LocalisationGenerator {
 			}
 
 			void makeResxFile ( string filename, string locale ) {
-				Console.WriteLine( $"Generating {yellow( $"'{filename}'" )} ({locale})..." );
+				print( $"Generating {yellow( $"'{filename}'" )} ({locale})..." );
 				using var writer = new ResXResourceWriter( Path.Combine( l12nDir, filename ) );
 
 				foreach ( var (key, value) in locales[locale] ) {
@@ -159,40 +165,75 @@ namespace LocalisationGenerator {
 			File.WriteAllText( Path.Combine( l12nDir, "Strings.cs" ), generateLocalisationClass() );
 
 			logErrors();
-			Console.WriteLine( "---------------" );
-			Console.WriteLine( green("[Done]") );
+			print( "---------------" );
+			print( green("[Done]") );
+
+			Console.ReadKey();
 
 			void logError ( string msg ) {
-				Console.WriteLine( red($"[! Error]: {msg}") );
+				print( red($"[! Error]: {msg}") );
 				errors.Add( msg );
 			}
 
 			void logErrors () {
 				if ( errors.Any() ) {
-					Console.WriteLine( "---------------" );
+					print( "---------------" );
 					foreach ( var i in errors ) {
-						Console.WriteLine( red($"[! Error]: {i}") );
+						print( red($"[! Error]: {i}") );
 					}
 				}
 			}
 
 			void fail ( string msg ) {
 				logErrors();
-				Console.WriteLine( "---------------" );
-				Console.WriteLine( red($"[! Failure]: Could not finish - {msg}") );
+				print( "---------------" );
+				print( red($"[! Failure]: Could not finish - {msg}") );
 			}
 
 			string red ( string msg ) {
-				return $"\u001B[31m{msg}\u001B[0m";
+				return $"{{<RED>}}{msg}\u001B{{<POP>}}";
 			}
 
 			string green ( string msg ) {
-				return $"\u001B[32m{msg}\u001B[0m";
+				return $"{{<GREEN>}}{msg}{{<POP>}}";
 			}
 
 			string yellow ( string msg ) {
-				return $"\u001B[33m{msg}\u001B[0m";
+				return $"{{<YELLOW>}}{msg}{{<POP>}}";
 			}
+		}
+
+		static Stack<ConsoleColor> textColors = new();
+		static void print ( string msg ) {
+			string acc = "";
+			for ( int i = 0; i < msg.Length; i++ ) {
+				if ( msg.Length - 2 > i && msg.AsSpan( i, 2 ).StartsWith( "{<" ) ) {
+					Console.Write( acc );
+					acc = "";
+					i += 2;
+					var command = msg.Substring( i, msg.IndexOf( ">}", i ) - i );
+					i += command.Length + 1;
+					switch ( command ) {
+						case "RED":
+							textColors.Push( ConsoleColor.Red );
+							break;
+						case "GREEN":
+							textColors.Push( ConsoleColor.Green );
+							break;
+						case "YELLOW":
+							textColors.Push( ConsoleColor.DarkYellow );
+							break;
+						case "POP":
+							textColors.Pop();
+							break;
+					}
+					Console.ForegroundColor = textColors.Any() ? textColors.Peek() : ConsoleColor.White;
+				}
+				else {
+					acc += msg[ i ];
+				}
+			}
+			Console.WriteLine( acc );
 		}
 	}
 
