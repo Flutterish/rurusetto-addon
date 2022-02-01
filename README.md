@@ -18,6 +18,7 @@ To [Loreos](https://github.com/Loreos7) for the russian locale.
 * Done! Click the ![overlay button](./overlayButton.png) button to browse the wiki
 
 You can also install and update locale (translation) files by following the same steps for the `.zip` files included with each release.
+
 https://user-images.githubusercontent.com/40297338/149041138-003f4a3e-3144-4139-8558-34d13da8d40f.mp4
 
 ## Contributing
