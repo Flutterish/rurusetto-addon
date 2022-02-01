@@ -38,3 +38,5 @@ If you can't code, you can still contribute localisation (translation files). Yo
   * Some strings contain a `{0}` or `{1}` etc. These are going to be replaced by something such as a number, a link or an error code. All entries which contain them must be commented by explaining what they are
 * If you can build, run `LocalisationGenerator.csproj`. This time confirm and generate resource files. If you do not know how to build, a collaborator will do this step for you when you submit your PR
 * Open a PR (Pull Request) to submit your changes for review
+
+You can also contribute to the [rūrusetto wiki](https://rulesets.info) or any of the rulesets you discover! Make sure to show some ❤️ to the awesome people who develop and maintain them.
