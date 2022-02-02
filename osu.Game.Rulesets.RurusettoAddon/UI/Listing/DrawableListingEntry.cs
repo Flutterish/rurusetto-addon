@@ -187,16 +187,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 				if ( !isCoverLoaded ) {
 					cover.Texture = texture;
 				}
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			Ruleset.RequestDarkCover( texture => {
 				cover.Texture = texture;
 				isCoverLoaded = true;
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			Ruleset.RequestDetail( detail => {
 				Tags.AddRange( Ruleset.GenerateTags( detail ) );
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			Add( new HoverClickSounds() );
 		}

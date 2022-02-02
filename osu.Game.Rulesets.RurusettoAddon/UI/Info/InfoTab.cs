@@ -196,12 +196,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				if ( !isCoverLoaded ) {
 					cover.Texture = texture;
 				}
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			ruleset.RequestDarkCover( texture => {
 				isCoverLoaded = true;
 				cover.Texture = texture;
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			loadHeader();
 		}
@@ -236,7 +236,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				subpageTabControl.Current.Value = main;
 				Overlay.FinishLoadiong( this );
 
-			}, failure: () => {
+			}, failure: e => {
 				addDefaultSubpages();
 
 				info.Add( new RequestFailedDrawable {
@@ -280,7 +280,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					markdown.Text = subpage.Content ?? "";
 					Overlay.FinishLoadiong( this );
 
-				}, failure: () => {
+				}, failure: e => {
 					content.Insert( -1, new Container {
 						Padding = new MarginPadding { Horizontal = -32 },
 						AutoSizeAxes = Axes.Y,
@@ -325,8 +325,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				}, true );
 				Overlay.FinishLoadiong( this );
 
-			}, failure: () => {
-				// TODO report this
+			}, failure: e => {
+				API.LogFailure( $"Could not retrieve detail for {ruleset}", e );
 				Overlay.FinishLoadiong( this );
 			} );
 		}
@@ -371,8 +371,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				} );
 				Overlay.FinishLoadiong( this );
 
-			}, failure: () => {
-				// TODO report this
+			}, failure: e => {
+				API.LogFailure( $"Could not retrieve detail for {ruleset}", e );
 				Overlay.FinishLoadiong( this );
 			} );
 		}

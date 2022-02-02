@@ -168,7 +168,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 				this.profile = profile;
 				usernameText = profile.Username ?? "";
 				username.Text = profile.Username ?? Localisation.Strings.UserUnknown;
-			}, failure: () => { /* TODO report this */ } );
+			} );
 
 			user.RequestProfilePicture( texture => {
 				pfp.Texture = texture;

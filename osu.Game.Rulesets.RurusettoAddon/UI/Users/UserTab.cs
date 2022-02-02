@@ -11,11 +11,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Users {
 			Add( new DrawableRurusettoUser( User, false ) { Height = 80 } );
 
 			User.RequestDetail( profile => {
-
 				OnContentLoaded();
-			}, failure: () => {
-				// TODO report this
-
+			}, failure: e => {
+				API.LogFailure( $"Could not retrieve profile for {User}", e );
 				OnContentLoaded();
 			} );
 		}

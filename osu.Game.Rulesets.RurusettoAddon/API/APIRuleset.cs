@@ -100,7 +100,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 						FillMode = FillMode.Fit,
 						Texture = logo
 					} );
-				}, () => {
+				}, e => {
 					failure?.Invoke( createDefault() );
 				} );
 			}
@@ -109,7 +109,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public void RequestDetail ( Action<RulesetDetail> success, Action? failure = null ) {
+		public void RequestDetail ( Action<RulesetDetail> success, Action<Exception?>? failure = null ) {
 			if ( Source == Source.Web && !string.IsNullOrWhiteSpace( Slug ) && API != null ) {
 				API.RequestRulesetDetail( Slug, success, failure );
 				// TODO this on failures
@@ -139,7 +139,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public void RequestSubpages ( Action<IEnumerable<SubpageListingEntry>> success, Action? failure = null ) {
+		public void RequestSubpages ( Action<IEnumerable<SubpageListingEntry>> success, Action<Exception?>? failure = null ) {
 			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
 				API.RequestSubpageListing( Slug, success, failure );
 			}
@@ -163,18 +163,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public void RequestSubpage ( string subpageSlug, Action<Subpage> success, Action? failure = null ) {
+		public void RequestSubpage ( string subpageSlug, Action<Subpage> success, Action<Exception?>? failure = null ) {
 			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) && !string.IsNullOrWhiteSpace( subpageSlug ) ) {
 				API.RequestSubpage( Slug, subpageSlug, success, failure );
 			}
 			else {
-				failure?.Invoke();
+				failure?.Invoke( null );
 			}
 		}
 
-		public void RequestDarkCover ( Action<Texture> success, Action? failure = null ) {
+		public void RequestDarkCover ( Action<Texture> success, Action<Exception?>? failure = null ) {
 			if ( API is null ) {
-				failure?.Invoke();
+				failure?.Invoke( null );
 			}
 			else {
 				RequestDetail( detail => {
@@ -213,7 +213,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		public override string ToString ()
-			=> $"{Name}";
+			=> $"{Name} [Source {Source}] [{(Source is Source.Web ? $"Slug {Slug}" : $"Path {LocalPath}")}]";
 	}
 
 	public enum Source {

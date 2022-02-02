@@ -27,7 +27,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 
 		public bool HasProfile { get; private set; }
 
-		public void RequestDetail ( Action<UserProfile> success, Action? failure = null ) {
+		public void RequestDetail ( Action<UserProfile> success, Action<Exception?>? failure = null ) {
 			if ( Source == Source.Web && API != null ) {
 				API.RequestUserProfile( ID, success, failure );
 			}
@@ -36,11 +36,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
-		public void RequestProfilePicture ( Action<Texture> success, Action? failure = null ) {
-			void requestDefault () {
+		public void RequestProfilePicture ( Action<Texture> success, Action<Exception?>? failure = null ) {
+			void requestDefault ( Exception? e = null ) {
 				if ( API != null ) {
-					API.RequestImage( StaticAPIResource.DefaultProfileImage, success, failure: () => {
-						failure?.Invoke();
+					API.RequestImage( StaticAPIResource.DefaultProfileImage, success, failure: e => {
+						failure?.Invoke( e );
 					} );
 				}
 			}
@@ -59,5 +59,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 				requestDefault();
 			}
 		}
+
+		public override string ToString ()
+			=> Source is Source.Web ? $"User with ID = {ID}" : $"Local user";
 	}
 }

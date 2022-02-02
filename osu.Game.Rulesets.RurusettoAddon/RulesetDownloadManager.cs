@@ -63,7 +63,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						availability.Value |= Availability.AvailableOnline;
 					else
 						availability.Value |= Availability.NotAvailableOnline;
-				}, failure: () => {
+				}, failure: _ => {
 					availability.Value |= Availability.NotAvailableOnline;
 				} );
 
@@ -124,10 +124,10 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 				tasks[ ruleset ] = task with { Source = filename };
 				GetStateBindable( ruleset ).Value = finishedState;
 
-			}, failure: () => {
+			}, failure: e => {
 				if ( wasTaskCancelled( ruleset, task ) ) return;
 				tasks.Remove( ruleset );
-				// TODO report this
+				API.LogFailure( $"Download manager could not retrieve detail for {ruleset}", e );
 			} );
 		}
 

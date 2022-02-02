@@ -82,8 +82,12 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 					listing = result;
 					hasWeb = true;
 					task.SetResult();
-				},	failure:	() => task.SetResult(), /* TODO report this */
-					cancelled:	() => task.SetResult()
+
+				},	failure: e => {
+					API.LogFailure( $"Identity manager could not retrieve ruleset listing", e );
+					task.SetResult();
+				},
+					cancelled: () => task.SetResult()
 				);
 
 				await task.Task;

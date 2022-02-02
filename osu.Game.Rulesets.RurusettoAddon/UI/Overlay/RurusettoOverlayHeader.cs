@@ -29,7 +29,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 					ruleset.RequestDarkCover( texture => {
 						background.SetCover( texture );
-					}, failure: () => { /* TODO report this */ } );
+					} );
 				}
 				else if ( v.NewValue is APIUser user ) {
 					TabControl.AddItem( selectedTab = $"user" );
@@ -41,7 +41,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 							TabControl.AddItem( selectedTab = $"{detail.Username} (user)" );
 							Current.Value = selectedTab;
 						}
-					}, failure: () => { /* TODO report this */ } );
+					} );
 				}
 				else {
 					Current.Value = listingText;

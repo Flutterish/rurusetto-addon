@@ -2,6 +2,7 @@
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -23,10 +24,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			Address.ValueChanged += _ => FlushAllCaches();
 		}
 
-		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action? failure = null, Action? cancelled = null ) {
+		private async void queue<T> ( Task<T?> task, Action<T>? success = null, Action<Exception?>? failure = null, Action? cancelled = null ) {
 			if ( task.Status == TaskStatus.RanToCompletion ) {
 				if ( task.Result is null )
-					failure?.Invoke();
+					failure?.Invoke( task.Exception );
 				else
 					success?.Invoke( task.Result );
 			}
@@ -39,15 +40,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 						if ( address != Address.Value )
 							cancelled?.Invoke();
 						else if ( value is null )
-							failure?.Invoke();
+							failure?.Invoke( null );
 						else
 							success?.Invoke( value );
 					} );
 				}
-				catch ( Exception ) {
+				catch ( Exception e ) {
 					Schedule( () => {
 						if ( address == Address.Value )
-							failure?.Invoke();
+							failure?.Invoke( e );
 						else
 							cancelled?.Invoke();
 					} );
@@ -55,8 +56,18 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 		}
 
+		public void LogFailure ( string message, Exception? exception = null ) {
+			message = $"Unhandled Rurusetto Addon Error: `{message}` - API Address: `{Address.Value}`";
+			if ( exception is null )
+				Logger.Log( message, LoggingTarget.Network, LogLevel.Error );
+			else
+				Logger.Error( exception, message, LoggingTarget.Network );
+		}
+
 		private Task<IEnumerable<ListingEntry>?>? listingCache = null;
-		public void RequestRulesetListing ( Action<IEnumerable<ListingEntry>>? success = null, Action? failure = null, Action? cancelled = null ) {
+		public void RequestRulesetListing ( Action<IEnumerable<ListingEntry>>? success = null, Action<Exception?>? failure = null, Action? cancelled = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve ruleset listing", e );
+
 			queue( listingCache ??= requestRulesetListing(), success, failure, cancelled );
 		}
 		private async Task<IEnumerable<ListingEntry>?> requestRulesetListing () {
@@ -68,7 +79,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private Dictionary<string, Task<RulesetDetail?>> rulesetDetailCache = new();
-		public void RequestRulesetDetail ( string slug, Action<RulesetDetail>? success = null, Action? failure = null ) {
+		public void RequestRulesetDetail ( string slug, Action<RulesetDetail>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve ruleset detail for {slug}", e );
+
 			if ( !rulesetDetailCache.TryGetValue( slug, out var detail ) ) {
 				rulesetDetailCache.Add( slug, detail = requestRulesetDetail( slug ) );
 			}
@@ -87,7 +100,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private Dictionary<string, Task<IEnumerable<SubpageListingEntry>?>> subpageListingCache = new();
-		public void RequestSubpageListing ( string slug, Action<IEnumerable<SubpageListingEntry>>? success = null, Action? failure = null ) {
+		public void RequestSubpageListing ( string slug, Action<IEnumerable<SubpageListingEntry>>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve subpage listing for {slug}", e );
+
 			if ( !subpageListingCache.TryGetValue( slug, out var listing ) ) {
 				subpageListingCache.TryAdd( slug, listing = requestSubpageListing( slug ) );
 			}
@@ -106,7 +121,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private Dictionary<string, Task<Subpage?>> subpageCache = new();
-		public void RequestSubpage ( string rulesetSlug, string subpageSlug, Action<Subpage>? success = null, Action? failure = null ) {
+		public void RequestSubpage ( string rulesetSlug, string subpageSlug, Action<Subpage>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve subpage {subpageSlug} for ruleset {rulesetSlug}", e );
+
 			if ( !subpageCache.TryGetValue( $"{rulesetSlug}/{subpageSlug}", out var listing ) ) {
 				subpageCache.TryAdd( $"{rulesetSlug}/{subpageSlug}", listing = requestSubpage( rulesetSlug, subpageSlug ) );
 			}
@@ -130,7 +147,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private Dictionary<int, Task<UserProfile?>> userCache = new();
-		public void RequestUserProfile ( int id, Action<UserProfile>? success = null, Action? failure = null ) {
+		public void RequestUserProfile ( int id, Action<UserProfile>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve user profile with ID = {id}", e );
+
 			if ( !userCache.TryGetValue( id, out var user ) ) {
 				userCache.TryAdd( id, user = requestUserProfile( id ) );
 			}
@@ -149,7 +168,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 		}
 
 		private Dictionary<string, Task<Texture?>> mediaTextureCache = new();
-		public void RequestImage ( string uri, Action<Texture>? success = null, Action? failure = null ) {
+		public void RequestImage ( string uri, Action<Texture>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve image at `{uri}`", e );
+
 			if ( !mediaTextureCache.TryGetValue( uri, out var task ) ) {
 				mediaTextureCache.TryAdd( uri, task = requestImage( uri ) );
 			}
@@ -176,7 +197,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			mediaTextureCache.Clear();
 		}
 
-		public void RequestImage ( StaticAPIResource resource, Action<Texture>? success = null, Action? failure = null ) {
+		public void RequestImage ( StaticAPIResource resource, Action<Texture>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve static resource {resource} at {resource.GetURI()}", e );
+
 			RequestImage( resource.GetURI(), success, failure );
 		}
 		public void FlushImageCache ( StaticAPIResource resource ) {
