@@ -72,10 +72,10 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 						var info = new FileInfo( ruleset.LocalPath );
 						info.Refresh();
 
-						if ( s.LatestUpdate.HasValue && info.CreationTimeUtc < s.LatestUpdate.Value ) {
+						if ( s.LatestUpdate.HasValue && info.LastWriteTimeUtc < s.LatestUpdate.Value ) {
 							availability.Value |= Availability.Outdated;
 						}
-						else if ( info.Length != s.FileSize ) {
+						else if ( s.FileSize != 0 && info.Length != s.FileSize ) {
 							availability.Value |= Availability.Outdated;
 						}
 					}
