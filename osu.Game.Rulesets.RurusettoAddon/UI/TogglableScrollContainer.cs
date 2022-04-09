@@ -24,5 +24,9 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI {
 		protected override bool OnHover ( HoverEvent e ) {
 			return CanScroll ? base.OnHover( e ) : false;
 		}
+
+		protected override bool OnScroll ( ScrollEvent e ) {
+			return CanScroll ? base.OnScroll( e ) : false;
+		}
 	}
 }
