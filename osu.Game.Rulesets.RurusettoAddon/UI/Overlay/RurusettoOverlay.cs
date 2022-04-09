@@ -91,29 +91,31 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			Add( loading = new LoadingLayer( dimBackground: true ) );
 
-			Header.SelectedInfo.ValueChanged += _ => onSelectedInfoChanged();
+			Header.SelectedTab.ValueChanged += _ => onSelectedInfoChanged();
 		}
 
 		private void onSelectedInfoChanged () {
-			if ( Header.SelectedInfo.Value is APIRuleset ruleset ) {
-				if ( !infoTabs.TryGetValue( ruleset, out var tab ) ) {
-					infoTabs.Add( ruleset, tab = new( ruleset ) );
-					tabContainer.Add( tab );
-				}
+			OverlayTab tab = listing;
 
-				presentTab( tab );
-			}
-			else if ( Header.SelectedInfo.Value is APIUser user ) {
-				if ( !userTabs.TryGetValue( user, out var tab ) ) {
-					userTabs.Add( user, tab = new( user ) );
-					tabContainer.Add( tab );
-				}
+			switch ( Header.SelectedTab.Value ) {
+				case { Target: APIRuleset ruleset }:
+					if ( !infoTabs.TryGetValue( ruleset, out var rulesetTab ) ) {
+						infoTabs.Add( ruleset, rulesetTab = new( ruleset ) );
+						tabContainer.Add( rulesetTab );
+					}
+					tab = rulesetTab;
+					break;
 
-				presentTab( tab );
-			}
-			else {
-				presentTab( listing );
-			}
+				case { Target: APIUser user }:
+					if ( !userTabs.TryGetValue( user, out var userTab ) ) {
+						userTabs.Add( user, userTab = new( user ) );
+						tabContainer.Add( userTab );
+					}
+					tab = userTab;
+					break;
+			};
+
+			presentTab( tab );
 		}
 
 		private void presentTab ( OverlayTab tab ) {
@@ -144,7 +146,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			loadingTabs.Clear();
 			updateLoading();
-			Header.SelectedInfo.Value = null;
+			Header.SelectedTab.Value = null;
 			foreach ( var i in infoTabs ) {
 				tabContainer.Remove( i.Value );
 				i.Value.Dispose();
@@ -189,8 +191,8 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			=> new();
 
 		public override bool OnPressed ( KeyBindingPressEvent<GlobalAction> e ) {
-			if ( e.Action == GlobalAction.Back && Header.SelectedInfo.Value != null ) {
-				Header.SelectedInfo.Value = null;
+			if ( e.Action == GlobalAction.Back && Header.SelectedTab.Value != null ) {
+				Header.SelectedTab.Value = null;
 				return true;
 			}
 

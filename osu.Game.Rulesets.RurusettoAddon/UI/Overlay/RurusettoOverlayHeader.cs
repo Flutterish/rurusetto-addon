@@ -1,66 +1,63 @@
 ﻿using Humanizer;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
-	public class RurusettoOverlayHeader : BreadcrumbControlOverlayHeader {
-		static readonly LocalisableString listingText = Localisation.Strings.ListingTab;
+	public record RurusettoTabItem {
+		public object Target { get; init; }
+		public LocalisableString Text { get; init; }
+	}
+
+	public class RurusettoOverlayHeader : TabControlOverlayHeader<RurusettoTabItem> {
+		static readonly RurusettoTabItem listingTab = new() {
+			Text = Localisation.Strings.ListingTab
+		};
 
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
 
 		public RurusettoOverlayHeader () {
-			TabControl.AddItem( listingText );
+			TabControl.AddItem( listingTab );
 
-			SelectedInfo.ValueChanged += v => {
+			SelectedTab.ValueChanged += v => {
 				if ( v.OldValue != null )
-					TabControl.RemoveItem( selectedTab );
+					TabControl.RemoveItem( v.OldValue );
 
-				if ( v.NewValue is APIRuleset ruleset ) {
-					LocalisableString newName = ruleset.Name == Localisation.Strings.UntitledRuleset
-					 ? ruleset.Name
-					 : ruleset.Name.ToString().Humanize().ToLower();
+				switch ( v.NewValue ) {
+					case { Target: APIRuleset ruleset }:
+						TabControl.AddItem( v.NewValue );
+						Current.Value = v.NewValue;
 
-					TabControl.AddItem( selectedTab = newName ); // TODO this can fail if there are duplicate names?
-					Current.Value = selectedTab;
+						ruleset.RequestDarkCover( texture => {
+							background.SetCover( texture );
+						} );
+						break;
 
-					ruleset.RequestDarkCover( texture => {
-						background.SetCover( texture );
-					} );
-				}
-				else if ( v.NewValue is APIUser user ) {
-					TabControl.AddItem( selectedTab = $"user" );
-					Current.Value = selectedTab;
+					case { Target: APIUser user }:
 
-					user.RequestDetail( detail => {
-						if ( Current.Value == selectedTab ) {
-							TabControl.RemoveItem( selectedTab );
-							TabControl.AddItem( selectedTab = $"{detail.Username} (user)" );
-							Current.Value = selectedTab;
-						}
-					} );
-				}
-				else {
-					Current.Value = listingText;
-					background.SetCover( null );
+						break;
+
+					default:
+						Current.Value = listingTab;
+						background.SetCover( null );
+						break;
 				}
 			};
 
 			Current.ValueChanged += v => {
-				if ( v.NewValue == listingText ) {
-					SelectedInfo.Value = null;
+				if ( v.NewValue == listingTab ) {
+					SelectedTab.Value = null;
 				}
 			};
 		}
 
-		/// <summary>
-		/// Can be either <see cref="APIRuleset"/>, <see cref="APIUser"/> or <see langword="null"/>
-		/// </summary>
-		public readonly Bindable<object> SelectedInfo = new();
-		LocalisableString selectedTab;
+		public readonly Bindable<RurusettoTabItem> SelectedTab = new();
 
 		protected override OverlayTitle CreateTitle ()
 			=> new HeaderTitle();
@@ -74,6 +71,49 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 				Title = "rūrusetto";
 				Description = Localisation.Strings.RurusettoDescription;
 				IconTexture = "Icons/Hexacons/chart";
+			}
+		}
+
+		protected override OsuTabControl<RurusettoTabItem> CreateTabControl () => new OverlayHeaderBreadcrumbControl();
+
+		public class OverlayHeaderBreadcrumbControl : BreadcrumbControl<RurusettoTabItem> {
+			public OverlayHeaderBreadcrumbControl () {
+				RelativeSizeAxes = Axes.X;
+				Height = 47;
+			}
+
+			[BackgroundDependencyLoader]
+			private void load ( OverlayColourProvider colourProvider ) {
+				AccentColour = colourProvider.Light2;
+			}
+
+			protected override TabItem<RurusettoTabItem> CreateTabItem ( RurusettoTabItem value ) => new ControlTabItem( value ) {
+				AccentColour = AccentColour,
+			};
+
+			private class ControlTabItem : BreadcrumbTabItem {
+				protected override float ChevronSize => 8;
+
+				public ControlTabItem ( RurusettoTabItem value )
+					: base( value ) {
+					RelativeSizeAxes = Axes.Y;
+					Text.Font = Text.Font.With( size: 14 );
+					Text.Anchor = Anchor.CentreLeft;
+					Text.Origin = Anchor.CentreLeft;
+					Chevron.Y = 1;
+					Bar.Height = 0;
+				}
+
+				protected override void LoadComplete () {
+					base.LoadComplete();
+
+					Text.Text = Value.Text;
+				}
+
+				// base OsuTabItem makes font bold on activation, we don't want that here
+				protected override void OnActivated () => FadeHovered();
+
+				protected override void OnDeactivated () => FadeUnhovered();
 			}
 		}
 	}
