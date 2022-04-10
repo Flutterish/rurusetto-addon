@@ -201,11 +201,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		}
 
 		protected override bool OnKeyDown ( KeyDownEvent e ) {
-			if ( e.AltPressed && e.Key == Key.Left ) {
+			if ( (e.AltPressed || e.ControlPressed) && e.Key == Key.Left ) {
 				Header.NavigateBack();
 				return true;
 			}
-			if ( e.AltPressed && e.Key == Key.Right ) {
+			if ( (e.AltPressed || e.ControlPressed) && e.Key == Key.Right ) {
 				Header.NavigateForward();
 				return true;
 			}
