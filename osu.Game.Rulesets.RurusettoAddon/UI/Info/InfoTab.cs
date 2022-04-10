@@ -428,22 +428,49 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 					} );
 					all.Add( list );
 
+					void add ( BeatmapRecommendation i, APIBeatmapSet v ) {
+						v.Beatmaps = v.Beatmaps.Where( x => x.DifficultyName == i.Version ).ToArray();
+
+						list.Add( new ReverseChildIDFillFlowContainer<Drawable> {
+							AutoSizeAxes = Axes.Both,
+							Direction = FillDirection.Vertical,
+							Anchor = Anchor.TopCentre,
+							Children = new Drawable[] {
+									new BeatmapCardNormal( v ),
+									new FillFlowContainer {
+										AutoSizeAxes = Axes.Y,
+										RelativeSizeAxes = Axes.X,
+										Direction = FillDirection.Horizontal,
+										Margin = new() { Top = 5 },
+										Children = new Drawable[] {
+											new SpriteIcon {
+												Icon = FontAwesome.Solid.QuoteLeft,
+												Size = new Vector2( 34, 18 ) * 0.6f
+											},
+											new OsuMarkdownContainer {
+												AutoSizeAxes = Axes.Y,
+												RelativeSizeAxes = Axes.X,
+												Text = i.Comment,
+												Margin = new() { Left = 4 - 38 * 0.6f }
+											}
+										}
+									}
+								}
+						} );
+					}
+
 					foreach ( var i in group ) {
 						var request = new GetBeatmapSetRequest( i.BeatmapID, BeatmapSetLookupType.BeatmapId );
 
 						request.Success += v => {
-							v.Beatmaps = v.Beatmaps.Where( x => x.DifficultyName == i.Version ).ToArray();
-
-							list.Add( new BeatmapCardNormal( v ) {
-								Anchor = Anchor.TopCentre
-							} );
+							add( i, v );
 
 							if ( ++loadedCount == r.Count ) {
 								Overlay.FinishLoadiong( this );
 							}
 						};
-						request.Failure += v => {
-							list.Add( new BeatmapCardNormal( new() {
+						request.Failure += e => {
+							add( i, new() {
 								Artist = i.Artist,
 								ArtistUnicode = i.Artist,
 								BPM = i.BPM,
@@ -452,13 +479,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 								AuthorString = i.Creator,
 								Status = (BeatmapOnlineStatus)i.Status,
 								Beatmaps = new APIBeatmap[] {
-								new() {
-									BPM = i.BPM,
-									StarRating = i.StarDifficulty
+									new() {
+										BPM = i.BPM,
+										StarRating = i.StarDifficulty
+									}
 								}
-							}
-							} ) {
-								Anchor = Anchor.TopCentre
 							} );
 
 							if ( ++loadedCount == r.Count ) {

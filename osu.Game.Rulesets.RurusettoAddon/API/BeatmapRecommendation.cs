@@ -71,7 +71,7 @@ public record BeatmapRecommendation {
 
 	/// <summary> Comment from user who recommend this beatmap. </summary>
 	[JsonProperty( "comment" )]
-	public LocalisableString Comment { get; init; }
+	public string Comment { get; init; }
 
 	/// <summary> The time on this recommend beatmap added to the site in JSON time format. </summary>
 	[JsonProperty( "created_at" )]
