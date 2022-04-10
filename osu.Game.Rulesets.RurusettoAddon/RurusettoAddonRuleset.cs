@@ -8,7 +8,6 @@ using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
-using osu.Game.Graphics;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Settings;
@@ -69,35 +68,26 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
         public override Drawable CreateIcon() => new Icon( this );
 
-        public class Icon : CompositeDrawable
-        {
+        public class Icon : Sprite {
             private RurusettoAddonRuleset ruleset;
 
             public Icon ( RurusettoAddonRuleset ruleset ) {
                 this.ruleset = ruleset;
 
                 RelativeSizeAxes = Axes.Both;
-
-                InternalChildren = new Drawable[] {
-                    new SpriteIcon {
-                        Icon = FontAwesome.Regular.Circle,
-                        RelativeSizeAxes = Axes.Both,
-                        Origin = Anchor.Centre,
-                        Anchor = Anchor.Centre
-                    },
-                    new SpriteText {
-                        UseFullGlyphHeight = false,
-                        Text = "r",
-                        Font = OsuFont.GetFont( size: 24 ),
-                        Origin = Anchor.Centre,
-                        Anchor = Anchor.Centre
-                    }
-                };
+                FillMode = FillMode.Fit;
+                Origin = Anchor.Centre;
+                Anchor = Anchor.Centre;
             }
             
             // we are using the icon load code to inject our "mixin" since it is present in both the intro and the toolbar, where the overlay button should be
             [BackgroundDependencyLoader(permitNulls: true)]
-            private void load ( OsuGame game, GameHost host ) {
+            private void load ( OsuGame game, GameHost host, TextureStore textures ) {
+                if ( !textures.GetAvailableResources().Contains( "Textures/rurusetto-logo.png" ) )
+                    textures.AddStore( host.CreateTextureLoaderStore( ruleset.CreateResourceStore() ) );
+
+                Texture = textures.Get( "Textures/rurusetto-logo.png" );
+
                 if ( game is null ) return;
                 if ( game.Dependencies.Get<RurusettoOverlay>() != null ) return;
 
