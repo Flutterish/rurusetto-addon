@@ -228,6 +228,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.Localisation {
 		public static LocalisableString ChangelogPage => new TranslatableString( getKey( "changelog-page" ), "Changelog" );
 		
 		/// <summary>
+		/// Recommended Beatmaps
+		/// </summary>
+		public static LocalisableString RecommendedBeatmapsPage => new TranslatableString( getKey( "recommended-beatmaps-page" ), "Recommended Beatmaps" );
+		
+		/// <summary>
 		/// Unknown Version
 		/// </summary>
 		public static LocalisableString UnknownVersion => new TranslatableString( getKey( "unknown-version" ), "Unknown Version" );

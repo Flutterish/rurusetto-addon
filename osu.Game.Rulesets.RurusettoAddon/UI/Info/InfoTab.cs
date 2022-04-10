@@ -10,15 +10,22 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
+using osu.Game.Beatmaps;
+using osu.Game.Beatmaps.Drawables.Cards;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
+using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 	public class InfoTab : OverlayTab {
@@ -53,6 +60,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 		SubpageListingEntry main;
 		SubpageListingEntry changelog;
+		SubpageListingEntry recommended;
 		Dictionary<SubpageListingEntry, Drawable> subpageDrawables = new();
 
 		[Resolved]
@@ -218,12 +226,23 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 			void addDefaultSubpages () {
 				subpageTabControl.AddItem( main );
+				subpageTabControl.PinItem( main );
 
 				if ( ruleset.ListingEntry?.Status?.Changelog is string log && !string.IsNullOrWhiteSpace( log ) ) {
 					changelog = new() { Title = Localisation.Strings.ChangelogPage };
 					subpageTabControl.AddItem( changelog );
+					subpageTabControl.PinItem( changelog );
 					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
 				}
+
+				ruleset.RequestRecommendations( RurusettoAPI.RecommendationSource.All, r => {
+					if ( r.Count == 0 || OnlineAPI is null )
+						return;
+
+					recommended = new() { Title = Localisation.Strings.RecommendedBeatmapsPage };
+					subpageTabControl.AddItem( recommended );
+					subpageTabControl.PinItem( recommended );
+				} );
 			}
 
 			ruleset.RequestSubpages( subpages => {
@@ -264,6 +283,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 
 			if ( page == main ) {
 				loadMainPage();
+			}
+
+			if ( page == recommended ) {
+				loadRecommendedPage();
 			}
 
 			if ( !subpageDrawables.TryGetValue( page, out var subpage ) ) {
@@ -326,7 +349,135 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				Overlay.FinishLoadiong( this );
 
 			}, failure: e => {
+				// TODO RequestFailedDrawable
 				API.LogFailure( $"Could not retrieve detail for {ruleset}", e );
+				Overlay.FinishLoadiong( this );
+			} );
+		}
+
+		[Resolved( canBeNull: true )]
+		protected IAPIProvider OnlineAPI { get; private set; }
+
+		private void loadRecommendedPage () {
+			if ( subpageDrawables.ContainsKey( recommended ) )
+				return;
+
+			Overlay.StartLoading( this );
+
+			var container = new Container {
+				RelativeSizeAxes = Axes.X,
+				AutoSizeAxes = Axes.Y
+			};
+			subpageDrawables.Add( recommended, container );
+
+			ruleset.RequestRecommendations( RurusettoAPI.RecommendationSource.All, r => {
+				var all = new ReverseChildIDFillFlowContainer<Drawable> {
+					Direction = FillDirection.Vertical,
+					RelativeSizeAxes = Axes.X,
+					AutoSizeAxes = Axes.Y,
+					Spacing = new( 10 )
+				};
+				container.Child = all;
+
+				int loadedCount = 0;
+				foreach ( var group in r.GroupBy( x => x.Recommender.ID ).OrderBy( x => (x.Key.Value == ruleset.Owner?.ID) ? 1 : 2 ).ThenByDescending( x => x.Count() ) ) {
+					var list = new ReverseChildIDFillFlowContainer<Drawable> {
+						Direction = FillDirection.Full,
+						RelativeSizeAxes = Axes.X,
+						AutoSizeAxes = Axes.Y,
+						Spacing = new( 10 ),
+						Anchor = Anchor.TopCentre,
+						Origin = Anchor.TopCentre,
+						Margin = new() { Bottom = 20 }
+					};
+					all.Add( new GridContainer {
+						RelativeSizeAxes = Axes.X,
+						Width = 0.9f,
+						Height = 30,
+						Anchor = Anchor.TopCentre,
+						Origin = Anchor.TopCentre,
+						ColumnDimensions = new Dimension[] {
+							new(),
+							new( GridSizeMode.AutoSize ),
+							new()
+						},
+						Content = new Drawable[][] {
+							new Drawable[] {
+								new Circle {
+									Height = 3,
+									RelativeSizeAxes = Axes.X,
+									Colour = colourProvider.Colour1,
+									Anchor = Anchor.Centre,
+									Origin = Anchor.Centre
+								},
+								new DrawableRurusettoUser( Users.GetUserIdentity( group.Key.Value ), group.Key == ruleset.Owner?.ID ) {
+									Anchor = Anchor.Centre,
+									Origin = Anchor.Centre,
+									Height = 30,
+									Margin = new MarginPadding { Horizontal = 10 }
+								},
+								new Circle {
+									Height = 3,
+									RelativeSizeAxes = Axes.X,
+									Colour = colourProvider.Colour1,
+									Anchor = Anchor.Centre,
+									Origin = Anchor.Centre
+								},
+							}
+						}
+					} );
+					all.Add( list );
+
+					foreach ( var i in group ) {
+						var request = new GetBeatmapSetRequest( i.BeatmapID, BeatmapSetLookupType.BeatmapId );
+
+						request.Success += v => {
+							v.Beatmaps = v.Beatmaps.Where( x => x.DifficultyName == i.Version ).ToArray();
+
+							list.Add( new BeatmapCardNormal( v ) {
+								Anchor = Anchor.TopCentre
+							} );
+
+							if ( ++loadedCount == r.Count ) {
+								Overlay.FinishLoadiong( this );
+							}
+						};
+						request.Failure += v => {
+							list.Add( new BeatmapCardNormal( new() {
+								Artist = i.Artist,
+								ArtistUnicode = i.Artist,
+								BPM = i.BPM,
+								Title = i.Title,
+								TitleUnicode = i.Title,
+								AuthorString = i.Creator,
+								Status = (BeatmapOnlineStatus)i.Status,
+								Beatmaps = new APIBeatmap[] {
+								new() {
+									BPM = i.BPM,
+									StarRating = i.StarDifficulty
+								}
+							}
+							} ) {
+								Anchor = Anchor.TopCentre
+							} );
+
+							if ( ++loadedCount == r.Count ) {
+								Overlay.FinishLoadiong( this );
+							}
+						};
+
+						if ( OnlineAPI is DummyAPIAccess )
+							request.Fail( new Exception() );
+						else
+							OnlineAPI.PerformAsync( request );
+					}
+				}
+			}, failure: e => {
+				container.Child = new RequestFailedDrawable {
+					ContentText = Localisation.Strings.ErrorMessageGeneric
+					// TODO retry
+				};
+				API.LogFailure( $"Could not retrieve recommendations for {ruleset}", e );
 				Overlay.FinishLoadiong( this );
 			} );
 		}

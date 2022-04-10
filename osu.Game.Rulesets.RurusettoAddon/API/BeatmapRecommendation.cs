@@ -19,11 +19,11 @@ public record BeatmapRecommendation {
 
 	/// <summary> Beatmap's song name. </summary>
 	[JsonProperty( "title" )]
-	public LocalisableString Title { get; init; }
+	public string Title { get; init; }
 
 	/// <summary> Song's artist of this beatmap. </summary>
 	[JsonProperty( "artist" )]
-	public LocalisableString Artist { get; init; }
+	public string Artist { get; init; }
 
 	/// <summary> Song's source of this beatmap. </summary>
 	[JsonProperty( "source" )]
@@ -35,7 +35,7 @@ public record BeatmapRecommendation {
 
 	/// <summary> Approval state of this beatmap (4 = loved, 3 = qualified, 2 = approved, 1 = ranked, 0 = pending, -1 = WIP, -2 = graveyard) </summary>
 	[JsonProperty( "approved" )]
-	public Approval Approval { get; init; }
+	public BeatmapStatus Status { get; init; }
 
 	/// <summary> Star rating of this beatmap in osu! mode. </summary>
 	[JsonProperty( "difficultyrating" )]
@@ -78,7 +78,7 @@ public record BeatmapRecommendation {
 	public DateTime? CreatedAt { get; init; }
 }
 
-public enum Approval {
+public enum BeatmapStatus {
 	Pending = 0,
 	Ranked = 1,
 	Approved = 2,

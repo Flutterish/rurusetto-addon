@@ -7,6 +7,7 @@ using osu.Game.Rulesets.RurusettoAddon.UI;
 using osuTK;
 using System;
 using System.Collections.Generic;
+using static osu.Game.Rulesets.RurusettoAddon.API.RurusettoAPI;
 
 #nullable enable
 
@@ -169,6 +170,20 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			}
 			else {
 				failure?.Invoke( null );
+			}
+		}
+
+		public void RequestRecommendations ( RecommendationSource source, Action<List<BeatmapRecommendation>> success, Action<Exception?>? failure = null ) {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				API.RequestBeatmapRecommendations( Slug, source, success, failure );
+			}
+			else {
+				failure?.Invoke( null );
+			}
+		}
+		public void FlushRecommendations () {
+			if ( Source == Source.Web && API != null && !string.IsNullOrWhiteSpace( Slug ) ) {
+				API.FlushBeatmapRecommendationsCache( Slug );
 			}
 		}
 

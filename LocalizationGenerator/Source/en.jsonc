@@ -47,6 +47,7 @@
     "load-error": "Could not load rurusetto-addon: Please report this to the rurusetto-addon repository NOT the osu!lazer repository: Code {0}",
     "main-page": "Main",
     "changelog-page": "Changelog",
+    "recommended-beatmaps-page": "Recommended Beatmaps",
     "unknown-version": "Unknown Version",
     "settings-header": "Rurusetto Addon",
     "settings-api-address": "API Address",

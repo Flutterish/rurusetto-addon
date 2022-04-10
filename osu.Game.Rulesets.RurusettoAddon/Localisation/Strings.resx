@@ -72,6 +72,7 @@ You can still try visiting it at [rurusetto]({0}).</value></data>
   <data name="load-error"><value>Could not load rurusetto-addon: Please report this to the rurusetto-addon repository NOT the osu!lazer repository: Code {0}</value></data>
   <data name="main-page"><value>Main</value></data>
   <data name="changelog-page"><value>Changelog</value></data>
+  <data name="recommended-beatmaps-page"><value>Recommended Beatmaps</value></data>
   <data name="unknown-version"><value>Unknown Version</value></data>
   <data name="settings-header"><value>Rurusetto Addon</value></data>
   <data name="settings-api-address"><value>API Address</value></data>
