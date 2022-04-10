@@ -437,26 +437,26 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 							Anchor = Anchor.TopCentre,
 							Origin = Anchor.TopCentre,
 							Children = new Drawable[] {
-									new BeatmapCardNormal( v ),
-									new FillFlowContainer {
-										AutoSizeAxes = Axes.Y,
-										RelativeSizeAxes = Axes.X,
-										Direction = FillDirection.Horizontal,
-										Margin = new() { Top = 5 },
-										Children = new Drawable[] {
-											new SpriteIcon {
-												Icon = FontAwesome.Solid.QuoteLeft,
-												Size = new Vector2( 34, 18 ) * 0.6f
-											},
-											new OsuMarkdownContainer {
-												AutoSizeAxes = Axes.Y,
-												RelativeSizeAxes = Axes.X,
-												Text = i.Comment,
-												Margin = new() { Left = 4 - 38 * 0.6f }
-											}
+								new BeatmapCardNormal( v ),
+								new FillFlowContainer {
+									AutoSizeAxes = Axes.Y,
+									RelativeSizeAxes = Axes.X,
+									Direction = FillDirection.Horizontal,
+									Margin = new() { Top = 5 },
+									Children = new Drawable[] {
+										new SpriteIcon {
+											Icon = FontAwesome.Solid.QuoteLeft,
+											Size = new Vector2( 34, 18 ) * 0.6f
+										},
+										new OsuMarkdownContainer {
+											AutoSizeAxes = Axes.Y,
+											RelativeSizeAxes = Axes.X,
+											Text = i.Comment,
+											Margin = new() { Left = 4 - 38 * 0.6f }
 										}
 									}
 								}
+							}
 						} );
 					}
 
