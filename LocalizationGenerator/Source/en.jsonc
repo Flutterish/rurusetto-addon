@@ -5,6 +5,8 @@
     // {0} = link to the wiki page
     "page-load-failed": "Failed to fetch the ruleset wiki page. Sorry!\nYou can still try visiting it at [rurusetto]({0}).",
     "listing-tab": "listing",
+    "users-tab": "users",
+    "collections-tab": "collections",
     "rurusetto-description": "browse and manage rulesets",
     "user-unknown": "Unknown",
     "tag-archived": "ARCHIVED",

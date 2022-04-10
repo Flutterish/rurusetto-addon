@@ -31,6 +31,8 @@
   <data name="page-load-failed"><value>Failed to fetch the ruleset wiki page. Sorry!
 You can still try visiting it at [rurusetto]({0}).</value></data>
   <data name="listing-tab"><value>listing</value></data>
+  <data name="users-tab"><value>users</value></data>
+  <data name="collections-tab"><value>collections</value></data>
   <data name="rurusetto-description"><value>browse and manage rulesets</value></data>
   <data name="user-unknown"><value>Unknown</value></data>
   <data name="tag-archived"><value>ARCHIVED</value></data>

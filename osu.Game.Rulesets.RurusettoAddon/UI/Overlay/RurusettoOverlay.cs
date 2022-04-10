@@ -13,6 +13,7 @@ using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI.Info;
 using osu.Game.Rulesets.RurusettoAddon.UI.Listing;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
+using osuTK.Input;
 using System;
 using System.Collections.Generic;
 
@@ -77,6 +78,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 				}
 			} );
 
+			Header.Depth = -1;
 			content.Add( Header );
 			content.Add( tabContainer = new() {
 				RelativeSizeAxes = Axes.X,
@@ -91,14 +93,14 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			Add( loading = new LoadingLayer( dimBackground: true ) );
 
-			Header.SelectedTab.ValueChanged += _ => onSelectedInfoChanged();
+			Header.Current.ValueChanged += _ => onSelectedInfoChanged();
 		}
 
 		private void onSelectedInfoChanged () {
 			OverlayTab tab = listing;
 
-			switch ( Header.SelectedTab.Value ) {
-				case { Target: APIRuleset ruleset }:
+			switch ( Header.Current.Value ) {
+				case { Tab: APIRuleset ruleset }:
 					if ( !infoTabs.TryGetValue( ruleset, out var rulesetTab ) ) {
 						infoTabs.Add( ruleset, rulesetTab = new( ruleset ) );
 						tabContainer.Add( rulesetTab );
@@ -106,7 +108,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					tab = rulesetTab;
 					break;
 
-				case { Target: APIUser user }:
+				case { Tab: APIUser user }:
 					if ( !userTabs.TryGetValue( user, out var userTab ) ) {
 						userTabs.Add( user, userTab = new( user ) );
 						tabContainer.Add( userTab );
@@ -146,7 +148,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			loadingTabs.Clear();
 			updateLoading();
-			Header.SelectedTab.Value = null;
+			Header.NavigateTo( Header.ListingTab );
 			foreach ( var i in infoTabs ) {
 				tabContainer.Remove( i.Value );
 				i.Value.Dispose();
@@ -191,12 +193,23 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			=> new();
 
 		public override bool OnPressed ( KeyBindingPressEvent<GlobalAction> e ) {
-			if ( e.Action == GlobalAction.Back && Header.SelectedTab.Value != null ) {
-				Header.SelectedTab.Value = null;
+			if ( e.Action == GlobalAction.Back && Header.NavigateBack() ) {
 				return true;
 			}
 
 			return base.OnPressed( e );
+		}
+
+		protected override bool OnKeyDown ( KeyDownEvent e ) {
+			if ( e.AltPressed && e.Key == Key.Left ) {
+				Header.NavigateBack();
+				return true;
+			}
+			if ( e.AltPressed && e.Key == Key.Right ) {
+				Header.NavigateForward();
+				return true;
+			}
+			return false;
 		}
 	}
 }

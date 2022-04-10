@@ -233,12 +233,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 		}
 
 		protected override bool OnClick ( ClickEvent e ) {
-			Overlay.Header.SelectedTab.Value = new() {
-				Target = Ruleset,
-				Text = Ruleset.Name == Localisation.Strings.UntitledRuleset
+			Overlay.Header.NavigateTo( 
+				Ruleset,
+				Ruleset.Name == Localisation.Strings.UntitledRuleset
 					? Ruleset.Name
-					: Ruleset.Name.ToString().Humanize().ToLower()
-			};
+					: Ruleset.Name.ToString().Humanize().ToLower(),
+				perserveCategories: true
+			);
 			
 			return true;
 		}

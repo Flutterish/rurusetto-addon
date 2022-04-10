@@ -22,6 +22,16 @@ namespace osu.Game.Rulesets.RurusettoAddon.Localisation {
 		public static LocalisableString ListingTab => new TranslatableString( getKey( "listing-tab" ), "listing" );
 		
 		/// <summary>
+		/// users
+		/// </summary>
+		public static LocalisableString UsersTab => new TranslatableString( getKey( "users-tab" ), "users" );
+		
+		/// <summary>
+		/// collections
+		/// </summary>
+		public static LocalisableString CollectionsTab => new TranslatableString( getKey( "collections-tab" ), "collections" );
+		
+		/// <summary>
 		/// browse and manage rulesets
 		/// </summary>
 		public static LocalisableString RurusettoDescription => new TranslatableString( getKey( "rurusetto-description" ), "browse and manage rulesets" );

@@ -1,63 +1,137 @@
-﻿using Humanizer;
-using osu.Framework.Allocation;
-using osu.Framework.Bindables;
+﻿using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
+using System.Linq;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
-	public record RurusettoTabItem {
-		public object Target { get; init; }
-		public LocalisableString Text { get; init; }
+	public class RurusettoTabItem : CategorisedTabItem<LocalisableString, object> {
+		public LocalisableString Title { get; init; }
 	}
 
-	public class RurusettoOverlayHeader : TabControlOverlayHeader<RurusettoTabItem> {
-		static readonly RurusettoTabItem listingTab = new() {
-			Text = Localisation.Strings.ListingTab
+	public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<RurusettoTabItem, LocalisableString, object> {
+		public readonly RurusettoTabItem ListingTab = new() {
+			Category = Localisation.Strings.ListingTab,
+			Title = Localisation.Strings.ListingTab
+		};
+		public readonly RurusettoTabItem UsersTab = new() {
+			Category = Localisation.Strings.UsersTab,
+			Title = Localisation.Strings.UsersTab
+		};
+		public readonly RurusettoTabItem CollectionsTab = new() {
+			Category = Localisation.Strings.CollectionsTab,
+			Title = Localisation.Strings.CollectionsTab
 		};
 
 		[Resolved]
 		protected RurusettoAPI API { get; private set; }
 
 		public RurusettoOverlayHeader () {
-			TabControl.AddItem( listingTab );
+			TabControl.AddItem( ListingTab );
+			TabControl.Current.Value = ListingTab;
 
-			SelectedTab.ValueChanged += v => {
-				if ( v.OldValue != null )
-					TabControl.RemoveItem( v.OldValue );
+			Current.ValueChanged += v => {
+				CategoryControl.Current.Value = v.NewValue.Category;
 
 				switch ( v.NewValue ) {
-					case { Target: APIRuleset ruleset }:
-						TabControl.AddItem( v.NewValue );
-						Current.Value = v.NewValue;
-
+					case { Tab: APIRuleset ruleset }:
 						ruleset.RequestDarkCover( texture => {
 							background.SetCover( texture );
 						} );
 						break;
 
-					case { Target: APIUser user }:
+					case { Tab: APIUser user }:
 
 						break;
 
 					default:
-						Current.Value = listingTab;
 						background.SetCover( null );
 						break;
 				}
 			};
 
-			Current.ValueChanged += v => {
-				if ( v.NewValue == listingTab ) {
-					SelectedTab.Value = null;
-				}
+			CategoryControl.AddItem( ListingTab.Category );
+			CategoryControl.AddItem( UsersTab.Category );
+			CategoryControl.AddItem( CollectionsTab.Category );
+
+			CategoryControl.Current.ValueChanged += v => {
+				NavigateTo( categoryFromName( v.NewValue ) );
 			};
 		}
 
-		public readonly Bindable<RurusettoTabItem> SelectedTab = new();
+		private RurusettoTabItem categoryFromName ( LocalisableString name ) {
+			return name == Localisation.Strings.ListingTab
+				? ListingTab
+				: name == Localisation.Strings.UsersTab
+				? UsersTab
+				: CollectionsTab;
+		}
+
+		public void NavigateTo ( RurusettoTabItem tab, bool perserveCategories = false ) {
+			if ( categoryFromName( Current.Value.Category ) == tab )
+				return;
+
+			RurusettoTabItem item = new() {
+				Tab = tab,
+				Title = tab.Title,
+				Category = tab.Category
+			};
+
+			if ( !perserveCategories && Current.Value.Category != tab.Category ) {
+				TabControl.Clear();
+			}
+
+			clearHistoryAfterCurrent();
+			TabControl.AddItem( item );
+			TabControl.Current.Value = item;
+		}
+
+		public void NavigateTo ( object tab, LocalisableString title, bool perserveCategories = false ) {
+			var category = tab switch {
+				APIRuleset => ListingTab,
+				APIUser => UsersTab,
+				_ => CollectionsTab
+			};
+			RurusettoTabItem item = new() {
+				Tab = tab,
+				Title = title,
+				Category = category.Category
+			};
+
+			if ( item.Category != Current.Value.Category ) {
+				NavigateTo( categoryFromName( item.Category ), perserveCategories );
+			}
+
+			clearHistoryAfterCurrent();
+			TabControl.AddItem( item );
+			TabControl.Current.Value = item;
+		}
+
+		private void clearHistoryAfterCurrent () {
+			while ( TabControl.Items.Any() && TabControl.Items[^1] != Current.Value ) {
+				TabControl.RemoveItem( TabControl.Items[^1] );
+			}
+		}
+
+		public bool NavigateBack () {
+			if ( TabControl.Items[0] == Current.Value )
+				return false;
+
+			TabControl.SwitchTab( -1, wrap: false );
+			return true;
+		}
+
+		public bool NavigateForward () {
+			if ( TabControl.Items[^1] == Current.Value )
+				return false;
+
+			TabControl.SwitchTab( 1, wrap: false );
+			return true;
+		}
 
 		protected override OverlayTitle CreateTitle ()
 			=> new HeaderTitle();
@@ -80,6 +154,25 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 			public OverlayHeaderBreadcrumbControl () {
 				RelativeSizeAxes = Axes.X;
 				Height = 47;
+
+				Current.ValueChanged += index => {
+					if ( index.NewValue is null )
+						return;
+
+					var category = Items[0].Category;
+					var prev = TabMap[Items[0]] as ControlTabItem;
+					foreach ( var item in TabContainer.Children.OfType<ControlTabItem>().Skip( 1 ) ) {
+						if ( item.Value.Category != category ) {
+							prev.Chevron.Icon = FontAwesome.Solid.ArrowRight;
+							category = item.Value.Category;
+						}
+						else {
+							prev.Chevron.Icon = FontAwesome.Solid.ChevronRight;
+						}
+
+						prev = item;
+					}
+				};
 			}
 
 			[BackgroundDependencyLoader]
@@ -107,7 +200,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 				protected override void LoadComplete () {
 					base.LoadComplete();
 
-					Text.Text = Value.Text;
+					Text.Text = Value.Title;
 				}
 
 				// base OsuTabItem makes font bold on activation, we don't want that here
