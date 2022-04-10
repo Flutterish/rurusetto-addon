@@ -459,7 +459,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 						} );
 					}
 
-					foreach ( var i in group ) {
+					foreach ( var i in group.OrderByDescending( x => x.CreatedAt ) ) {
 						var request = new GetBeatmapSetRequest( i.BeatmapID, BeatmapSetLookupType.BeatmapId );
 
 						request.Success += v => {
