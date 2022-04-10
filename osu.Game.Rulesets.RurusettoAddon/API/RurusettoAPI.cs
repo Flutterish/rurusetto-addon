@@ -146,6 +146,43 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			subpageCache.Clear();
 		}
 
+		public enum RecommendationSource {
+			All,
+			Author,
+			Users
+		}
+		private Dictionary<(string slug, RecommendationSource source), Task<List<BeatmapRecommendation>?>> recommmendationCache = new();
+		public void RequestBeatmapRecommendations ( string rulesetSlug, RecommendationSource source, Action<List<BeatmapRecommendation>>? success = null, Action<Exception?>? failure = null ) {
+			failure ??= e => LogFailure( $"Could not retrieve beatmap recommendations from {source} for ruleset {rulesetSlug}", e );
+
+			if ( !recommmendationCache.TryGetValue( (rulesetSlug, source), out var list ) ) {
+				recommmendationCache.TryAdd( (rulesetSlug, source), list = requestBeatmapRecommendations( rulesetSlug, source ) );
+			}
+
+			queue( list, success, failure );
+		}
+		private async Task<List<BeatmapRecommendation>?> requestBeatmapRecommendations ( string rulesetSlug, RecommendationSource source ) {
+			var url = $"/api/rulesets/{rulesetSlug}/beatmaps";
+			if ( source is RecommendationSource.Author )
+				url += "/creator";
+			else if ( source is RecommendationSource.Users )
+				url += "/players";
+
+			var raw = await client.GetStringAsync( GetEndpoint( url ) );
+			return JsonConvert.DeserializeObject<List<BeatmapRecommendation>>( raw );
+		}
+		public void FlushBeatmapRecommendationsCache ( string rulesetSlug, RecommendationSource source ) {
+			recommmendationCache.Remove( (rulesetSlug, source) );
+		}
+		public void FlushBeatmapRecommendationsCache ( string rulesetSlug ) {
+			foreach ( var i in recommmendationCache.Keys.Where( x => x.slug == rulesetSlug ).ToArray() ) {
+				recommmendationCache.Remove( i );
+			}
+		}
+		public void FlushBeatmapRecommendationsCache () {
+			recommmendationCache.Clear();
+		}
+
 		private Dictionary<int, Task<UserProfile?>> userCache = new();
 		public void RequestUserProfile ( int id, Action<UserProfile>? success = null, Action<Exception?>? failure = null ) {
 			failure ??= e => LogFailure( $"Could not retrieve user profile with ID = {id}", e );
@@ -213,6 +250,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.API {
 			FlushSubpageListingCache();
 			FlushSubpageCache();
 			FlushUserProfileCache();
+			FlushBeatmapRecommendationsCache();
 		}
 	}
 
