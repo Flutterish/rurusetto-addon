@@ -191,7 +191,7 @@ namespace LocalisationGenerator {
 			}
 
 			string red ( string msg ) {
-				return $"{{<RED>}}{msg}\u001B{{<POP>}}";
+				return $"{{<RED>}}{msg}{{<POP>}}";
 			}
 
 			string green ( string msg ) {
