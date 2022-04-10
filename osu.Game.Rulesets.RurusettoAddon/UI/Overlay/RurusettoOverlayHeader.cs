@@ -163,7 +163,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 					var prev = TabMap[Items[0]] as ControlTabItem;
 					foreach ( var item in TabContainer.Children.OfType<ControlTabItem>().Skip( 1 ) ) {
 						if ( item.Value.Category != category ) {
-							prev.Chevron.Icon = FontAwesome.Solid.ArrowRight;
+							prev.Chevron.Icon = FontAwesome.Solid.AngleDoubleRight;
 							category = item.Value.Category;
 						}
 						else {
