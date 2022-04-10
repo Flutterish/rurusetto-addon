@@ -435,6 +435,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 							AutoSizeAxes = Axes.Both,
 							Direction = FillDirection.Vertical,
 							Anchor = Anchor.TopCentre,
+							Origin = Anchor.TopCentre,
 							Children = new Drawable[] {
 									new BeatmapCardNormal( v ),
 									new FillFlowContainer {
