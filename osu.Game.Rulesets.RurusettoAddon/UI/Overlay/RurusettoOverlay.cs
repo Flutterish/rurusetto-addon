@@ -148,13 +148,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 
 			loadingTabs.Clear();
 			updateLoading();
-			Header.NavigateTo( Header.ListingTab );
-			foreach ( var i in infoTabs ) {
-				tabContainer.Remove( i.Value );
-				i.Value.Dispose();
+			
+			if ( Header.Current.Value.Tab is null && Header.CurrentCategory.Value == Header.ListingTab.Category ) {
+				foreach ( var i in infoTabs ) {
+					tabContainer.Remove( i.Value );
+					i.Value.Dispose();
+				}
+				userTabs.Clear();
+				infoTabs.Clear();
 			}
-			userTabs.Clear();
-			infoTabs.Clear();
 			isFullHidden = true;
 		}
 
