@@ -79,6 +79,9 @@ public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 			RelativeSizeAxes = Axes.X,
 			AutoSizeAxes = Axes.Y
 		} );
+		tabContainer.OnUpdate += x => {
+			x.Margin = x.Margin with { Bottom = DrawHeight * 3 / 5 };
+		};
 
 		tabContainer.Add( currentTab = listing = new() );
 		Schedule( () => {

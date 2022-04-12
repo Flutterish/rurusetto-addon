@@ -171,7 +171,7 @@ public class WikiTab : OverlayTab {
 		content.Add( subpageContent = new Container {
 			RelativeSizeAxes = Axes.X,
 			AutoSizeAxes = Axes.Y,
-			Margin = new MarginPadding { Top = 16, Bottom = 400 }
+			Margin = new MarginPadding { Top = 16 }
 		} );
 
 		subpageTabControl.Current.BindValueChanged( _ => {
