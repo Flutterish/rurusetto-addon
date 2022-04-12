@@ -10,31 +10,24 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables.Cards;
 using osu.Game.Graphics;
-using osu.Game.Graphics.Containers;
-using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Graphics.Sprites;
-using osu.Game.Online.API;
-using osu.Game.Online.API.Requests;
-using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK;
-using System;
+using osuTK.Input;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
+	[Cached]
 	public class WikiTab : OverlayTab {
 		FillFlowContainer content;
 		APIRuleset ruleset;
 		Sprite cover;
 		FillFlowContainer info;
 		Container subpageContent;
-		ContentMarkdown mainPageMarkdown;
+		MarkdownPage mainPage;
 		protected FillFlowContainer Tags;
 		protected FillFlowContainer Status;
 		SubpageSectionTabControl subpageTabControl;
@@ -61,7 +54,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 		SubpageListingEntry main;
 		SubpageListingEntry changelog;
 		SubpageListingEntry recommended;
-		Dictionary<SubpageListingEntry, Drawable> subpageDrawables = new();
+		Dictionary<SubpageListingEntry, WikiPage> subpageDrawables = new();
 
 		[Resolved]
 		private LocalisationManager localisation { get; set; }
@@ -195,7 +188,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 			} );
 
 			main = new() { Title = Localisation.Strings.MainPage };
-			mainPageMarkdown = createMarkdownContainer();
+			mainPage = new MarkdownPage( ruleset );
 			loadSubpages();
 
 			bool isCoverLoaded = false;
@@ -221,7 +214,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 			subpageTabControl.Clear();
 			subpageDrawables.Clear();
 
-			subpageDrawables.Add( main, mainPageMarkdown );
+			subpageDrawables.Add( main, mainPage );
 			changelog = null;
 
 			void addDefaultSubpages () {
@@ -232,11 +225,11 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 					changelog = new() { Title = Localisation.Strings.ChangelogPage };
 					subpageTabControl.AddItem( changelog );
 					subpageTabControl.PinItem( changelog );
-					subpageDrawables.Add( changelog, createMarkdownContainer().With( d => d.Text = log ) );
+					subpageDrawables.Add( changelog, new MarkdownPage( ruleset ) { Text = log } );
 				}
 
 				ruleset.RequestRecommendations( RurusettoAPI.RecommendationSource.All, r => {
-					if ( r.Count == 0 || OnlineAPI is null )
+					if ( r.Count == 0 )
 						return;
 
 					recommended = new() { Title = Localisation.Strings.RecommendedBeatmapsPage };
@@ -285,40 +278,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 				loadMainPage();
 			}
 
-			if ( page == recommended ) {
-				loadRecommendedPage();
-			}
-
 			if ( !subpageDrawables.TryGetValue( page, out var subpage ) ) {
-				var markdown = createMarkdownContainer();
-				var content = new FillFlowContainer {
-					RelativeSizeAxes = Axes.X,
-					AutoSizeAxes = Axes.Y,
-					Direction = FillDirection.Vertical,
-					Child = markdown
-				};
-
-				Overlay.StartLoading( this );
-				ruleset.RequestSubpage( page.Slug, subpage => {
-					markdown.Text = subpage.Content ?? "";
-					Overlay.FinishLoadiong( this );
-
-				}, failure: e => {
-					content.Insert( -1, new Container {
-						Padding = new MarginPadding { Horizontal = -32 },
-						AutoSizeAxes = Axes.Y,
-						RelativeSizeAxes = Axes.X,
-						Child = new RequestFailedDrawable {
-							ContentText = Localisation.Strings.PageFetchError,
-							ButtonClicked = RefreshCurrentPage
-						}
-					} );
-
-					Overlay.FinishLoadiong( this );
-				} );
-
-				subpage = content;
-				subpageDrawables.Add( page, content );
+				if ( page == recommended ) {
+					subpageDrawables.Add( recommended, subpage = new RecommendedBeatmapsPage( ruleset ) );
+				}
+				else {
+					subpageDrawables.Add( page, subpage = new WikiSubpage( ruleset, page.Slug ) );
+				}
 			}
 
 			subpageContent.Add( subpage );
@@ -329,12 +295,10 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 			if ( page is null )
 				return;
 
-			if ( page != main && page != changelog ) {
+			if ( !subpageDrawables[page].Refresh() ) {
 				subpageDrawables.Remove( page );
-				ruleset.FlushSubpage( page.Slug );
+				loadCurrentPage();
 			}
-
-			loadCurrentPage();
 		}
 
 		void loadMainPage () {
@@ -344,166 +308,13 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 				contentBindable = localisation.GetLocalisedBindableString( detail.Content );
 
 				contentBindable.BindValueChanged( v => {
-					mainPageMarkdown.Text = v.NewValue;
+					mainPage.Text = v.NewValue;
 				}, true );
 				Overlay.FinishLoadiong( this );
 
 			}, failure: e => {
 				// TODO RequestFailedDrawable
 				API.LogFailure( $"Could not retrieve detail for {ruleset}", e );
-				Overlay.FinishLoadiong( this );
-			} );
-		}
-
-		[Resolved( canBeNull: true )]
-		protected IAPIProvider OnlineAPI { get; private set; }
-
-		private void loadRecommendedPage () {
-			if ( subpageDrawables.ContainsKey( recommended ) )
-				return;
-
-			Overlay.StartLoading( this );
-
-			var container = new Container {
-				RelativeSizeAxes = Axes.X,
-				AutoSizeAxes = Axes.Y
-			};
-			subpageDrawables.Add( recommended, container );
-
-			ruleset.RequestRecommendations( RurusettoAPI.RecommendationSource.All, r => {
-				var all = new ReverseChildIDFillFlowContainer<Drawable> {
-					Direction = FillDirection.Vertical,
-					RelativeSizeAxes = Axes.X,
-					AutoSizeAxes = Axes.Y,
-					Spacing = new( 10 )
-				};
-				container.Child = all;
-
-				int loadedCount = 0;
-				foreach ( var group in r.GroupBy( x => x.Recommender.ID ).OrderBy( x => x.Key.Value == ruleset.Owner?.ID ? 1 : 2 ).ThenByDescending( x => x.Count() ) ) {
-					var list = new ReverseChildIDFillFlowContainer<Drawable> {
-						Direction = FillDirection.Full,
-						RelativeSizeAxes = Axes.X,
-						AutoSizeAxes = Axes.Y,
-						Spacing = new( 10 ),
-						Anchor = Anchor.TopCentre,
-						Origin = Anchor.TopCentre,
-						Margin = new() { Bottom = 20 }
-					};
-					all.Add( new GridContainer {
-						RelativeSizeAxes = Axes.X,
-						Width = 0.9f,
-						Height = 30,
-						Anchor = Anchor.TopCentre,
-						Origin = Anchor.TopCentre,
-						ColumnDimensions = new Dimension[] {
-							new(),
-							new( GridSizeMode.AutoSize ),
-							new()
-						},
-						Content = new Drawable[][] {
-							new Drawable[] {
-								new Circle {
-									Height = 3,
-									RelativeSizeAxes = Axes.X,
-									Colour = colourProvider.Colour1,
-									Anchor = Anchor.Centre,
-									Origin = Anchor.Centre
-								},
-								new DrawableRurusettoUser( Users.GetUserIdentity( group.Key.Value ), group.Key == ruleset.Owner?.ID ) {
-									Anchor = Anchor.Centre,
-									Origin = Anchor.Centre,
-									Height = 30,
-									Margin = new MarginPadding { Horizontal = 10 }
-								},
-								new Circle {
-									Height = 3,
-									RelativeSizeAxes = Axes.X,
-									Colour = colourProvider.Colour1,
-									Anchor = Anchor.Centre,
-									Origin = Anchor.Centre
-								},
-							}
-						}
-					} );
-					all.Add( list );
-
-					void add ( BeatmapRecommendation i, APIBeatmapSet v ) {
-						v.Beatmaps = v.Beatmaps.Where( x => x.DifficultyName == i.Version ).ToArray();
-
-						list.Add( new ReverseChildIDFillFlowContainer<Drawable> {
-							AutoSizeAxes = Axes.Both,
-							Direction = FillDirection.Vertical,
-							Anchor = Anchor.TopCentre,
-							Origin = Anchor.TopCentre,
-							Children = new Drawable[] {
-								new BeatmapCardNormal( v ),
-								new FillFlowContainer {
-									AutoSizeAxes = Axes.Y,
-									RelativeSizeAxes = Axes.X,
-									Direction = FillDirection.Horizontal,
-									Margin = new() { Top = 5 },
-									Children = new Drawable[] {
-										new SpriteIcon {
-											Icon = FontAwesome.Solid.QuoteLeft,
-											Size = new Vector2( 34, 18 ) * 0.6f
-										},
-										new OsuMarkdownContainer {
-											AutoSizeAxes = Axes.Y,
-											RelativeSizeAxes = Axes.X,
-											Text = i.Comment,
-											Margin = new() { Left = 4 - 38 * 0.6f }
-										}
-									}
-								}
-							}
-						} );
-					}
-
-					foreach ( var i in group.OrderByDescending( x => x.CreatedAt ) ) {
-						var request = new GetBeatmapSetRequest( i.BeatmapID, BeatmapSetLookupType.BeatmapId );
-
-						request.Success += v => {
-							add( i, v );
-
-							if ( ++loadedCount == r.Count ) {
-								Overlay.FinishLoadiong( this );
-							}
-						};
-						request.Failure += e => {
-							add( i, new() {
-								Artist = i.Artist,
-								ArtistUnicode = i.Artist,
-								BPM = i.BPM,
-								Title = i.Title,
-								TitleUnicode = i.Title,
-								AuthorString = i.Creator,
-								Status = (BeatmapOnlineStatus)i.Status,
-								Beatmaps = new APIBeatmap[] {
-									new() {
-										BPM = i.BPM,
-										StarRating = i.StarDifficulty
-									}
-								}
-							} );
-
-							if ( ++loadedCount == r.Count ) {
-								Overlay.FinishLoadiong( this );
-							}
-						};
-
-						if ( OnlineAPI is DummyAPIAccess )
-							request.Fail( new Exception() );
-						else
-							OnlineAPI.PerformAsync( request );
-					}
-				}
-			}, failure: e => {
-				container.Child = new RequestFailedDrawable {
-					ContentText = Localisation.Strings.ErrorMessageGeneric
-					// TODO retry
-				};
-				API.LogFailure( $"Could not retrieve recommendations for {ruleset}", e );
 				Overlay.FinishLoadiong( this );
 			} );
 		}
@@ -554,25 +365,23 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 			} );
 		}
 
+		protected override bool OnKeyDown ( KeyDownEvent e ) {
+			if ( e.Key is Key.F5 ) { // NOTE o!f doenst seem to have a 'refresh' action
+				if ( e.ShiftPressed )
+					return Refresh();
+				else {
+					RefreshCurrentPage();
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		public override bool Refresh () {
 			RefreshSubpages();
 
 			return true;
-		}
-
-		private ContentMarkdown createMarkdownContainer () {
-			return new ContentMarkdown( ruleset.Slug is null ? API.GetEndpoint( "/rulesets" ).AbsoluteUri : API.GetEndpoint( $"/rulesets/{ruleset.Slug}" ).AbsoluteUri ) {
-				RelativeSizeAxes = Axes.X,
-				AutoSizeAxes = Axes.Y
-			};
-		}
-
-		private class ContentMarkdown : OsuMarkdownContainer {
-			public ContentMarkdown ( string address ) {
-				DocumentUrl = address;
-				var uri = new Uri( address );
-				RootUrl = $"{uri.Scheme}://{uri.Host}";
-			}
 		}
 
 		// https://github.com/ppy/osu/blob/2fd4647e6eeb7c08861d8e526af97aff5c0e39f6/osu.Game/Overlays/UserProfileOverlay.cs#L153

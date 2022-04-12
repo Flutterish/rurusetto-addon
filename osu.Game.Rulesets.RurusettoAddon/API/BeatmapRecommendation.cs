@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using osu.Framework.Localisation;
 using System;
 
 namespace osu.Game.Rulesets.RurusettoAddon.API;
