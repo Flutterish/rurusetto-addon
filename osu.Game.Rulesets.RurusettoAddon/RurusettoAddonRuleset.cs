@@ -25,14 +25,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace osu.Game.Rulesets.RurusettoAddon {
-	public class RurusettoAddonRuleset : Ruleset
-    {
-        static RurusettoAddonRuleset () {
-            AppDomain.CurrentDomain.AssemblyResolve += ( sender, args ) => {
-                return typeof( RurusettoAddonRuleset ).Assembly;
-            };
-		}
-
+	public class RurusettoAddonRuleset : Ruleset {
         public override string Description => "rūrusetto addon";
         public override string ShortName => "rurusettoaddon";
 
