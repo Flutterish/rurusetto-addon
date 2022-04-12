@@ -1,12 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-      <StartupObject>osu.Game.Rulesets.RurusettoAddon.Tests.VisualTestRunner</StartupObject>
-    </PropertyGroup>
     <ItemGroup Label="Service">
       <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
     </ItemGroup>
     <PropertyGroup>
       <GenerateProgramFile>false</GenerateProgramFile>
+      <Nullable>enable</Nullable>
     </PropertyGroup>
   <ItemGroup Label="Package References">
     <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />

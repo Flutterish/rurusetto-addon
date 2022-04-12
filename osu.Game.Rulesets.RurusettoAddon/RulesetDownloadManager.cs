@@ -1,8 +1,4 @@
-﻿using osu.Framework.Bindables;
-using osu.Framework.Platform;
-using osu.Game.Rulesets.RurusettoAddon.API;
-using System;
-using System.Collections.Generic;
+﻿using osu.Framework.Platform;
 using System.IO;
 using System.Net.Http;
 
@@ -245,5 +241,12 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		NotAvailableOnline = 4,
 		AvailableOnline = 8,
 		Outdated = 16
+	}
+
+	public record RulesetManagerTask ( TaskType Type, string Source );
+	public enum TaskType {
+		Install,
+		Update,
+		Remove
 	}
 }

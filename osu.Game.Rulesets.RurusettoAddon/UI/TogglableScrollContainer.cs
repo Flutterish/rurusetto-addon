@@ -1,32 +1,26 @@
-﻿using osu.Framework.Graphics;
-using osu.Framework.Input.Events;
-using osu.Game.Graphics.Containers;
+﻿using osu.Framework.Input.Events;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
-	public class TogglableScrollContainer : OsuScrollContainer {
-		public TogglableScrollContainer ( Direction direction = Direction.Vertical ) : base( direction ) { }
+namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
-		protected bool CanScroll => ScrollDirection switch {
-			Direction.Vertical => DrawHeight < ScrollContent.DrawHeight,
-			_ => DrawWidth < ScrollContent.DrawWidth
-		};
+public class TogglableScrollContainer : OsuScrollContainer {
+	public TogglableScrollContainer ( Direction direction = Direction.Vertical ) : base( direction ) { }
 
-		protected override bool OnMouseDown ( MouseDownEvent e ) {
-			return CanScroll ? base.OnMouseDown( e ) : false;
-		}
+	protected bool CanScroll => ScrollDirection switch {
+		Direction.Vertical => DrawHeight < ScrollContent.DrawHeight,
+		_ => DrawWidth < ScrollContent.DrawWidth
+	};
 
-		protected override bool OnDragStart ( DragStartEvent e ) {
-			return CanScroll ? base.OnDragStart( e ) : false;
-		}
+	protected override bool OnMouseDown ( MouseDownEvent e )
+		=> CanScroll && base.OnMouseDown( e );
 
-		public override bool DragBlocksClick => CanScroll ? base.DragBlocksClick : false;
+	protected override bool OnDragStart ( DragStartEvent e ) 
+		=> CanScroll && base.OnDragStart( e );
 
-		protected override bool OnHover ( HoverEvent e ) {
-			return CanScroll ? base.OnHover( e ) : false;
-		}
+	public override bool DragBlocksClick => CanScroll && base.DragBlocksClick;
 
-		protected override bool OnScroll ( ScrollEvent e ) {
-			return CanScroll ? base.OnScroll( e ) : false;
-		}
-	}
+	protected override bool OnHover ( HoverEvent e )
+		=> CanScroll && base.OnHover( e );
+
+	protected override bool OnScroll ( ScrollEvent e ) 
+		=> CanScroll && base.OnScroll( e );
 }

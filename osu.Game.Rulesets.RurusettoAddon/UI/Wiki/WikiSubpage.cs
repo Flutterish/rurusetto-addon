@@ -1,8 +1,4 @@
-﻿using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Game.Rulesets.RurusettoAddon.API;
-
-namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki;
+﻿namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki;
 
 public class WikiSubpage : WikiPage {
 	string slug;

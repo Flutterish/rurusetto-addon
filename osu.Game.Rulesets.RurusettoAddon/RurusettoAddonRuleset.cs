@@ -1,8 +1,6 @@
-﻿using osu.Framework.Graphics;
-using osu.Framework.Graphics.Textures;
+﻿using osu.Framework.Graphics.Textures;
 using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
-using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
@@ -17,14 +15,11 @@ using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI;
 using osu.Game.Rulesets.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace osu.Game.Rulesets.RurusettoAddon;
 
-public partial class RurusettoAddonRuleset : Ruleset {
+public class RurusettoAddonRuleset : Ruleset {
     public override string Description => "rūrusetto addon";
     public override string ShortName => "rurusettoaddon";
 
@@ -47,9 +42,6 @@ public partial class RurusettoAddonRuleset : Ruleset {
 
     public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
         => Array.Empty<KeyBinding>();
-
-    public static LocalisableString ErrorMessage ( string code )
-        => Localisation.Strings.LoadError( code );
 
     public Texture GetTexture ( GameHost host, TextureStore textures, string path ) {
         if ( !textures.GetAvailableResources().Contains( path ) )

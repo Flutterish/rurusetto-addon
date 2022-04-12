@@ -1,82 +1,69 @@
 ﻿using Humanizer;
-using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Primitives;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using osu.Game.Graphics;
-using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
-using osu.Game.Rulesets.RurusettoAddon.API;
-using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
-using osuTK;
-using System;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
-	public class DrawableListingEntry : VisibilityContainer {
-		Sprite cover;
-		Drawable coverContainer;
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing;
 
-		protected override bool StartHidden => false;
+public class DrawableListingEntry : VisibilityContainer {
+	Sprite cover;
+	Drawable coverContainer;
 
-		private BufferedContainer content;
-		protected override Container<Drawable> Content => content;
+	protected override bool StartHidden => false;
 
-		[Resolved]
-		protected RurusettoOverlay Overlay { get; private set; }
-		[Resolved]
-		protected RurusettoAPI API { get; private set; }
-		[Resolved]
-		protected RulesetDownloadManager DownloadManager { get; private set; }
-		[Resolved]
-		protected UserIdentityManager Users { get; private set; }
-		public APIRuleset Ruleset { get; private set; }
-		protected FillFlowContainer Tags;
+	private BufferedContainer content;
+	protected override Container<Drawable> Content => content;
 
-		public DrawableListingEntry ( APIRuleset ruleset ) {
-			Ruleset = ruleset;
+	[Resolved]
+	protected RurusettoOverlay Overlay { get; private set; }
+	[Resolved]
+	protected RurusettoAPI API { get; private set; }
+	[Resolved]
+	protected RulesetDownloadManager DownloadManager { get; private set; }
+	[Resolved]
+	protected UserIdentityManager Users { get; private set; }
+	public APIRuleset Ruleset { get; private set; }
+	protected FillFlowContainer Tags;
 
-			Height = 160;
-			Masking = true;
-			CornerRadius = 8;
-			AlwaysPresent = true;
+	public DrawableListingEntry ( APIRuleset ruleset ) {
+		Ruleset = ruleset;
 
-			Margin = new MarginPadding {
-				Horizontal = 8,
-				Vertical = 8
-			};
+		Height = 160;
+		Masking = true;
+		CornerRadius = 8;
+		AlwaysPresent = true;
 
-			AddInternal( content = new() {
-				RelativeSizeAxes = Axes.Both
-			} );
+		Margin = new MarginPadding {
+			Horizontal = 8,
+			Vertical = 8
+		};
 
-			AddInternal( new RulesetManagementContextMenu( ruleset ) );
-		}
+		AddInternal( content = new() {
+			RelativeSizeAxes = Axes.Both
+		} );
 
-		ILocalisedBindableString nameBindable;
+		AddInternal( new RulesetManagementContextMenu( ruleset ) );
+	}
 
-		[BackgroundDependencyLoader]
-		private void load ( OverlayColourProvider colours, LocalisationManager localisation, GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
-			var color = colours.Background4;
+	ILocalisedBindableString nameBindable;
 
-			Add( new Box {
-				Colour = color,
-				RelativeSizeAxes = Axes.Both
-			} );
-			Add( coverContainer = new Container {
-				RelativeSizeAxes = Axes.X,
-				Height = 80,
-				Children = new Drawable[] {
+	[BackgroundDependencyLoader]
+	private void load ( OverlayColourProvider colours, LocalisationManager localisation, GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
+		var color = colours.Background4;
+
+		Add( new Box {
+			Colour = color,
+			RelativeSizeAxes = Axes.Both
+		} );
+		Add( coverContainer = new Container {
+			RelativeSizeAxes = Axes.X,
+			Height = 80,
+			Children = new Drawable[] {
 					cover = new Sprite {
 						RelativeSizeAxes = Axes.Both,
 						FillMode = FillMode.Fill,
@@ -97,19 +84,19 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						Origin = Anchor.BottomCentre
 					}
 				}
-			} );
-			Add( new Box {
-				Colour = color,
-				RelativeSizeAxes = Axes.X,
-				Height = Height - coverContainer.Height,
-				Origin = Anchor.BottomLeft,
-				Anchor = Anchor.BottomLeft
-			} );
-			OsuSpriteText rulesetName;
-			Add( new Container {
-				Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
-				RelativeSizeAxes = Axes.Both,
-				Children = new Drawable[] {
+		} );
+		Add( new Box {
+			Colour = color,
+			RelativeSizeAxes = Axes.X,
+			Height = Height - coverContainer.Height,
+			Origin = Anchor.BottomLeft,
+			Anchor = Anchor.BottomLeft
+		} );
+		OsuSpriteText rulesetName;
+		Add( new Container {
+			Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
+			RelativeSizeAxes = Axes.Both,
+			Children = new Drawable[] {
 					Tags = new FillFlowContainer {
 						Direction = FillDirection.Horizontal,
 						AutoSizeAxes = Axes.Both,
@@ -131,7 +118,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 							rulesetName = new OsuSpriteText {
 								Font = OsuFont.GetFont( size: 24 )
 							},
-							new DrawableRurusettoUser( Users.GetUserIdentity( Ruleset.Owner ), Ruleset.IsVerified ) {
+							new DrawableRurusettoUser( Users.GetUser( Ruleset.Owner ), Ruleset.IsVerified ) {
 								Height = 34f * 14 / 20,
 								Origin = Anchor.BottomLeft,
 								Anchor = Anchor.BottomLeft
@@ -173,75 +160,74 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing {
 						}
 					}
 				}
-			} );
+		} );
 
-			nameBindable = localisation.GetLocalisedBindableString( Ruleset.Name );
-			
-			nameBindable.BindValueChanged( v => {
-				rulesetName.Text = v.NewValue.Humanize().ToLower();
-			}, true );
+		nameBindable = localisation.GetLocalisedBindableString( Ruleset.Name );
 
-			bool isCoverLoaded = false;
-			cover.Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
-			API.RequestImage( StaticAPIResource.DefaultCover, texture => {
-				if ( !isCoverLoaded ) {
-					cover.Texture = texture;
-				}
-			} );
+		nameBindable.BindValueChanged( v => {
+			rulesetName.Text = v.NewValue.Humanize().ToLower();
+		}, true );
 
-			Ruleset.RequestDarkCover( texture => {
+		bool isCoverLoaded = false;
+		cover.Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultCover );
+		API.RequestImage( StaticAPIResource.DefaultCover, texture => {
+			if ( !isCoverLoaded ) {
 				cover.Texture = texture;
-				isCoverLoaded = true;
-			} );
-
-			Ruleset.RequestDetail( detail => {
-				Tags.AddRange( Ruleset.GenerateTags( detail ) );
-			} );
-
-			Add( new HoverClickSounds() );
-		}
-
-		private bool isMaskedAway = true;
-		protected override bool ComputeIsMaskedAway ( RectangleF maskingBounds ) {
-			return isMaskedAway = base.ComputeIsMaskedAway( maskingBounds );
-		}
-
-		protected override void Update () {
-			base.Update();
-
-			var availableSize = Parent.ChildSize.X * 0.9f + Margin.Left + Margin.Right;
-			const float minWidth = 280;
-			int entriesPerLine = (int)Math.Max( 1, availableSize / (minWidth + Margin.Left + Margin.Right) );
-			Width = availableSize / entriesPerLine - Margin.Left - Margin.Right;
-
-			if ( State.Value == Visibility.Hidden && !isMaskedAway ) {
-				Show();
 			}
-		}
+		} );
 
-		protected override void PopIn () {
-			Alpha = 1;
-			using ( BeginDelayedSequence( 100, true ) ) {
-				content.MoveToY( 200 ).Then().MoveToY( 0, 500, Easing.Out );
-				content.FadeIn( 350 );
-			}
-		}
+		Ruleset.RequestDarkCover( texture => {
+			cover.Texture = texture;
+			isCoverLoaded = true;
+		} );
 
-		protected override void PopOut () {
-			content.Alpha = 0;
-			Alpha = 0;
-		}
+		Ruleset.RequestDetail( detail => {
+			Tags.AddRange( Ruleset.GenerateTags( detail ) );
+		} );
 
-		protected override bool OnClick ( ClickEvent e ) {
-			Overlay.Header.NavigateTo( 
-				Ruleset,
-				Ruleset.Name == Localisation.Strings.UntitledRuleset
-					? Ruleset.Name
-					: Ruleset.Name.ToString().Humanize().ToLower(),
-				perserveCategories: true
-			);
-			
-			return true;
+		Add( new HoverClickSounds() );
+	}
+
+	private bool isMaskedAway = true;
+	protected override bool ComputeIsMaskedAway ( RectangleF maskingBounds ) {
+		return isMaskedAway = base.ComputeIsMaskedAway( maskingBounds );
+	}
+
+	protected override void Update () {
+		base.Update();
+
+		var availableSize = Parent.ChildSize.X * 0.9f + Margin.Left + Margin.Right;
+		const float minWidth = 280;
+		int entriesPerLine = (int)Math.Max( 1, availableSize / ( minWidth + Margin.Left + Margin.Right ) );
+		Width = availableSize / entriesPerLine - Margin.Left - Margin.Right;
+
+		if ( State.Value == Visibility.Hidden && !isMaskedAway ) {
+			Show();
 		}
+	}
+
+	protected override void PopIn () {
+		Alpha = 1;
+		using ( BeginDelayedSequence( 100, true ) ) {
+			content.MoveToY( 200 ).Then().MoveToY( 0, 500, Easing.Out );
+			content.FadeIn( 350 );
+		}
+	}
+
+	protected override void PopOut () {
+		content.Alpha = 0;
+		Alpha = 0;
+	}
+
+	protected override bool OnClick ( ClickEvent e ) {
+		Overlay.Header.NavigateTo(
+			Ruleset,
+			Ruleset.Name == Localisation.Strings.UntitledRuleset
+				? Ruleset.Name
+				: Ruleset.Name.ToString().Humanize().ToLower(),
+			perserveCategories: true
+		);
+
+		return true;
 	}
 }

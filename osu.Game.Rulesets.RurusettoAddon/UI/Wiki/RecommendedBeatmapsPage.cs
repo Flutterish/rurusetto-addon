@@ -1,22 +1,10 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
-using osu.Game.Beatmaps;
+﻿using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables.Cards;
-using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Containers.Markdown;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
-using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
-using osuTK;
-using System;
-using System.Linq;
-
-#nullable enable
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki;
 
@@ -84,7 +72,7 @@ public class RecommendedBeatmapsPage : WikiPage {
 								Anchor = Anchor.Centre,
 								Origin = Anchor.Centre
 							},
-							new DrawableRurusettoUser( Users.GetUserIdentity( group.Key ), group.Key == Ruleset.Owner?.ID ) {
+							new DrawableRurusettoUser( Users.GetUser( group.Key ), group.Key == Ruleset.Owner?.ID ) {
 								Anchor = Anchor.Centre,
 								Origin = Anchor.Centre,
 								Height = 30,

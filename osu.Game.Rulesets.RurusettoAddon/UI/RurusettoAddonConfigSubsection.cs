@@ -2,17 +2,17 @@
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI {
-	public class RurusettoAddonConfigSubsection : RulesetSettingsSubsection {
-		public RurusettoAddonConfigSubsection ( Ruleset ruleset ) : base( ruleset ) { }
+namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
-		protected override LocalisableString Header => Localisation.Strings.SettingsHeader;
+public class RurusettoAddonConfigSubsection : RulesetSettingsSubsection {
+	public RurusettoAddonConfigSubsection ( Ruleset ruleset ) : base( ruleset ) { }
 
-		protected override void LoadComplete () {
-			base.LoadComplete();
-			var config = Config as RurusettoConfigManager;
+	protected override LocalisableString Header => Localisation.Strings.SettingsHeader;
 
-			Add( new SettingsTextBox { LabelText = Localisation.Strings.SettingsApiAddress, Current = config.GetBindable<string>( RurusettoSetting.APIAddress ) } );
-		}
+	protected override void LoadComplete () {
+		base.LoadComplete();
+		var config = Config as RurusettoConfigManager;
+
+		Add( new SettingsTextBox { LabelText = Localisation.Strings.SettingsApiAddress, Current = config.GetBindable<string>( RurusettoSetting.APIAddress ) } );
 	}
 }
