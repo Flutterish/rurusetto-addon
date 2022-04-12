@@ -5,7 +5,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 	public class HomeButton : GrayButton {
 		RulesetDetail entry;
 		public HomeButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Home ) {

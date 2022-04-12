@@ -10,9 +10,9 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets.RurusettoAddon.API;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
-using osu.Game.Rulesets.RurusettoAddon.UI.Info;
 using osu.Game.Rulesets.RurusettoAddon.UI.Listing;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
+using osu.Game.Rulesets.RurusettoAddon.UI.Wiki;
 using osuTK.Input;
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay {
 		LoadingLayer loading;
 		OverlayTab currentTab;
 		ListingTab listing;
-		Dictionary<APIRuleset, InfoTab> infoTabs = new();
+		Dictionary<APIRuleset, WikiTab> infoTabs = new();
 		Dictionary<APIUser, UserTab> userTabs = new();
 
 		[Cached]

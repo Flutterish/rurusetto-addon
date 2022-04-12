@@ -27,8 +27,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
-	public class InfoTab : OverlayTab {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
+	public class WikiTab : OverlayTab {
 		FillFlowContainer content;
 		APIRuleset ruleset;
 		Sprite cover;
@@ -39,7 +39,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 		protected FillFlowContainer Status;
 		SubpageSectionTabControl subpageTabControl;
 		FillFlowContainer buttons;
-		public InfoTab ( APIRuleset ruleset ) {
+		public WikiTab ( APIRuleset ruleset ) {
 			this.ruleset = ruleset;
 
 			AddInternal( content = new FillFlowContainer {
@@ -380,7 +380,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
 				container.Child = all;
 
 				int loadedCount = 0;
-				foreach ( var group in r.GroupBy( x => x.Recommender.ID ).OrderBy( x => (x.Key.Value == ruleset.Owner?.ID) ? 1 : 2 ).ThenByDescending( x => x.Count() ) ) {
+				foreach ( var group in r.GroupBy( x => x.Recommender.ID ).OrderBy( x => x.Key.Value == ruleset.Owner?.ID ? 1 : 2 ).ThenByDescending( x => x.Count() ) ) {
 					var list = new ReverseChildIDFillFlowContainer<Drawable> {
 						Direction = FillDirection.Full,
 						RelativeSizeAxes = Axes.X,

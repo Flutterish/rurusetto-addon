@@ -4,7 +4,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Rulesets.RurusettoAddon.API;
 
-namespace osu.Game.Rulesets.RurusettoAddon.UI.Info {
+namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki {
 	public class IssueButton : GrayButton {
 		RulesetDetail entry;
 		public IssueButton ( RulesetDetail entry ) : base( FontAwesome.Solid.Exclamation ) {
