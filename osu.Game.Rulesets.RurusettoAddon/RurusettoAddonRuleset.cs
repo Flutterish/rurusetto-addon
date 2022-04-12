@@ -1,188 +1,105 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
+﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
-using osu.Game.Overlays;
-using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Settings;
-using osu.Game.Overlays.Toolbar;
 using osu.Game.Rulesets.Configuration;
 using osu.Game.Rulesets.Difficulty;
+using osu.Game.Rulesets.Difficulty.Preprocessing;
+using osu.Game.Rulesets.Difficulty.Skills;
 using osu.Game.Rulesets.Mods;
+using osu.Game.Rulesets.Objects;
+using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.RurusettoAddon.Configuration;
 using osu.Game.Rulesets.RurusettoAddon.UI;
-using osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 using osu.Game.Rulesets.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 
-namespace osu.Game.Rulesets.RurusettoAddon {
-	public class RurusettoAddonRuleset : Ruleset {
-        public override string Description => "rūrusetto addon";
-        public override string ShortName => "rurusettoaddon";
+namespace osu.Game.Rulesets.RurusettoAddon;
 
-        public override IRulesetConfigManager CreateConfig ( SettingsStore settings )
-            => new RurusettoConfigManager( settings, RulesetInfo );
-        public override RulesetSettingsSubsection CreateSettings ()
-            => new RurusettoAddonConfigSubsection( this );
+public partial class RurusettoAddonRuleset : Ruleset {
+    public override string Description => "rūrusetto addon";
+    public override string ShortName => "rurusettoaddon";
 
-		public override DrawableRuleset CreateDrawableRulesetWith(IBeatmap beatmap, IReadOnlyList<Mod> mods = null) =>
-            new DrawableRurusettoAddonRuleset(this, beatmap, mods);
+    public override IRulesetConfigManager CreateConfig ( SettingsStore settings )
+        => new RurusettoConfigManager( settings, RulesetInfo );
+    public override RulesetSettingsSubsection CreateSettings ()
+        => new RurusettoAddonConfigSubsection( this );
 
-        public override IBeatmapConverter CreateBeatmapConverter(IBeatmap beatmap) =>
-            new RurusettoAddonBeatmapConverter(beatmap, this);
+    public override DrawableRuleset CreateDrawableRulesetWith ( IBeatmap beatmap, IReadOnlyList<Mod> mods = null )
+        => new DrawableRurusettoAddonRuleset( this, beatmap, mods );
 
-        public override DifficultyCalculator CreateDifficultyCalculator(IWorkingBeatmap beatmap) =>
-            new RurusettoAddonDifficultyCalculator(RulesetInfo, beatmap);
+    public override IBeatmapConverter CreateBeatmapConverter ( IBeatmap beatmap ) 
+        => new RurusettoAddonBeatmapConverter( beatmap, this );
 
-        public override IEnumerable<Mod> GetModsFor ( ModType type )
-            => Array.Empty<Mod>();
+    public override DifficultyCalculator CreateDifficultyCalculator ( IWorkingBeatmap beatmap ) 
+        => new RurusettoAddonDifficultyCalculator( RulesetInfo, beatmap );
 
-        public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
-            => Array.Empty<KeyBinding>();
+    public override IEnumerable<Mod> GetModsFor ( ModType type )
+        => Array.Empty<Mod>();
 
-        public static LocalisableString ErrorMessage ( string code )
-            => Localisation.Strings.LoadError( code );
+    public override IEnumerable<KeyBinding> GetDefaultKeyBindings ( int variant = 0 )
+        => Array.Empty<KeyBinding>();
 
-        public Texture GetTexture ( GameHost host, TextureStore textures, string path ) {
-            if ( !textures.GetAvailableResources().Contains( path ) )
-                textures.AddStore( host.CreateTextureLoaderStore( CreateResourceStore() ) );
+    public static LocalisableString ErrorMessage ( string code )
+        => Localisation.Strings.LoadError( code );
 
-            return textures.Get( path );
-        }
+    public Texture GetTexture ( GameHost host, TextureStore textures, string path ) {
+        if ( !textures.GetAvailableResources().Contains( path ) )
+            textures.AddStore( host.CreateTextureLoaderStore( CreateResourceStore() ) );
 
-        public override Drawable CreateIcon() => new Icon( this );
+        return textures.Get( path );
+    }
 
-        public class Icon : Sprite {
-            private RurusettoAddonRuleset ruleset;
+    public override Drawable CreateIcon () => new RurusettoIcon( this );
+}
 
-            public Icon ( RurusettoAddonRuleset ruleset ) {
-                this.ruleset = ruleset;
+#region Vestigial organs
 
-                RelativeSizeAxes = Axes.Both;
-                FillMode = FillMode.Fit;
-                Origin = Anchor.Centre;
-                Anchor = Anchor.Centre;
-            }
-            
-            // we are using the icon load code to inject our "mixin" since it is present in both the intro and the toolbar, where the overlay button should be
-            [BackgroundDependencyLoader(permitNulls: true)]
-            private void load ( OsuGame game, GameHost host, TextureStore textures ) {
-                if ( !textures.GetAvailableResources().Contains( "Textures/rurusetto-logo.png" ) )
-                    textures.AddStore( host.CreateTextureLoaderStore( ruleset.CreateResourceStore() ) );
+public class RurusettoAddonPlayfield : Playfield { }
+public enum RurusettoAddonAction { }
+public class RurusettoAddonInputManager : RulesetInputManager<RurusettoAddonAction> {
+    public RurusettoAddonInputManager ( RulesetInfo ruleset ) : base( ruleset, 0, SimultaneousBindingMode.Unique ) { }
+}
+public class RurusettoAddonDifficultyCalculator : DifficultyCalculator {
+    public RurusettoAddonDifficultyCalculator ( IRulesetInfo ruleset, IWorkingBeatmap beatmap ) : base( ruleset, beatmap ) { }
 
-                Texture = textures.Get( "Textures/rurusetto-logo.png" );
+    protected override DifficultyAttributes CreateDifficultyAttributes ( IBeatmap beatmap, Mod[] mods, Skill[] skills, double clockRate )
+        => new( mods, 0 );
 
-                if ( game is null ) return;
-                if ( game.Dependencies.Get<RurusettoOverlay>() != null ) return;
+    protected override IEnumerable<DifficultyHitObject> CreateDifficultyHitObjects ( IBeatmap beatmap, double clockRate )
+        => Array.Empty<DifficultyHitObject>();
 
-                var notifications = typeof( OsuGame ).GetField( "Notifications", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as NotificationOverlay;
-                if ( notifications is null ) {
-                    return;
-				}
+    protected override Skill[] CreateSkills ( IBeatmap beatmap, Mod[] mods, double clockRate )
+        => Array.Empty<Skill>();
+}
+public class RurusettoAddonBeatmapConverter : BeatmapConverter<HitObject> {
+    public RurusettoAddonBeatmapConverter ( IBeatmap beatmap, Ruleset ruleset ) : base( beatmap, ruleset ) { }
 
-                // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L790
-                // contains overlays
-                var overlayContent = typeof( OsuGame ).GetField( "overlayContent", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as Container;
+    public override bool CanConvert () => false;
 
-                if ( overlayContent is null ) {
-                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OCNRE" ) } ) );
-                    return;
-                }
-
-                // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L953
-                // caches the overlay globally and allows us to run code when it is loaded
-                var loadComponent = typeof( OsuGame ).GetMethod( "loadComponentSingleFile", BindingFlags.NonPublic | BindingFlags.Instance )?.MakeGenericMethod( typeof( RurusettoOverlay ) );
-
-                if ( loadComponent is null ) {
-                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCNRE" ) } ) );
-                    return;
-                }
-
-                try {
-                    loadComponent.Invoke( game,
-                        new object[] { new RurusettoOverlay( ruleset ), (Action<RurusettoOverlay>)addOverlay, true }
-                    );
-                }
-                catch ( Exception ) {
-                    Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCIE" ) } ) );
-                    return;
-                }
-
-                void addOverlay ( RurusettoOverlay overlay ) {
-                    overlayContent.Add( overlay );
-
-                    // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/Overlays/Toolbar/Toolbar.cs#L89
-                    // leveraging an "easy" hack to get the container with toolbar buttons
-                    var userButton = typeof( Toolbar ).GetField( "userButton", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game.Toolbar ) as Drawable;
-                    if ( userButton is null || userButton.Parent is not FillFlowContainer buttonsContainer ) {
-                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#UBNRE" ) } ) );
-                        overlayContent.Remove( overlay );
-                        return;
-                    }
-
-                    var button = new RurusettoToolbarButton();
-                    buttonsContainer.Insert( -1, button );
-
-                    // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L855
-                    // add overlay hiding, since osu does it manually
-                    var singleDisplayOverlays = new string[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
-                    var overlays = singleDisplayOverlays.Select( name => 
-                        typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as OverlayContainer
-                    ).ToList();
-                    if ( game.Dependencies.TryGet<RankingsOverlay>( out var rov ) ) {
-                        overlays.Add( rov );
-                    }
-                    else {
-                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#ROVNRE" ) } ) );
-                        overlayContent.Remove( overlay );
-                        buttonsContainer.Remove( button );
-                        return;
-                    }
-
-                    if ( overlays.Any( x => x is null ) ) {
-                        Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OVNRE" ) } ) );
-                        overlayContent.Remove( overlay );
-                        buttonsContainer.Remove( button );
-                        return;
-                    }
-
-                    foreach ( var i in overlays ) {
-                        i.State.ValueChanged += v => {
-                            if ( v.NewValue != Visibility.Visible ) return;
-
-                            overlay.Hide();
-                        };
-                    }
-
-                    overlay.State.ValueChanged += v => {
-                        if ( v.NewValue != Visibility.Visible ) return;
-
-                        foreach ( var i in overlays ) {
-                            i.Hide();
-                        }
-
-                        // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L896
-                        // show above other overlays
-                        if ( overlay.IsLoaded )
-                            overlayContent.ChangeChildDepth( overlay, (float)-Clock.CurrentTime );
-                        else
-                            overlay.Depth = (float)-Clock.CurrentTime;
-                    };
-
-                    host.Exited += () => {
-                        overlay.Dependencies?.Get<RulesetDownloadManager>().PerformTasks();
-                    };
-                }
-            }
-        }
+    protected override IEnumerable<HitObject> ConvertHitObject ( HitObject original, IBeatmap beatmap, CancellationToken cancellationToken ) {
+        yield break;
     }
 }
+public class DrawableRurusettoAddonRuleset : DrawableRuleset<HitObject> {
+    public DrawableRurusettoAddonRuleset ( RurusettoAddonRuleset ruleset, IBeatmap beatmap, IReadOnlyList<Mod> mods = null ) : base( ruleset, beatmap, mods ) { }
+
+    protected override Playfield CreatePlayfield ()
+        => new RurusettoAddonPlayfield();
+
+    public override DrawableHitObject<HitObject> CreateDrawableRepresentation ( HitObject h )
+        => null;
+
+    protected override PassThroughInputManager CreateInputManager ()
+        => new RurusettoAddonInputManager( Ruleset?.RulesetInfo );
+}
+
+#endregion
