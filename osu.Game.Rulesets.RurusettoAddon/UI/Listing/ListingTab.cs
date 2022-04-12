@@ -28,7 +28,7 @@ public class ListingTab : OverlayTab {
 		} );
 	}
 
-	Task refreshTask = null;
+	Task? refreshTask = null;
 	public void ReloadListing () {
 		Schedule( () => {
 			Overlay.StartLoading( this );
@@ -36,7 +36,7 @@ public class ListingTab : OverlayTab {
 			info.Clear();
 		} );
 
-		Task task = null;
+		Task? task = null;
 		task = refreshTask = Rulesets.RequestIdentities().ContinueWith( t => {
 			Schedule( () => {
 				Overlay.FinishLoadiong( this );
@@ -95,8 +95,7 @@ public class ListingTab : OverlayTab {
 		public override void Add ( DrawableListingEntry drawable ) {
 			base.Add( drawable );
 
-			rulesets.Add( drawable, null );
-			rulesets[drawable] = drawable.Ruleset;
+			rulesets.Add( drawable, drawable.Ruleset );
 		}
 
 		public override bool Remove ( DrawableListingEntry drawable ) {

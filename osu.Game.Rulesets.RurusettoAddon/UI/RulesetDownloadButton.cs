@@ -8,14 +8,12 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public class RulesetDownloadButton : GrayButton {
 	[Resolved]
-	public RulesetDownloadManager DownloadManager { get; private set; }
+	public RulesetDownloadManager DownloadManager { get; private set; } = null!;
 
 	public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
 	public readonly Bindable<Availability> Avail = new( Availability.Unknown );
 
-	LoadingSpinner spinner;
 	APIRuleset ruleset;
-	Warning warning;
 	public bool UseDarkerBackground { get; init; }
 	public bool ProvideContextMenu { get; init; } = true;
 	public RulesetDownloadButton ( APIRuleset ruleset ) : base( FontAwesome.Solid.Download ) {
@@ -24,11 +22,13 @@ public class RulesetDownloadButton : GrayButton {
 	}
 
 	[Resolved]
-	private OsuColour colours { get; set; }
+	private OsuColour colours { get; set; } = null!;
 
 	[Resolved]
-	private OverlayColourProvider overlayColours { get; set; }
+	private OverlayColourProvider overlayColours { get; set; } = null!;
 
+	LoadingSpinner spinner = null!;
+	Warning warning = null!;
 	protected override void LoadComplete () {
 		base.LoadComplete();
 
@@ -63,7 +63,7 @@ public class RulesetDownloadButton : GrayButton {
 	}
 
 	[Resolved]
-	private IBindable<RulesetInfo> currentRuleset { get; set; }
+	private IBindable<RulesetInfo> currentRuleset { get; set; } = null!;
 
 	private void updateVisuals () {
 		if ( State.Value == DownloadState.Downloading ) {

@@ -5,15 +5,15 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public abstract class OverlayTab : VisibilityContainer {
 	[Resolved]
-	protected RurusettoOverlay Overlay { get; private set; }
+	protected RurusettoOverlay Overlay { get; private set; } = null!;
 	[Resolved]
-	protected RurusettoAPI API { get; private set; }
+	protected RurusettoAPI API { get; private set; } = null!;
 	[Resolved]
-	protected RulesetDownloadManager DownloadManager { get; private set; }
+	protected RulesetDownloadManager DownloadManager { get; private set; } = null!;
 	[Resolved]
-	protected RulesetIdentityManager Rulesets { get; private set; }
+	protected RulesetIdentityManager Rulesets { get; private set; } = null!;
 	[Resolved]
-	protected UserIdentityManager Users { get; private set; }
+	protected UserIdentityManager Users { get; private set; } = null!;
 
 	public OverlayTab () {
 		RelativeSizeAxes = Axes.X;

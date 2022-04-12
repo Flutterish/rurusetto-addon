@@ -11,7 +11,7 @@ public class RurusettoAddonConfigSubsection : RulesetSettingsSubsection {
 
 	protected override void LoadComplete () {
 		base.LoadComplete();
-		var config = Config as RurusettoConfigManager;
+		var config = (RurusettoConfigManager)Config;
 
 		Add( new SettingsTextBox { LabelText = Localisation.Strings.SettingsApiAddress, Current = config.GetBindable<string>( RurusettoSetting.APIAddress ) } );
 	}

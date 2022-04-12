@@ -12,15 +12,15 @@ public class RurusettoOverlayBackground : CompositeDrawable {
 	}
 
 	private Dictionary<Texture, Sprite> covers = new();
-	Sprite currentCover;
-	Texture defaultCover;
+	Sprite? currentCover;
+	Texture defaultCover = null!;
 
 	[BackgroundDependencyLoader]
 	private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
 		SetCover( defaultCover = ruleset.GetTexture( host, textures, TextureNames.HeaderBackground ) );
 	}
 
-	public void SetCover ( Texture cover ) {
+	public void SetCover ( Texture? cover ) {
 		cover ??= defaultCover;
 
 		if ( !covers.TryGetValue( cover, out var sprite ) ) {

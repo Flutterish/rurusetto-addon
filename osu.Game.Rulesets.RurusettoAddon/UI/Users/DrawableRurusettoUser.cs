@@ -8,12 +8,12 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Overlays;
-using System.Diagnostics.CodeAnalysis;
 
+#nullable disable
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Users;
 
 public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
-	[Resolved, MaybeNull, NotNull]
+	[Resolved]
 	protected RurusettoOverlay Overlay { get; private set; }
 
 	[Resolved( canBeNull: true )]
@@ -21,17 +21,17 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 	[Resolved( canBeNull: true )]
 	protected IAPIProvider OnlineAPI { get; private set; }
 
-	private APIUser user;
-	private Container pfpContainer;
-	private Sprite pfp;
+	APIUser user;
+	Container pfpContainer;
+	Sprite pfp;
 
 	FillFlowContainer usernameFlow;
 	LocalisableString usernameText;
 	OsuTextFlowContainer username;
 	FillFlowContainer verticalFlow;
-	private bool isVerified;
 	Drawable verifiedDrawable;
 	UserProfile profile;
+	bool isVerified;
 	public bool UseDarkerBackground { get; init; }
 	public DrawableRurusettoUser ( APIUser user, bool isVerified = false ) {
 		this.isVerified = isVerified;
@@ -40,7 +40,7 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 	}
 
 	[Resolved]
-	OverlayColourProvider colours { get; set; }
+	OverlayColourProvider colours { get; set; } = null!;
 
 	[BackgroundDependencyLoader]
 	private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
@@ -52,41 +52,41 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 			AutoSizeAxes = Axes.X,
 			Direction = FillDirection.Horizontal,
 			Children = new Drawable[] {
-					pfpContainer = new Container {
-						Anchor = Anchor.CentreLeft,
-						Origin = Anchor.CentreLeft,
-						Children = new Drawable[] {
-							new Box {
-								RelativeSizeAxes = Axes.Both,
-								FillAspectRatio = 1,
-								FillMode = FillMode.Fill,
-								Colour = color
-							},
-							pfp = new Sprite {
-								RelativeSizeAxes = Axes.Both,
-								FillMode = FillMode.Fit,
-								Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultAvatar )
-							}
+				pfpContainer = new Container {
+					Anchor = Anchor.CentreLeft,
+					Origin = Anchor.CentreLeft,
+					Children = new Drawable[] {
+						new Box {
+							RelativeSizeAxes = Axes.Both,
+							FillAspectRatio = 1,
+							FillMode = FillMode.Fill,
+							Colour = color
 						},
-						Masking = true,
-						CornerRadius = 4,
-						Margin = new MarginPadding { Right = 12 }
+						pfp = new Sprite {
+							RelativeSizeAxes = Axes.Both,
+							FillMode = FillMode.Fit,
+							Texture = ruleset.GetTexture( host, textures, TextureNames.DefaultAvatar )
+						}
 					},
-					verticalFlow = new FillFlowContainer {
-						Direction = FillDirection.Vertical,
-						AutoSizeAxes = Axes.Both,
+					Masking = true,
+					CornerRadius = 4,
+					Margin = new MarginPadding { Right = 12 }
+				},
+				verticalFlow = new FillFlowContainer {
+					Direction = FillDirection.Vertical,
+					AutoSizeAxes = Axes.Both,
+					Anchor = Anchor.CentreLeft,
+					Origin = Anchor.CentreLeft,
+					Spacing = new osuTK.Vector2( 0, 4 ),
+					Child = username = new OsuTextFlowContainer {
+						TextAnchor = Anchor.CentreLeft,
 						Anchor = Anchor.CentreLeft,
 						Origin = Anchor.CentreLeft,
-						Spacing = new osuTK.Vector2( 0, 4 ),
-						Child = username = new OsuTextFlowContainer {
-							TextAnchor = Anchor.CentreLeft,
-							Anchor = Anchor.CentreLeft,
-							Origin = Anchor.CentreLeft,
-							AutoSizeAxes = Axes.Both,
-							Margin = new MarginPadding { Right = 5 }
-						}
+						AutoSizeAxes = Axes.Both,
+						Margin = new MarginPadding { Right = 5 }
 					}
 				}
+			}
 		} );
 
 		makeShort();
@@ -107,7 +107,7 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		isTall = false;
 
 		if ( verifiedDrawable != null ) {
-			( verifiedDrawable.Parent as Container<Drawable> )!.Remove( verifiedDrawable );
+			( (Container<Drawable>)verifiedDrawable.Parent ).Remove( verifiedDrawable );
 		}
 
 		if ( isVerified ) {
@@ -124,7 +124,7 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		isTall = true;
 
 		if ( verifiedDrawable != null ) {
-			( verifiedDrawable.Parent as Container<Drawable> )!.Remove( verifiedDrawable );
+			( (Container<Drawable>)verifiedDrawable.Parent )!.Remove( verifiedDrawable );
 		}
 
 		if ( isVerified ) {
@@ -134,21 +134,21 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 				Anchor = Anchor.CentreLeft,
 				Origin = Anchor.CentreLeft,
 				Children = new Drawable[] {
-						new VerifiedIcon {
-							Anchor = Anchor.CentreLeft,
-							Origin = Anchor.CentreLeft,
-							Height = 15,
-							Width = 15
-						},
-						new OsuSpriteText {
-							Colour = colours.Colour1,
-							Text = Localisation.Strings.CreatorVerified,
-							Font = OsuFont.GetFont( weight: FontWeight.Bold ),
-							Anchor = Anchor.CentreLeft,
-							Origin = Anchor.CentreLeft,
-							Margin = new MarginPadding { Left = 5 }
-						}
+					new VerifiedIcon {
+						Anchor = Anchor.CentreLeft,
+						Origin = Anchor.CentreLeft,
+						Height = 15,
+						Width = 15
+					},
+					new OsuSpriteText {
+						Colour = colours.Colour1,
+						Text = Localisation.Strings.CreatorVerified,
+						Font = OsuFont.GetFont( weight: FontWeight.Bold ),
+						Anchor = Anchor.CentreLeft,
+						Origin = Anchor.CentreLeft,
+						Margin = new MarginPadding { Left = 5 }
 					}
+				}
 			} );
 		}
 	}

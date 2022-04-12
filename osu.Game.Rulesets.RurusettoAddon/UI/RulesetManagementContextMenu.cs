@@ -8,7 +8,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public class RulesetManagementContextMenu : CompositeDrawable, IHasContextMenu {
 	[Resolved]
-	public RulesetDownloadManager DownloadManager { get; private set; }
+	public RulesetDownloadManager DownloadManager { get; private set; } = null!;
 
 	public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
 	public readonly Bindable<Availability> Avail = new( Availability.Unknown );

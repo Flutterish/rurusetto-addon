@@ -196,6 +196,9 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 
 		public void PerformTasks () {
 			foreach ( var i in tasks.Values ) {
+				if ( i.Source is null )
+					continue;
+
 				if ( i.Type == TaskType.Install || i.Type == TaskType.Update ) {
 					var filename = Path.GetFileName( i.Source );
 					var path = storage.GetFullPath( $"./rulesets/{filename}" );
@@ -243,7 +246,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 		Outdated = 16
 	}
 
-	public record RulesetManagerTask ( TaskType Type, string Source );
+	public record RulesetManagerTask ( TaskType Type, string? Source );
 	public enum TaskType {
 		Install,
 		Update,

@@ -24,7 +24,7 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 	};
 
 	[Resolved]
-	protected RurusettoAPI API { get; private set; }
+	protected RurusettoAPI API { get; private set; } = null!;
 
 	public RurusettoOverlayHeader () {
 		TabControl.AddItem( ListingTab );
@@ -132,7 +132,7 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 	protected override OverlayTitle CreateTitle ()
 		=> new HeaderTitle();
 
-	private RurusettoOverlayBackground background;
+	private RurusettoOverlayBackground background = null!;
 	protected override RurusettoOverlayBackground CreateBackground ()
 		=> background = new RurusettoOverlayBackground();
 
@@ -156,7 +156,7 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 					return;
 
 				var category = Items[0].Category;
-				var prev = TabMap[Items[0]] as ControlTabItem;
+				var prev = (ControlTabItem)TabMap[Items[0]];
 				foreach ( var item in TabContainer.Children.OfType<ControlTabItem>().Skip( 1 ) ) {
 					if ( item.Value.Category != category ) {
 						prev.Chevron.Icon = FontAwesome.Solid.AngleDoubleRight;

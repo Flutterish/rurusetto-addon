@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using osu.Framework.Localisation;
 
+#nullable disable
 namespace osu.Game.Rulesets.RurusettoAddon.API;
 
 public record SubpageListingEntry {

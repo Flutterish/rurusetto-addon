@@ -4,7 +4,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public class RulesetLogo : CompositeDrawable {
 	[Resolved]
-	protected RurusettoAPI API { get; private set; }
+	protected RurusettoAPI API { get; private set; } = null!;
 
 	APIRuleset ruleset;
 	public bool UseDarkerBackground { get; init; }
@@ -17,11 +17,11 @@ public class RulesetLogo : CompositeDrawable {
 		var color = UseDarkerBackground ? colours.Background4 : colours.Background3;
 
 		InternalChildren = new Drawable[] {
-				new Circle {
-					RelativeSizeAxes = Axes.Both,
-					Colour = color
-				}
-			};
+			new Circle {
+				RelativeSizeAxes = Axes.Both,
+				Colour = color
+			}
+		};
 
 		ruleset.RequestDarkLogo( logo => {
 			AddInternal( logo );

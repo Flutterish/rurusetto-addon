@@ -28,7 +28,7 @@ public class RurusettoAddonRuleset : Ruleset {
     public override RulesetSettingsSubsection CreateSettings ()
         => new RurusettoAddonConfigSubsection( this );
 
-    public override DrawableRuleset CreateDrawableRulesetWith ( IBeatmap beatmap, IReadOnlyList<Mod> mods = null )
+    public override DrawableRuleset CreateDrawableRulesetWith ( IBeatmap beatmap, IReadOnlyList<Mod>? mods = null )
         => new DrawableRurusettoAddonRuleset( this, beatmap, mods );
 
     public override IBeatmapConverter CreateBeatmapConverter ( IBeatmap beatmap ) 
@@ -82,16 +82,16 @@ public class RurusettoAddonBeatmapConverter : BeatmapConverter<HitObject> {
     }
 }
 public class DrawableRurusettoAddonRuleset : DrawableRuleset<HitObject> {
-    public DrawableRurusettoAddonRuleset ( RurusettoAddonRuleset ruleset, IBeatmap beatmap, IReadOnlyList<Mod> mods = null ) : base( ruleset, beatmap, mods ) { }
+    public DrawableRurusettoAddonRuleset ( RurusettoAddonRuleset ruleset, IBeatmap beatmap, IReadOnlyList<Mod>? mods = null ) : base( ruleset, beatmap, mods ) { }
 
     protected override Playfield CreatePlayfield ()
         => new RurusettoAddonPlayfield();
 
-    public override DrawableHitObject<HitObject> CreateDrawableRepresentation ( HitObject h )
+    public override DrawableHitObject<HitObject>? CreateDrawableRepresentation ( HitObject h )
         => null;
 
     protected override PassThroughInputManager CreateInputManager ()
-        => new RurusettoAddonInputManager( Ruleset?.RulesetInfo );
+        => new RurusettoAddonInputManager( Ruleset.RulesetInfo );
 }
 
 #endregion

@@ -90,8 +90,8 @@ public class RurusettoIcon : Sprite {
             // add overlay hiding, since osu does it manually
             var singleDisplayOverlays = new string[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
             var overlays = singleDisplayOverlays.Select( name =>
-                typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as OverlayContainer
-            ).ToList();
+                typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game )
+            ).OfType<OverlayContainer>().ToList();
             if ( game.Dependencies.TryGet<RankingsOverlay>( out var rov ) ) {
                 overlays.Add( rov );
             }

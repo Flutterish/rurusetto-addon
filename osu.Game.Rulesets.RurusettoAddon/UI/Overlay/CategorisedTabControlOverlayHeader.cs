@@ -6,11 +6,14 @@ using osu.Game.Overlays;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Overlay;
 
 public class CategorisedTabItem<Tcategory, Ttab> {
-    public Tcategory Category { get; init; }
-    public Ttab Tab { get; init; }
+    public Tcategory Category { get; init; } = default!;
+    public Ttab Tab { get; init; } = default!;
 }
 
-public abstract class CategorisedTabControlOverlayHeader<T, Tcategory, Ttab> : OverlayHeader, IHasCurrentValue<T> where T : CategorisedTabItem<Tcategory, Ttab> {
+public abstract class CategorisedTabControlOverlayHeader<T, Tcategory, Ttab> : OverlayHeader, IHasCurrentValue<T> 
+    where T : CategorisedTabItem<Tcategory, Ttab>
+    where Tcategory : notnull {
+
     protected OsuTabControl<T> TabControl;
 
     private readonly Box controlBackground;
@@ -99,46 +102,46 @@ public abstract class CategorisedTabControlOverlayHeader<T, Tcategory, Ttab> : O
 
     protected virtual OsuTabControl<T> CreateTabControl () => new OverlayHeaderTabControl<T>();
     protected virtual OsuTabControl<Tcategory> CreateCategoryControl () => new OverlayHeaderTabControl<Tcategory>();
+}
 
-    public class OverlayHeaderTabControl<T> : OverlayTabControl<T> {
-        private const float bar_height = 1;
+public class OverlayHeaderTabControl<T> : OverlayTabControl<T> where T : notnull {
+    private const float bar_height = 1;
 
-        public OverlayHeaderTabControl () {
-            RelativeSizeAxes = Axes.None;
-            AutoSizeAxes = Axes.X;
-            Anchor = Anchor.BottomLeft;
-            Origin = Anchor.BottomLeft;
-            Height = 47;
-            BarHeight = bar_height;
-        }
+    public OverlayHeaderTabControl () {
+        RelativeSizeAxes = Axes.None;
+        AutoSizeAxes = Axes.X;
+        Anchor = Anchor.BottomLeft;
+        Origin = Anchor.BottomLeft;
+        Height = 47;
+        BarHeight = bar_height;
+    }
 
-        protected override TabItem<T> CreateTabItem ( T value ) => new OverlayHeaderTabItem( value );
+    protected override TabItem<T> CreateTabItem ( T value ) => new OverlayHeaderTabItem( value );
 
-        protected override TabFillFlowContainer CreateTabFlow () => new TabFillFlowContainer {
-            RelativeSizeAxes = Axes.Y,
-            AutoSizeAxes = Axes.X,
-            Direction = FillDirection.Horizontal,
-        };
+    protected override TabFillFlowContainer CreateTabFlow () => new TabFillFlowContainer {
+        RelativeSizeAxes = Axes.Y,
+        AutoSizeAxes = Axes.X,
+        Direction = FillDirection.Horizontal,
+    };
 
-        private class OverlayHeaderTabItem : OverlayTabItem {
-            public OverlayHeaderTabItem ( T value )
-                : base( value ) {
-                if ( !( Value is Enum enumValue ) )
-                    Text.Text = Value.ToString().ToLower();
-                else {
-                    var localisableDescription = enumValue.GetLocalisableDescription();
-                    string nonLocalisableDescription = enumValue.GetDescription();
+    private class OverlayHeaderTabItem : OverlayTabItem {
+        public OverlayHeaderTabItem ( T value ) : base( value ) {
+            if ( Value is Enum enumValue ) {
+                var localisableDescription = enumValue.GetLocalisableDescription();
+                string nonLocalisableDescription = enumValue.GetDescription();
 
-                    // If localisable == non-localisable, then we must have a basic string, so .ToLower() is used.
-                    Text.Text = localisableDescription.Equals( nonLocalisableDescription )
-                        ? nonLocalisableDescription.ToLower()
-                        : localisableDescription;
-                }
-
-                Text.Font = OsuFont.GetFont( size: 14 );
-                Text.Margin = new MarginPadding { Vertical = 16.5f }; // 15px padding + 1.5px line-height difference compensation
-                Bar.Margin = new MarginPadding { Bottom = bar_height };
+                // If localisable == non-localisable, then we must have a basic string, so .ToLower() is used.
+                Text.Text = localisableDescription.Equals( nonLocalisableDescription )
+                    ? nonLocalisableDescription.ToLower()
+                    : localisableDescription;
             }
+            else {
+                Text.Text = Value.ToString()!.ToLower();           
+            }
+
+            Text.Font = OsuFont.GetFont( size: 14 );
+            Text.Margin = new MarginPadding { Vertical = 16.5f }; // 15px padding + 1.5px line-height difference compensation
+            Bar.Margin = new MarginPadding { Bottom = bar_height };
         }
     }
 }

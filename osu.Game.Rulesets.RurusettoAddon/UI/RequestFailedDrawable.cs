@@ -155,7 +155,7 @@ public class RequestFailedDrawable : CompositeDrawable {
     }
 
     private class RetryButton : OsuButton {
-        SpriteText text;
+        SpriteText text = null!;
         public float MinWidth;
 
         protected override void Update () {

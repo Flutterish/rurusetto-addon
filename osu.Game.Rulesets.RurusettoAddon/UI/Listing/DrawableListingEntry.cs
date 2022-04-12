@@ -11,22 +11,19 @@ using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Listing;
 
 public class DrawableListingEntry : VisibilityContainer {
-	Sprite cover;
-	Drawable coverContainer;
-
 	protected override bool StartHidden => false;
 
 	private BufferedContainer content;
 	protected override Container<Drawable> Content => content;
 
 	[Resolved]
-	protected RurusettoOverlay Overlay { get; private set; }
+	protected RurusettoOverlay Overlay { get; private set; } = null!;
 	[Resolved]
-	protected RurusettoAPI API { get; private set; }
+	protected RurusettoAPI API { get; private set; } = null!;
 	[Resolved]
-	protected RulesetDownloadManager DownloadManager { get; private set; }
+	protected RulesetDownloadManager DownloadManager { get; private set; } = null!;
 	[Resolved]
-	protected UserIdentityManager Users { get; private set; }
+	protected UserIdentityManager Users { get; private set; } = null!;
 	public APIRuleset Ruleset { get; private set; }
 	protected FillFlowContainer Tags;
 
@@ -43,6 +40,12 @@ public class DrawableListingEntry : VisibilityContainer {
 			Vertical = 8
 		};
 
+		Tags = new FillFlowContainer {
+			Direction = FillDirection.Horizontal,
+			AutoSizeAxes = Axes.Both,
+			Spacing = new Vector2( 6, 0 )
+		};
+
 		AddInternal( content = new() {
 			RelativeSizeAxes = Axes.Both
 		} );
@@ -50,11 +53,13 @@ public class DrawableListingEntry : VisibilityContainer {
 		AddInternal( new RulesetManagementContextMenu( ruleset ) );
 	}
 
-	ILocalisedBindableString nameBindable;
+	ILocalisedBindableString? nameBindable;
 
 	[BackgroundDependencyLoader]
 	private void load ( OverlayColourProvider colours, LocalisationManager localisation, GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
 		var color = colours.Background4;
+		Sprite cover;
+		Drawable coverContainer;
 
 		Add( new Box {
 			Colour = color,
@@ -64,26 +69,26 @@ public class DrawableListingEntry : VisibilityContainer {
 			RelativeSizeAxes = Axes.X,
 			Height = 80,
 			Children = new Drawable[] {
-					cover = new Sprite {
-						RelativeSizeAxes = Axes.Both,
-						FillMode = FillMode.Fill,
-						Origin = Anchor.Centre,
-						Anchor = Anchor.Centre,
-						Scale = new Vector2( 1.2f )
+				cover = new Sprite {
+					RelativeSizeAxes = Axes.Both,
+					FillMode = FillMode.Fill,
+					Origin = Anchor.Centre,
+					Anchor = Anchor.Centre,
+					Scale = new Vector2( 1.2f )
+				},
+				new Box {
+					Colour = new ColourInfo {
+						HasSingleColour = false,
+						BottomLeft = color.Opacity( 0.75f ),
+						BottomRight = color.Opacity( 0.75f ),
+						TopLeft = color.Opacity( 0.5f ),
+						TopRight = color.Opacity( 0.5f )
 					},
-					new Box {
-						Colour = new ColourInfo {
-							HasSingleColour = false,
-							BottomLeft = color.Opacity( 0.75f ),
-							BottomRight = color.Opacity( 0.75f ),
-							TopLeft = color.Opacity( 0.5f ),
-							TopRight = color.Opacity( 0.5f )
-						},
-						RelativeSizeAxes = Axes.Both,
-						Anchor = Anchor.BottomCentre,
-						Origin = Anchor.BottomCentre
-					}
+					RelativeSizeAxes = Axes.Both,
+					Anchor = Anchor.BottomCentre,
+					Origin = Anchor.BottomCentre
 				}
+			}
 		} );
 		Add( new Box {
 			Colour = color,
@@ -97,73 +102,68 @@ public class DrawableListingEntry : VisibilityContainer {
 			Padding = new MarginPadding( 24f * 14 / 20 ) { Bottom = 24f * 14 / 20 - 4 },
 			RelativeSizeAxes = Axes.Both,
 			Children = new Drawable[] {
-					Tags = new FillFlowContainer {
-						Direction = FillDirection.Horizontal,
-						AutoSizeAxes = Axes.Both,
-						Spacing = new Vector2( 6, 0 )
-					},
-					new RulesetLogo( Ruleset ) {
-						Width = 80f * 14 / 20,
-						Height = 80f * 14 / 20,
-						Anchor = Anchor.CentreLeft,
-						Origin = Anchor.CentreLeft
-					},
-					new Container {
-						AutoSizeAxes = Axes.X,
-						Anchor = Anchor.CentreLeft,
-						Origin = Anchor.CentreLeft,
-						Height = 80f * 14 / 20,
-						X = (80 + 12) * 14 / 20,
-						Children = new Drawable[] {
-							rulesetName = new OsuSpriteText {
-								Font = OsuFont.GetFont( size: 24 )
-							},
-							new DrawableRurusettoUser( Users.GetUser( Ruleset.Owner ), Ruleset.IsVerified ) {
-								Height = 34f * 14 / 20,
-								Origin = Anchor.BottomLeft,
-								Anchor = Anchor.BottomLeft
-							}
+				Tags,
+				new RulesetLogo( Ruleset ) {
+					Width = 80f * 14 / 20,
+					Height = 80f * 14 / 20,
+					Anchor = Anchor.CentreLeft,
+					Origin = Anchor.CentreLeft
+				},
+				new Container {
+					AutoSizeAxes = Axes.X,
+					Anchor = Anchor.CentreLeft,
+					Origin = Anchor.CentreLeft,
+					Height = 80f * 14 / 20,
+					X = (80 + 12) * 14 / 20,
+					Children = new Drawable[] {
+						rulesetName = new OsuSpriteText {
+							Font = OsuFont.GetFont( size: 24 )
+						},
+						new DrawableRurusettoUser( Users.GetUser( Ruleset.Owner ), Ruleset.IsVerified ) {
+							Height = 34f * 14 / 20,
+							Origin = Anchor.BottomLeft,
+							Anchor = Anchor.BottomLeft
 						}
+					}
+				},
+				new GridContainer {
+					RelativeSizeAxes = Axes.X,
+					Height = 50f * 14 / 20,
+					Anchor = Anchor.BottomLeft,
+					Origin = Anchor.BottomLeft,
+					ColumnDimensions = new Dimension[] {
+						new( GridSizeMode.Distributed ),
+						new( GridSizeMode.Absolute, 50f * 14 / 20 )
 					},
-					new GridContainer {
-						RelativeSizeAxes = Axes.X,
-						Height = 50f * 14 / 20,
-						Anchor = Anchor.BottomLeft,
-						Origin = Anchor.BottomLeft,
-						ColumnDimensions = new Dimension[] {
-							new( GridSizeMode.Distributed ),
-							new( GridSizeMode.Absolute, 50f * 14 / 20 )
-						},
-						RowDimensions = new Dimension[] {
-							new( GridSizeMode.Distributed )
-						},
-						Content = new Drawable[][] {
-							new Drawable[] {
-								new TogglableScrollContainer {
+					RowDimensions = new Dimension[] {
+						new( GridSizeMode.Distributed )
+					},
+					Content = new Drawable[][] {
+						new Drawable[] {
+							new TogglableScrollContainer {
+								RelativeSizeAxes = Axes.X,
+								Padding = new MarginPadding { Right = 4 },
+								Height = 30,
+								ScrollbarVisible = false,
+								Anchor = Anchor.BottomLeft,
+								Origin = Anchor.BottomLeft,
+								Child = new OsuTextFlowContainer( s => s.Font = OsuFont.GetFont( size: 14 ) ) {
+									AutoSizeAxes = Axes.Y,
 									RelativeSizeAxes = Axes.X,
-									Padding = new MarginPadding { Right = 4 },
-									Height = 30,
-									ScrollbarVisible = false,
-									Anchor = Anchor.BottomLeft,
-									Origin = Anchor.BottomLeft,
-									Child = new OsuTextFlowContainer( s => s.Font = OsuFont.GetFont( size: 14 ) ) {
-										AutoSizeAxes = Axes.Y,
-										RelativeSizeAxes = Axes.X,
-										Text = Ruleset.Description
-									}
-								},
-								new RulesetDownloadButton( Ruleset ) {
-									RelativeSizeAxes = Axes.Both,
-									ProvideContextMenu = false
+									Text = Ruleset.Description
 								}
+							},
+							new RulesetDownloadButton( Ruleset ) {
+								RelativeSizeAxes = Axes.Both,
+								ProvideContextMenu = false
 							}
 						}
 					}
 				}
+			}
 		} );
 
 		nameBindable = localisation.GetLocalisedBindableString( Ruleset.Name );
-
 		nameBindable.BindValueChanged( v => {
 			rulesetName.Text = v.NewValue.Humanize().ToLower();
 		}, true );

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 
+#nullable disable
 namespace osu.Game.Rulesets.RurusettoAddon.API;
 
 public record UserProfile {

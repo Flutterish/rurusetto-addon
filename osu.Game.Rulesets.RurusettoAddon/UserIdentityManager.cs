@@ -12,6 +12,6 @@ public class UserIdentityManager {
 	public APIUser GetUser ( int id )
 		=> users.GetOrAdd( id, () => APIUser.FromID( API, id ) );
 
-	public APIUser GetUser ( UserDetail detail )
+	public APIUser GetUser ( UserDetail? detail )
 		=> detail?.ID is int id ? GetUser( id ) : unknownUser;
 }

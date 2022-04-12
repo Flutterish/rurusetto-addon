@@ -8,6 +8,7 @@ using osu.Game.Overlays;
 using osu.Game.Rulesets.RurusettoAddon.UI.Users;
 using osuTK.Input;
 
+#nullable disable
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Wiki;
 
 [Cached]
@@ -56,25 +57,25 @@ public class WikiTab : OverlayTab {
 			RelativeSizeAxes = Axes.X,
 			Height = 220,
 			Children = new Drawable[] {
-					cover = new Sprite {
-						RelativeSizeAxes = Axes.Both,
-						FillMode = FillMode.Fill,
-						Origin = Anchor.Centre,
-						Anchor = Anchor.Centre
-					},
-					new Box {
-						Colour = new ColourInfo {
-							HasSingleColour = false,
-							BottomLeft = colourProvider.Background5,
-							BottomRight = colourProvider.Background5,
-							TopLeft = colourProvider.Background5.Opacity( 0.5f ),
-							TopRight = colourProvider.Background5.Opacity( 0.5f )
-						},
-						RelativeSizeAxes = Axes.Both,
-						Anchor = Anchor.BottomCentre,
-						Origin = Anchor.BottomCentre
-					}
+				cover = new Sprite {
+					RelativeSizeAxes = Axes.Both,
+					FillMode = FillMode.Fill,
+					Origin = Anchor.Centre,
+					Anchor = Anchor.Centre
 				},
+				new Box {
+					Colour = new ColourInfo {
+						HasSingleColour = false,
+						BottomLeft = colourProvider.Background5,
+						BottomRight = colourProvider.Background5,
+						TopLeft = colourProvider.Background5.Opacity( 0.5f ),
+						TopRight = colourProvider.Background5.Opacity( 0.5f )
+					},
+					RelativeSizeAxes = Axes.Both,
+					Anchor = Anchor.BottomCentre,
+					Origin = Anchor.BottomCentre
+				}
+			},
 			Masking = true,
 			Depth = 1,
 			MaskingSmoothness = 0
@@ -85,65 +86,65 @@ public class WikiTab : OverlayTab {
 			RelativeSizeAxes = Axes.X,
 			Height = 160,
 			Children = new Drawable[] {
-					Tags = new FillFlowContainer {
-						Direction = FillDirection.Horizontal,
-						AutoSizeAxes = Axes.Both,
-						Spacing = new Vector2( 6, 0 ),
-						Margin = new MarginPadding { Top = 16 }
-					},
-					Status = new FillFlowContainer {
-						Anchor = Anchor.TopRight,
-						Origin = Anchor.TopRight,
-						Direction = FillDirection.Vertical,
-						AutoSizeAxes = Axes.Both,
-						Spacing = new Vector2( 0, 6 ),
-						Margin = new MarginPadding { Top = 16 }
-					}
+				Tags = new FillFlowContainer {
+					Direction = FillDirection.Horizontal,
+					AutoSizeAxes = Axes.Both,
+					Spacing = new Vector2( 6, 0 ),
+					Margin = new MarginPadding { Top = 16 }
+				},
+				Status = new FillFlowContainer {
+					Anchor = Anchor.TopRight,
+					Origin = Anchor.TopRight,
+					Direction = FillDirection.Vertical,
+					AutoSizeAxes = Axes.Both,
+					Spacing = new Vector2( 0, 6 ),
+					Margin = new MarginPadding { Top = 16 }
 				}
+			}
 		} );
 
 		content.Add( new Container {
 			RelativeSizeAxes = Axes.X,
 			AutoSizeAxes = Axes.Y,
 			Children = new Drawable[] {
-					new FillFlowContainer {
-						Direction = FillDirection.Horizontal,
-						RelativeSizeAxes = Axes.X,
-						Height = 170f * 14 / 20,
-						Children = new Drawable[] {
-							new RulesetLogo( ruleset ) {
-								Height = 170f * 14 / 20,
-								Width = 170f * 14 / 20,
-								Margin = new MarginPadding { Right = 16 },
-								UseDarkerBackground = true
-							},
-							new DrawableRurusettoUser( Users.GetUser( ruleset.Owner ), ruleset.IsVerified ) {
-								Anchor = Anchor.BottomLeft,
-								Origin = Anchor.BottomLeft,
-								Height = 64f * 14 / 20,
-								Margin = new MarginPadding { Bottom = 4 },
-								UseDarkerBackground = true
-							}
+				new FillFlowContainer {
+					Direction = FillDirection.Horizontal,
+					RelativeSizeAxes = Axes.X,
+					Height = 170f * 14 / 20,
+					Children = new Drawable[] {
+						new RulesetLogo( ruleset ) {
+							Height = 170f * 14 / 20,
+							Width = 170f * 14 / 20,
+							Margin = new MarginPadding { Right = 16 },
+							UseDarkerBackground = true
 						},
-						Margin = new MarginPadding { Bottom = 20 }
+						new DrawableRurusettoUser( Users.GetUser( ruleset.Owner ), ruleset.IsVerified ) {
+							Anchor = Anchor.BottomLeft,
+							Origin = Anchor.BottomLeft,
+							Height = 64f * 14 / 20,
+							Margin = new MarginPadding { Bottom = 4 },
+							UseDarkerBackground = true
+						}
 					},
-					buttons = new FillFlowContainer {
-						Y = -28,
-						Spacing = new Vector2( 8, 0 ),
-						AutoSizeAxes = Axes.Both,
-						Origin = Anchor.BottomRight,
-						Anchor = Anchor.BottomRight,
-						Children = new Drawable[] {
-							new RulesetDownloadButton( ruleset ) {
-								Height = 40f * 14 / 20,
-								Width = 200f * 14 / 20,
-								Anchor = Anchor.CentreRight,
-								Origin = Anchor.CentreRight,
-								UseDarkerBackground = true
-							}
+					Margin = new MarginPadding { Bottom = 20 }
+				},
+				buttons = new FillFlowContainer {
+					Y = -28,
+					Spacing = new Vector2( 8, 0 ),
+					AutoSizeAxes = Axes.Both,
+					Origin = Anchor.BottomRight,
+					Anchor = Anchor.BottomRight,
+					Children = new Drawable[] {
+						new RulesetDownloadButton( ruleset ) {
+							Height = 40f * 14 / 20,
+							Width = 200f * 14 / 20,
+							Anchor = Anchor.CentreRight,
+							Origin = Anchor.CentreRight,
+							UseDarkerBackground = true
 						}
 					}
 				}
+			}
 		} );
 
 		content.Add( new Container {

@@ -7,7 +7,7 @@ using osuTK.Graphics;
 namespace osu.Game.Rulesets.RurusettoAddon.UI.Users;
 
 public class VerifiedIcon : CompositeDrawable, IHasTooltip {
-	SpriteIcon icon;
+	SpriteIcon icon = null!;
 
 	[BackgroundDependencyLoader]
 	private void load ( OverlayColourProvider colours ) {
