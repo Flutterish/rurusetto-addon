@@ -39,7 +39,7 @@ public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 			API = API
 		} );
 		dep.CacheAs( new APIUserStore( API ) );
-		RulesetDownloadManager download;
+		RulesetDownloader download;
 		dep.CacheAs( download = new( API, dep.Get<Storage>() ) );
 		if ( !download.PerformPreCleanup() ) {
 			Schedule( () => dep.Get<NotificationOverlay>()?.Post( new SimpleErrorNotification { Text = Localisation.Strings.NotificationWorkIncomplete } ) );

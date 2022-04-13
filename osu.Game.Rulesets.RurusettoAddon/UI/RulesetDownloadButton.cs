@@ -8,7 +8,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public class RulesetDownloadButton : GrayButton {
 	[Resolved]
-	public RulesetDownloadManager DownloadManager { get; private set; } = null!;
+	public RulesetDownloader Downloader { get; private set; } = null!;
 
 	public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
 	public readonly Bindable<Availability> Avail = new( Availability.Unknown );
@@ -51,8 +51,8 @@ public class RulesetDownloadButton : GrayButton {
 		if ( ProvideContextMenu )
 			AddInternal( new RulesetManagementContextMenu( ruleset ) );
 
-		DownloadManager.BindWith( ruleset, State );
-		DownloadManager.BindWith( ruleset, Avail );
+		Downloader.BindWith( ruleset, State );
+		Downloader.BindWith( ruleset, Avail );
 
 		State.ValueChanged += _ => Schedule( updateVisuals );
 		Avail.ValueChanged += _ => Schedule( updateVisuals );
@@ -138,10 +138,10 @@ public class RulesetDownloadButton : GrayButton {
 
 	void onClick () {
 		if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading && Avail.Value.HasFlagFast( Availability.Outdated ) ) {
-			DownloadManager.UpdateRuleset( ruleset );
+			Downloader.UpdateRuleset( ruleset );
 		}
 		else if ( Avail.Value.HasFlagFast( Availability.AvailableOnline ) && State.Value == DownloadState.NotDownloading && Avail.Value.HasFlagFast( Availability.NotAvailableLocally ) ) {
-			DownloadManager.DownloadRuleset( ruleset );
+			Downloader.DownloadRuleset( ruleset );
 		}
 		else if ( Avail.Value.HasFlagFast( Availability.AvailableLocally ) && currentRuleset is Bindable<RulesetInfo> current && ruleset.LocalRulesetInfo is RulesetInfo info ) {
 			current.Value = info;

@@ -9,7 +9,7 @@ public abstract class OverlayTab : VisibilityContainer {
 	[Resolved]
 	protected RurusettoAPI API { get; private set; } = null!;
 	[Resolved]
-	protected RulesetDownloadManager DownloadManager { get; private set; } = null!;
+	protected RulesetDownloader Downloader { get; private set; } = null!;
 	[Resolved]
 	protected APIRulesetStore Rulesets { get; private set; } = null!;
 	[Resolved]

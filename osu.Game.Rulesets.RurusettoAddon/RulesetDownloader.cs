@@ -3,11 +3,11 @@ using System.IO;
 using System.Net.Http;
 
 namespace osu.Game.Rulesets.RurusettoAddon {
-	public class RulesetDownloadManager {
+	public class RulesetDownloader {
 		RurusettoAPI API;
 		Storage storage;
 
-		public RulesetDownloadManager ( RurusettoAPI API, Storage storage ) {
+		public RulesetDownloader ( RurusettoAPI API, Storage storage ) {
 			this.API = API;
 			this.storage = storage;
 		}
@@ -106,7 +106,7 @@ namespace osu.Game.Rulesets.RurusettoAddon {
 			}, failure: e => {
 				if ( wasTaskCancelled( ruleset, task ) ) return;
 				tasks.Remove( ruleset );
-				API.LogFailure( $"Download manager could not retrieve detail for {ruleset}", e );
+				API.LogFailure( $"Downloader could not retrieve detail for {ruleset}", e );
 			} );
 		}
 

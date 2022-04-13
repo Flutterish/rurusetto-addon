@@ -8,7 +8,7 @@ namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
 public class RulesetManagementContextMenu : CompositeDrawable, IHasContextMenu {
 	[Resolved]
-	public RulesetDownloadManager DownloadManager { get; private set; } = null!;
+	public RulesetDownloader Downloader { get; private set; } = null!;
 
 	public readonly Bindable<DownloadState> State = new( DownloadState.NotDownloading );
 	public readonly Bindable<Availability> Avail = new( Availability.Unknown );
@@ -28,21 +28,21 @@ public class RulesetManagementContextMenu : CompositeDrawable, IHasContextMenu {
 
 		RelativeSizeAxes = Axes.Both;
 
-		download = new( Localisation.Strings.Download, MenuItemType.Standard, () => DownloadManager.DownloadRuleset( ruleset ) );
-		update = new( Localisation.Strings.Update, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-		redownload = new( Localisation.Strings.Redownload, MenuItemType.Standard, () => DownloadManager.UpdateRuleset( ruleset ) );
-		remove = new( Localisation.Strings.Remove, MenuItemType.Destructive, () => DownloadManager.RemoveRuleset( ruleset ) );
-		cancelDownload = new( Localisation.Strings.CancelDownload, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-		cancelUpdate = new( Localisation.Strings.CancelUpdate, MenuItemType.Standard, () => DownloadManager.CancelRulesetDownload( ruleset ) );
-		cancelRemoval = new( Localisation.Strings.CancelRemove, MenuItemType.Standard, () => DownloadManager.CancelRulesetRemoval( ruleset ) );
-		refresh = new( Localisation.Strings.Refresh, MenuItemType.Standard, () => DownloadManager.CheckAvailability( ruleset ) );
+		download = new( Localisation.Strings.Download, MenuItemType.Standard, () => Downloader.DownloadRuleset( ruleset ) );
+		update = new( Localisation.Strings.Update, MenuItemType.Standard, () => Downloader.UpdateRuleset( ruleset ) );
+		redownload = new( Localisation.Strings.Redownload, MenuItemType.Standard, () => Downloader.UpdateRuleset( ruleset ) );
+		remove = new( Localisation.Strings.Remove, MenuItemType.Destructive, () => Downloader.RemoveRuleset( ruleset ) );
+		cancelDownload = new( Localisation.Strings.CancelDownload, MenuItemType.Standard, () => Downloader.CancelRulesetDownload( ruleset ) );
+		cancelUpdate = new( Localisation.Strings.CancelUpdate, MenuItemType.Standard, () => Downloader.CancelRulesetDownload( ruleset ) );
+		cancelRemoval = new( Localisation.Strings.CancelRemove, MenuItemType.Standard, () => Downloader.CancelRulesetRemoval( ruleset ) );
+		refresh = new( Localisation.Strings.Refresh, MenuItemType.Standard, () => Downloader.CheckAvailability( ruleset ) );
 	}
 
 	protected override void LoadComplete () {
 		base.LoadComplete();
 
-		DownloadManager.BindWith( ruleset, State );
-		DownloadManager.BindWith( ruleset, Avail );
+		Downloader.BindWith( ruleset, State );
+		Downloader.BindWith( ruleset, Avail );
 
 		State.ValueChanged += _ => Schedule( updateContextMenu );
 		Avail.ValueChanged += _ => Schedule( updateContextMenu );

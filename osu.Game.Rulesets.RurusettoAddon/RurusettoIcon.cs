@@ -139,7 +139,7 @@ public class RurusettoIcon : Sprite {
             };
 
             host.Exited += () => {
-                overlay.Dependencies?.Get<RulesetDownloadManager>().PerformTasks();
+                overlay.Dependencies?.Get<RulesetDownloader>().PerformTasks();
             };
         }
     }
