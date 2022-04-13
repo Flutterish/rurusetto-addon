@@ -11,9 +11,9 @@ public abstract class OverlayTab : VisibilityContainer {
 	[Resolved]
 	protected RulesetDownloadManager DownloadManager { get; private set; } = null!;
 	[Resolved]
-	protected RulesetIdentityManager Rulesets { get; private set; } = null!;
+	protected APIRulesetStore Rulesets { get; private set; } = null!;
 	[Resolved]
-	protected UserIdentityManager Users { get; private set; } = null!;
+	protected APIUserStore Users { get; private set; } = null!;
 
 	public OverlayTab () {
 		RelativeSizeAxes = Axes.X;

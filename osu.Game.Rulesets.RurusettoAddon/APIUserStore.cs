@@ -1,10 +1,10 @@
 ﻿namespace osu.Game.Rulesets.RurusettoAddon;
 
-public class UserIdentityManager {
+public class APIUserStore {
 	RurusettoAPI API;
 	APIUser unknownUser;
 	Dictionary<int, APIUser> users = new();
-	public UserIdentityManager ( RurusettoAPI API ) {
+	public APIUserStore ( RurusettoAPI API ) {
 		this.API = API;
 		unknownUser = APIUser.Local( API );
 	}

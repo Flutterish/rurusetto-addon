@@ -33,8 +33,12 @@ public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 		var dep = new DependencyContainer( base.CreateChildDependencies( parent ) );
 
 		dep.CacheAs( ruleset );
-		dep.CacheAs( new RulesetIdentityManager( dep.Get<Storage>(), dep.Get<IRulesetStore>(), API ) );
-		dep.CacheAs( new UserIdentityManager( API ) );
+		dep.CacheAs( new APIRulesetStore {
+			Storage = dep.Get<Storage>(),
+			RulesetStore = dep.Get<IRulesetStore>(),
+			API = API
+		} );
+		dep.CacheAs( new APIUserStore( API ) );
 		RulesetDownloadManager download;
 		dep.CacheAs( download = new( API, dep.Get<Storage>() ) );
 		if ( !download.PerformPreCleanup() ) {

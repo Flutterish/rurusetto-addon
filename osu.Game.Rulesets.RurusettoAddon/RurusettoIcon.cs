@@ -4,12 +4,12 @@ using osu.Framework.Platform;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Toolbar;
-using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace osu.Game.Rulesets.RurusettoAddon;
 
 public class RurusettoIcon : Sprite {
-    private RurusettoAddonRuleset ruleset;
+    RurusettoAddonRuleset ruleset;
 
     public RurusettoIcon ( RurusettoAddonRuleset ruleset ) {
         this.ruleset = ruleset;
@@ -22,10 +22,7 @@ public class RurusettoIcon : Sprite {
 
     [BackgroundDependencyLoader( permitNulls: true )]
     void load ( OsuGame game, GameHost host, TextureStore textures ) {
-        if ( !textures.GetAvailableResources().Contains( "Textures/rurusetto-logo.png" ) )
-            textures.AddStore( host.CreateTextureLoaderStore( ruleset.CreateResourceStore() ) );
-
-        Texture = textures.Get( "Textures/rurusetto-logo.png" );
+        Texture = ruleset.GetTexture( host, textures, "Textures/rurusetto-logo.png" );
 
         injectOverlay( game, host );
     }
@@ -38,28 +35,34 @@ public class RurusettoIcon : Sprite {
         if ( game is null ) return;
         if ( game.Dependencies.Get<RurusettoOverlay>() != null ) return;
 
-        var notifications = typeof( OsuGame ).GetField( "Notifications", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as NotificationOverlay;
-        if ( notifications is null ) {
+        var osu = (typeof( OsuGame ), game);
+
+        var notifications = osu.GetField<NotificationOverlay>( "Notifications" );
+        if ( notifications is null )
             return;
+
+        void error ( string code ) {
+            Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( code ) } ) );
+        }
+        bool guard ( [NotNullWhen(false)] object? x, string code ) {
+            if ( x is null ) {
+                error( code );
+                return true;
+            }
+            return false;
         }
 
         // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L790
         // contains overlays
-        var overlayContent = typeof( OsuGame ).GetField( "overlayContent", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game ) as Container;
-
-        if ( overlayContent is null ) {
-            Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OCNRE" ) } ) );
+        var overlayContent = osu.GetField<Container>( "overlayContent" );
+        if ( guard( overlayContent, "#OCNRE" ) )
             return;
-        }
 
         // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L953
         // caches the overlay globally and allows us to run code when it is loaded
-        var loadComponent = typeof( OsuGame ).GetMethod( "loadComponentSingleFile", BindingFlags.NonPublic | BindingFlags.Instance )?.MakeGenericMethod( typeof( RurusettoOverlay ) );
-
-        if ( loadComponent is null ) {
-            Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCNRE" ) } ) );
+        var loadComponent = osu.GetMethod<RurusettoOverlay>( "loadComponentSingleFile" );
+        if ( guard( loadComponent, "#LCNRE" ) )
             return;
-        }
 
         try {
             loadComponent.Invoke( game,
@@ -67,50 +70,53 @@ public class RurusettoIcon : Sprite {
             );
         }
         catch ( Exception ) {
-            Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#LCIE" ) } ) );
-            return;
+            error( "#LCIE" );
         }
 
         void addOverlay ( RurusettoOverlay overlay ) {
+            Action abort = () => { };
+            void errDefer ( Action action ) {
+                var oldAbort = abort;
+                abort = () => { action(); oldAbort(); };
+			}
+
             overlayContent.Add( overlay );
+            errDefer( () => overlayContent.Remove( overlay ) );
 
             // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/Overlays/Toolbar/Toolbar.cs#L89
             // leveraging an "easy" hack to get the container with toolbar buttons
-            var userButton = typeof( Toolbar ).GetField( "userButton", BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game.Toolbar ) as Drawable;
+            var userButton = (typeof( Toolbar ), game.Toolbar).GetField<Drawable>( "userButton" );
             if ( userButton is null || userButton.Parent is not FillFlowContainer buttonsContainer ) {
-                Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#UBNRE" ) } ) );
-                overlayContent.Remove( overlay );
+                error( "#UBNRE" );
+                abort();
                 return;
             }
 
             var button = new RurusettoToolbarButton();
             buttonsContainer.Insert( -1, button );
+            errDefer( () => buttonsContainer.Remove( button ) );
 
             // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L855
             // add overlay hiding, since osu does it manually
-            var singleDisplayOverlays = new string[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
-            var overlays = singleDisplayOverlays.Select( name =>
-                typeof( OsuGame ).GetField( name, BindingFlags.NonPublic | BindingFlags.Instance )?.GetValue( game )
-            ).OfType<OverlayContainer>().ToList();
-            if ( game.Dependencies.TryGet<RankingsOverlay>( out var rov ) ) {
-                overlays.Add( rov );
-            }
-            else {
-                Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#ROVNRE" ) } ) );
-                overlayContent.Remove( overlay );
-                buttonsContainer.Remove( button );
+            var singleDisplayOverlays = new[] { "chatOverlay", "news", "dashboard", "beatmapListing", "changelogOverlay", "wikiOverlay" };
+            var overlays = singleDisplayOverlays.Select( name => osu.GetField<OverlayContainer>( name ) ).ToList();
+
+            if ( !game.Dependencies.TryGet<RankingsOverlay>( out var rov ) ) {
+                error( "#ROVNRE" );
+                abort();
                 return;
             }
 
+            overlays.Add( rov );
+
             if ( overlays.Any( x => x is null ) ) {
-                Schedule( () => notifications.Post( new SimpleErrorNotification { Text = ErrorMessage( "#OVNRE" ) } ) );
-                overlayContent.Remove( overlay );
-                buttonsContainer.Remove( button );
+                error( "#OVNRE" );
+                abort();
                 return;
             }
 
             foreach ( var i in overlays ) {
-                i.State.ValueChanged += v => {
+                i!.State.ValueChanged += v => {
                     if ( v.NewValue != Visibility.Visible ) return;
 
                     overlay.Hide();
@@ -121,7 +127,7 @@ public class RurusettoIcon : Sprite {
                 if ( v.NewValue != Visibility.Visible ) return;
 
                 foreach ( var i in overlays ) {
-                    i.Hide();
+                    i!.Hide();
                 }
 
                 // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L896

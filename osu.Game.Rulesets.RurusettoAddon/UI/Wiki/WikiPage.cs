@@ -12,7 +12,7 @@ public abstract class WikiPage : CompositeDrawable {
 	[Resolved]
 	protected OverlayColourProvider ColourProvider { get; private set; } = null!;
 	[Resolved]
-	protected UserIdentityManager Users { get; private set; } = null!;
+	protected APIUserStore Users { get; private set; } = null!;
 
 	protected readonly APIRuleset Ruleset;
 

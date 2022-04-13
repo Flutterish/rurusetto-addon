@@ -5,32 +5,24 @@ using System.Threading.Tasks;
 
 namespace osu.Game.Rulesets.RurusettoAddon;
 
-public class RulesetIdentityManager {
-	private Storage? storage;
-	private IRulesetStore? rulesetStore;
-	private RurusettoAPI? API;
-
-	public RulesetIdentityManager ( Storage? storage, IRulesetStore? rulesetStore, RurusettoAPI? API ) {
-		this.storage = storage;
-		this.rulesetStore = rulesetStore;
-		this.API = API;
-	}
+public class APIRulesetStore {
+	public Storage? Storage { get; init; }
+	public IRulesetStore? RulesetStore { get; init; }
+	public RurusettoAPI? API { get; init; }
 
 	List<APIRuleset> cachedIdentities = new();
-	AsyncLazy<RulesetIdentities>? identities;
-	public async Task<RulesetIdentities> RequestIdentities () {
-		if ( identities is null ) {
-			identities = new( async () => await getIdentities() );
-		}
-		return await identities.Value;
+	Task<RulesetIdentities>? identities;
+	public Task<RulesetIdentities> RequestIdentities () {
+		if ( identities is null )
+			identities = getIdentities();
+
+		return identities;
 	}
 
-	public void Refresh () {
-		identities = null;
-	}
+	public void Refresh () => identities = null;
 
-	private async Task<RulesetIdentities> getIdentities () {
-		var (newIdentities, hasLocal, hasWeb) = await requestIdentities();
+	async Task<RulesetIdentities> getIdentities () {
+		var (newIdentities, hasLocal, hasWeb) = await fetchIdentities();
 
 		// we need to merge them since we dont want anything to get out of sync, like the download manager which uses a given APIRuleset instance
 		lock ( cachedIdentities ) {
@@ -60,13 +52,13 @@ public class RulesetIdentityManager {
 		};
 	}
 
-	private async Task<(List<APIRuleset> rulesets, bool hasLocal, bool hasWeb)> requestIdentities () {
+	async Task<(List<APIRuleset> rulesets, bool hasLocal, bool hasWeb)> fetchIdentities () {
 		List<APIRuleset> identities = new();
 
 		Dictionary<string, APIRuleset> webFilenames = new();
 		Dictionary<string, APIRuleset> webNames = new();
 
-		bool hasLocal = storage != null;
+		bool hasLocal = Storage != null;
 		bool hasWeb = false;
 
 		if ( API != null ) {
@@ -79,7 +71,7 @@ public class RulesetIdentityManager {
 				task.SetResult();
 
 			}, failure: e => {
-				API.LogFailure( $"Identity manager could not retrieve ruleset listing", e );
+				API.LogFailure( $"API ruleset store could not retrieve ruleset listing", e );
 				task.SetResult();
 			},
 				cancelled: () => task.SetResult()
@@ -108,9 +100,9 @@ public class RulesetIdentityManager {
 			}
 		}
 
-		if ( rulesetStore != null ) {
+		if ( RulesetStore != null ) {
 			Dictionary<string, APIRuleset> localPaths = new();
-			var imported = rulesetStore.AvailableRulesets;
+			var imported = RulesetStore.AvailableRulesets;
 
 			foreach ( var ruleset in imported ) {
 				try {
@@ -133,7 +125,7 @@ public class RulesetIdentityManager {
 						id.LocalRulesetInfo = ruleset;
 						id.Name = ruleset.Name;
 						id.ShortName = ruleset.ShortName;
-						id.IsModifiable = storage != null && path.StartsWith( storage.GetFullPath( "./rulesets" ), StringComparison.Ordinal );
+						id.IsModifiable = Storage != null && path.StartsWith( Storage.GetFullPath( "./rulesets" ), StringComparison.Ordinal );
 					}
 					else {
 						identities.Add( id = new() {
@@ -144,7 +136,7 @@ public class RulesetIdentityManager {
 							LocalRulesetInfo = ruleset,
 							Name = ruleset.Name,
 							ShortName = ruleset.ShortName,
-							IsModifiable = storage != null && path.StartsWith( storage.GetFullPath( "./rulesets" ), StringComparison.Ordinal )
+							IsModifiable = Storage != null && path.StartsWith( Storage.GetFullPath( "./rulesets" ), StringComparison.Ordinal )
 						} );
 					}
 
@@ -155,15 +147,15 @@ public class RulesetIdentityManager {
 				}
 			}
 
-			if ( storage != null ) {
-				foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
-					if ( localPaths.TryGetValue( storage.GetFullPath( path ), out var id ) ) {
+			if ( Storage != null ) {
+				foreach ( var path in Storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
+					if ( localPaths.TryGetValue( Storage.GetFullPath( path ), out var id ) ) {
 						// we already know its there then
 					}
 					else if ( webFilenames.TryGetValue( Path.GetFileName( path ), out id ) ) {
 						id.IsPresentLocally = true;
 						id.IsModifiable = true;
-						id.LocalPath = storage.GetFullPath( path );
+						id.LocalPath = Storage.GetFullPath( path );
 						id.HasImportFailed = true;
 					}
 					else {
@@ -173,18 +165,18 @@ public class RulesetIdentityManager {
 							Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 							IsPresentLocally = true,
 							HasImportFailed = true,
-							LocalPath = storage.GetFullPath( path ),
+							LocalPath = Storage.GetFullPath( path ),
 							IsModifiable = true
 						} );
 					}
 				}
 			}
 		}
-		else if ( storage != null ) {
-			foreach ( var path in storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
+		else if ( Storage != null ) {
+			foreach ( var path in Storage.GetFiles( "./rulesets", "osu.Game.Rulesets.*.dll" ) ) {
 				if ( webFilenames.TryGetValue( Path.GetFileName( path ), out var id ) ) {
 					id.IsPresentLocally = true;
-					id.LocalPath = storage.GetFullPath( path );
+					id.LocalPath = Storage.GetFullPath( path );
 					id.IsModifiable = true;
 				}
 				else {
@@ -193,7 +185,7 @@ public class RulesetIdentityManager {
 						API = API,
 						Name = Path.GetFileName( path ).Split( '.' ).SkipLast( 1 ).Last(),
 						IsPresentLocally = true,
-						LocalPath = storage.GetFullPath( path ),
+						LocalPath = Storage.GetFullPath( path ),
 						IsModifiable = true
 					} );
 				}
