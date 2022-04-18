@@ -21,7 +21,8 @@ namespace osu.Game.Rulesets.RurusettoAddon;
 
 public class RurusettoAddonRuleset : Ruleset {
     public override string Description => "rūrusetto addon";
-    public override string ShortName => "rurusettoaddon";
+    public const string SHORT_NAME = "rurusettoaddon";
+    public override string ShortName => SHORT_NAME;
 
     public override IRulesetConfigManager CreateConfig ( SettingsStore settings )
         => new RurusettoConfigManager( settings, RulesetInfo );

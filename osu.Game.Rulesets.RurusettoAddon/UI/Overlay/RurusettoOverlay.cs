@@ -45,6 +45,12 @@ public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 			Schedule( () => dep.Get<NotificationOverlay>()?.Post( new SimpleErrorNotification { Text = Localisation.Strings.NotificationWorkIncomplete } ) );
 		}
 
+		dep.Get<IBindable<RulesetInfo>>()?.BindValueChanged( v => {
+			if ( v.NewValue.ShortName == RurusettoAddonRuleset.SHORT_NAME ) {
+				Show();
+			}
+		} );
+
 		Schedule( () => {
 			AddInternal( API );
 		} );
