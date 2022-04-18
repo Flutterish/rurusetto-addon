@@ -26,26 +26,36 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 	[Resolved]
 	protected RurusettoAPI API { get; private set; } = null!;
 
+	private bool userNaviaged = true;
+	private int navigationDirection = -1;
 	public RurusettoOverlayHeader () {
 		TabControl.AddItem( ListingTab );
 		TabControl.Current.Value = ListingTab;
 
 		Current.ValueChanged += v => {
 			CategoryControl.Current.Value = v.NewValue.Category;
+			if ( userNaviaged && v.NewValue.Tab is null ) {
+				if ( navigationDirection == 1 )
+					NavigateForward();
+				else
+					NavigateBack();
+			}
 
 			switch ( v.NewValue ) {
 				case { Tab: APIRuleset ruleset }:
 					ruleset.RequestDarkCover( texture => {
-						background.SetCover( texture );
+						background.SetCover( texture, expanded: false );
 					} );
 					break;
 
 				case { Tab: APIUser user }:
-
+					user.RequestDarkCover( cover => {
+						background.SetCover( cover, expanded: true );
+					} );
 					break;
 
 				default:
-					background.SetCover( null );
+					background.SetCover( null, expanded: true );
 					break;
 			}
 		};
@@ -72,7 +82,7 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 			return;
 
 		RurusettoTabItem item = new() {
-			Tab = tab,
+			Tab = tab.Tab,
 			Title = tab.Title,
 			Category = tab.Category
 		};
@@ -83,10 +93,15 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 
 		clearHistoryAfterCurrent();
 		TabControl.AddItem( item );
+		userNaviaged = false;
 		TabControl.Current.Value = item;
+		userNaviaged = true;
 	}
 
 	public void NavigateTo ( object tab, LocalisableString title, bool perserveCategories = false ) {
+		if ( tab == Current.Value.Tab )
+			return;
+
 		var category = tab switch {
 			APIRuleset => ListingTab,
 			APIUser => UsersTab,
@@ -104,7 +119,9 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 
 		clearHistoryAfterCurrent();
 		TabControl.AddItem( item );
+		userNaviaged = false;
 		TabControl.Current.Value = item;
+		userNaviaged = true;
 	}
 
 	private void clearHistoryAfterCurrent () {
@@ -117,7 +134,11 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 		if ( TabControl.Items[0] == Current.Value )
 			return false;
 
+		var prevDir = navigationDirection;
+
+		navigationDirection = -1;
 		TabControl.SwitchTab( -1, wrap: false );
+		navigationDirection = prevDir;
 		return true;
 	}
 
@@ -125,7 +146,11 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 		if ( TabControl.Items[^1] == Current.Value )
 			return false;
 
+		var prevDir = navigationDirection;
+
+		navigationDirection = 1;
 		TabControl.SwitchTab( 1, wrap: false );
+		navigationDirection = prevDir; 
 		return true;
 	}
 
@@ -171,6 +196,10 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 			};
 		}
 
+		protected override Dropdown<RurusettoTabItem> CreateDropdown () {
+			return new ControlDropdown();
+		}
+
 		[BackgroundDependencyLoader]
 		private void load ( OverlayColourProvider colourProvider ) {
 			AccentColour = colourProvider.Light2;
@@ -179,6 +208,11 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 		protected override TabItem<RurusettoTabItem> CreateTabItem ( RurusettoTabItem value ) => new ControlTabItem( value ) {
 			AccentColour = AccentColour,
 		};
+
+		private class ControlDropdown : OsuTabDropdown<RurusettoTabItem> {
+			protected override LocalisableString GenerateItemText ( RurusettoTabItem item )
+				=> item.Title;
+		}
 
 		private class ControlTabItem : BreadcrumbTabItem {
 			protected override float ChevronSize => 8;
@@ -191,12 +225,24 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 				Text.Origin = Anchor.CentreLeft;
 				Chevron.Y = 1;
 				Bar.Height = 0;
+				AlwaysPresent = true;
 			}
 
 			protected override void LoadComplete () {
 				base.LoadComplete();
 
 				Text.Text = Value.Title;
+			}
+
+			protected override void Update () {
+				base.Update();
+				if ( Alpha == 0 ) {
+					AutoSizeAxes = Axes.None;
+					Width = 0;
+				}
+				else {
+					AutoSizeAxes = Axes.X;
+				}
 			}
 
 			// base OsuTabItem makes font bold on activation, we don't want that here

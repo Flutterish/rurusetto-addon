@@ -58,6 +58,30 @@ public class APIUser {
 		}
 	}
 
+	public void RequestDarkCover ( Action<Texture> success, Action<Exception?>? failure = null ) {
+		void requestDefault ( Exception? e = null ) {
+			if ( API != null ) {
+				API.RequestImage( StaticAPIResource.DefaultCover, success, failure: e => {
+					failure?.Invoke( e );
+				} );
+			}
+		}
+
+		if ( Source == Source.Web && API != null ) {
+			RequestDetail( detail => {
+				if ( !string.IsNullOrWhiteSpace( detail.DarkCover ) ) {
+					API.RequestImage( detail.DarkCover, success, requestDefault );
+				}
+				else {
+					requestDefault();
+				}
+			}, failure: requestDefault );
+		}
+		else {
+			requestDefault();
+		}
+	}
+
 	public override string ToString ()
 		=> Source is Source.Web ? $"User with ID = {ID}" : $"Local user";
 }

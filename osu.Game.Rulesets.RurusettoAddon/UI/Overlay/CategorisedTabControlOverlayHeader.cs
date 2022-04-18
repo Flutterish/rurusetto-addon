@@ -49,47 +49,47 @@ public abstract class CategorisedTabControlOverlayHeader<T, Tcategory, Ttab> : O
             Direction = FillDirection.Vertical,
             Children = new Drawable[]
             {
-                    new Container {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Depth = -1,
-                        Children = new Drawable[] {
-                            categoryControlBackground = new Box
+                new Container {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Depth = -1,
+                    Children = new Drawable[] {
+                        categoryControlBackground = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                        categoryControlContainer = new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Padding = new MarginPadding { Horizontal = ContentSidePadding },
+                            Child = CategoryControl = CreateCategoryControl().With(control =>
                             {
-                                RelativeSizeAxes = Axes.Both,
-                            },
-                            categoryControlContainer = new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Padding = new MarginPadding { Horizontal = ContentSidePadding },
-                                Child = CategoryControl = CreateCategoryControl().With(control =>
-                                {
-                                    control.Current = CurrentCategory;
-                                })
-                            }
-                        }
-                    },
-                    new Container {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Children = new Drawable[] {
-                            controlBackground = new Box
-                            {
-                                RelativeSizeAxes = Axes.Both,
-                            },
-                            tabControlContainer = new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Padding = new MarginPadding { Horizontal = ContentSidePadding },
-                                Child = TabControl = CreateTabControl().With(control =>
-                                {
-                                    control.Current = Current;
-                                })
-                            }
+                                control.Current = CurrentCategory;
+                            })
                         }
                     }
+                },
+                new Container {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Children = new Drawable[] {
+                        controlBackground = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                        tabControlContainer = new Container
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Padding = new MarginPadding { Horizontal = ContentSidePadding },
+                            Child = TabControl = CreateTabControl().With(control =>
+                            {
+                                control.Current = Current;
+                            })
+                        }
+                    }
+                }
             }
         } );
     }

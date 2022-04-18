@@ -170,19 +170,20 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 	public LocalisableString TooltipText => usernameText;
 
 	protected override bool OnClick ( ClickEvent e ) {
-		if ( !string.IsNullOrWhiteSpace( profile?.OsuUsername ) && ProfileOverlay != null && OnlineAPI != null ) {
-			var request = new GetUserRequest( profile.OsuUsername );
-			request.Success += v => {
-				ProfileOverlay.ShowUser( v );
-			};
-			request.Failure += v => {
-				// :(
-			};
-			OnlineAPI.PerformAsync( request );
-		}
+		//if ( !string.IsNullOrWhiteSpace( profile?.OsuUsername ) && ProfileOverlay != null && OnlineAPI != null ) {
+		//	var request = new GetUserRequest( profile.OsuUsername );
+		//	request.Success += v => {
+		//		ProfileOverlay.ShowUser( v );
+		//	};
+		//	request.Failure += v => {
+		//		// :(
+		//	};
+		//	OnlineAPI.PerformAsync( request );
+		//}
 
-		//if ( user.HasProfile )
-		//	Overlay.Header.SelectedInfo.Value = user;
+		if ( user.HasProfile ) {
+			user.RequestDetail( profile => Overlay.Header.NavigateTo( user, profile.Username, perserveCategories: true ) );
+		}
 
 		return true;
 	}

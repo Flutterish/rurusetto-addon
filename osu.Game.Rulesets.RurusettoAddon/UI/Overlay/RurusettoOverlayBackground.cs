@@ -17,10 +17,10 @@ public class RurusettoOverlayBackground : CompositeDrawable {
 
 	[BackgroundDependencyLoader]
 	private void load ( GameHost host, TextureStore textures, RurusettoAddonRuleset ruleset ) {
-		SetCover( defaultCover = ruleset.GetTexture( host, textures, TextureNames.HeaderBackground ) );
+		SetCover( defaultCover = ruleset.GetTexture( host, textures, TextureNames.HeaderBackground ), expanded: true );
 	}
 
-	public void SetCover ( Texture? cover ) {
+	public void SetCover ( Texture? cover, bool expanded ) {
 		cover ??= defaultCover;
 
 		if ( !covers.TryGetValue( cover, out var sprite ) ) {
@@ -41,7 +41,7 @@ public class RurusettoOverlayBackground : CompositeDrawable {
 
 		currentCover = sprite;
 
-		if ( currentCover.Texture == defaultCover ) {
+		if ( expanded ) {
 			this.FadeIn().ResizeHeightTo( 80, 400, Easing.Out );
 		}
 		else {
