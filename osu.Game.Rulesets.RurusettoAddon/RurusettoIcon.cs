@@ -66,14 +66,15 @@ public class RurusettoIcon : Sprite {
 
         try {
             loadComponent.Invoke( game,
-                new object[] { new RurusettoOverlay( ruleset ), (Action<RurusettoOverlay>)addOverlay, true }
+                new object[] { new RurusettoOverlay( ruleset ), (Action<Drawable>)addOverlay, true }
             );
         }
         catch ( Exception ) {
             error( "#LCIE" );
         }
 
-        void addOverlay ( RurusettoOverlay overlay ) {
+        void addOverlay ( Drawable drawable ) {
+            RurusettoOverlay overlay = (RurusettoOverlay)drawable;
             Action abort = () => { };
             void errDefer ( Action action ) {
                 var oldAbort = abort;
