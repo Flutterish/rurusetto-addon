@@ -82,4 +82,5 @@
   <data name="subpages-fetch-error"><value>Не удалось загрузить подстраницы</value></data>
   <data name="error-message-generic"><value>Что-то пошло не так, и я не знаю, что именно!</value></data>
   <data name="notification-work-incomplete"><value>Кажется, rurusetto addon не смог завершить предыдущую рабочую сессию. Пожалуйста, убедитесь, что ваши действия не могли вызвать ошибок</value></data>
+  <data name="recommended-beatmaps-page"><value>Рекомендуемые карты</value></data>
   </root>
