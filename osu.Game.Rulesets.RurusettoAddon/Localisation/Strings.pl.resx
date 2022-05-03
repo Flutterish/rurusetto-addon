@@ -70,6 +70,7 @@ Jeśli chcesz, ciągle możesz spróbować na oficjalnej stronie [rurusetto]({0}
   <data name="load-error"><value>Nie udało się uruchomić rurusetto-addon: Proszę, zgłoś to do repozytorium rurusetto-addon i NIE do repozytorium osu!lazer: Kod {0}</value></data>
   <data name="main-page"><value>Główna</value></data>
   <data name="changelog-page"><value>Zmiany</value></data>
+  <data name="recommended-beatmaps-page"><value>Polecane Mapy</value></data>
   <data name="unknown-version"><value>Nieznana Wersja</value></data>
   <data name="settings-header"><value>Zintegrowane Rurusetto</value></data>
   <data name="settings-api-address"><value>Adres API</value></data>

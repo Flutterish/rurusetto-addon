@@ -45,6 +45,7 @@
     "load-error": "Nie udało się uruchomić rurusetto-addon: Proszę, zgłoś to do repozytorium rurusetto-addon i NIE do repozytorium osu!lazer: Kod {0}",
     "main-page": "Główna",
     "changelog-page": "Zmiany",
+    "recommended-beatmaps-page": "Polecane Mapy",
     "unknown-version": "Nieznana Wersja",
     "settings-header": "Zintegrowane Rurusetto",
     "settings-api-address": "Adres API",
