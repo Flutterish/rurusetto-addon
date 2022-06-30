@@ -46,7 +46,7 @@ public class RurusettoAddonRuleset : Ruleset {
 
     public Texture GetTexture ( GameHost host, TextureStore textures, string path ) {
         if ( !textures.GetAvailableResources().Contains( path ) )
-            textures.AddStore( host.CreateTextureLoaderStore( CreateResourceStore() ) );
+            textures.AddTextureSource( host.CreateTextureLoaderStore( CreateResourceStore() ) );
 
         return textures.Get( path );
     }
