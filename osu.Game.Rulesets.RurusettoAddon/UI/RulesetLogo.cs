@@ -1,4 +1,5 @@
 ﻿using osu.Game.Overlays;
+using TagLib.IFD;
 
 namespace osu.Game.Rulesets.RurusettoAddon.UI;
 
@@ -24,9 +25,27 @@ public class RulesetLogo : CompositeDrawable {
 		};
 
 		ruleset.RequestDarkLogo( logo => {
-			AddInternal( logo );
-		}, fallback => {
-			AddInternal( fallback );
-		} );
+			try {
+				AddInternal( logo );
+			}
+			catch {
+				RemoveInternal( logo );
+				ruleset.RequestDarkLogo( AddInternal, AddInternal, useLocalIcon: false );
+			}
+		}, fallback => AddInternal( fallback ) );
+	}
+
+	bool subtreeWorks = true;
+	public override bool UpdateSubTree () {
+		if ( !subtreeWorks )
+			return false;
+		
+		try {
+			return base.UpdateSubTree();
+		}
+		catch {
+			subtreeWorks = false;
+			return false;
+		}
 	}
 }

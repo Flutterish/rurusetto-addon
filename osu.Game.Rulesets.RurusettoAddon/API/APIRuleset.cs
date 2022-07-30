@@ -53,7 +53,7 @@ public class APIRuleset {
 	/// <summary>
 	/// Creates the dark mode variant of the ruleset logo as a drawable with relative size axes
 	/// </summary>
-	public void RequestDarkLogo ( Action<Drawable> success, Action<Drawable>? failure = null ) {
+	public void RequestDarkLogo ( Action<Drawable> success, Action<Drawable>? failure = null, bool useLocalIcon = true ) {
 		static Drawable createDefault () {
 			return new SpriteIcon {
 				RelativeSizeAxes = Axes.Both,
@@ -62,7 +62,7 @@ public class APIRuleset {
 			};
 		}
 
-		if ( LocalRulesetInfo != null ) {
+		if ( LocalRulesetInfo != null && useLocalIcon ) {
 			var icon = LocalRulesetInfo.CreateInstance()?.CreateIcon();
 
 			if ( icon is CompositeDrawable cd && cd.AutoSizeAxes != Axes.None ) {
