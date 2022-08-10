@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using SixLabors.ImageSharp.PixelFormats;
@@ -12,6 +13,9 @@ public class RurusettoAPI : Component {
 	public const string DefaultAPIAddress = "https://rulesets.info/api/";
 	public readonly Bindable<string> Address = new( DefaultAPIAddress );
 	public Uri GetEndpoint ( string endpoint ) => new( new Uri( Address.Value ), endpoint );
+
+	[Resolved]
+	private IRenderer renderer { get; set; } = null!;
 
 	public RurusettoAPI () {
 		Address.ValueChanged += _ => FlushAllCaches();
@@ -214,7 +218,7 @@ public class RurusettoAPI : Component {
 		var imageStream = await client.GetStreamAsync( GetEndpoint( uri ) );
 		var image = await Image.LoadAsync<Rgba32>( imageStream );
 
-		var texture = new Texture( image.Width, image.Height );
+		var texture = renderer.CreateTexture( image.Width, image.Height );
 		texture.SetData( new TextureUpload( image ) );
 		texture.AssetName = uri;
 
