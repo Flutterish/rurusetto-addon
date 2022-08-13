@@ -55,12 +55,12 @@
   <data name="download"><value>Скачать</value></data>
   <data name="redownload"><value>Скачать заново</value></data>
   <data name="downloading"><value>Загрузка...</value></data>
-  <data name="update"><value>Обновить</value></data>
+  <data name="update"><value>Скачать обновление</value></data>
   <data name="remove"><value>Удалить</value></data>
   <data name="cancel-download"><value>Отменить загрузку</value></data>
   <data name="cancel-remove"><value>Отменить удаление</value></data>
   <data name="cancel-update"><value>Отменить обновление</value></data>
-  <data name="refresh"><value>Обновить</value></data>
+  <data name="refresh"><value>Обновить статус</value></data>
   <data name="to-be-removed"><value>Будет удалён при следующем входе в игру!</value></data>
   <data name="to-be-installed"><value>Будет установлен при следующем входе в игру!</value></data>
   <data name="to-be-updated"><value>Будет обновлён при следующем входе в игру!</value></data>
