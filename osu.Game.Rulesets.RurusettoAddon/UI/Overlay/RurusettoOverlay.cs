@@ -159,7 +159,7 @@ public class RurusettoOverlay : FullscreenOverlay<RurusettoOverlayHeader> {
 
 		if ( Header.Current.Value.Tab is null && Header.CurrentCategory.Value == Header.ListingTab.Category ) {
 			foreach ( var i in infoTabs ) {
-				tabContainer.Remove( i.Value );
+				tabContainer.Remove( i.Value, false );
 				i.Value.Dispose();
 			}
 			userTabs.Clear();

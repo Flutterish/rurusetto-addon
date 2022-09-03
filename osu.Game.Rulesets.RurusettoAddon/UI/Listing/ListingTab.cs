@@ -98,9 +98,9 @@ public class ListingTab : OverlayTab {
 			rulesets.Add( drawable, drawable.Ruleset );
 		}
 
-		public override bool Remove ( DrawableListingEntry drawable ) {
+		public override bool Remove ( DrawableListingEntry drawable, bool disposeImmediately ) {
 			rulesets.Remove( drawable );
-			return base.Remove( drawable );
+			return base.Remove( drawable, disposeImmediately );
 		}
 	}
 }

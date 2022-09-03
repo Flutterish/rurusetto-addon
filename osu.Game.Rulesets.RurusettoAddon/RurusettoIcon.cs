@@ -82,7 +82,7 @@ public class RurusettoIcon : Sprite {
 			}
 
             overlayContent.Add( overlay );
-            errDefer( () => overlayContent.Remove( overlay ) );
+            errDefer( () => overlayContent.Remove( overlay, false ) );
 
             // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/Overlays/Toolbar/Toolbar.cs#L89
             // leveraging an "easy" hack to get the container with toolbar buttons
@@ -95,7 +95,7 @@ public class RurusettoIcon : Sprite {
 
             var button = new RurusettoToolbarButton();
             buttonsContainer.Insert( -1, button );
-            errDefer( () => buttonsContainer.Remove( button ) );
+            errDefer( () => buttonsContainer.Remove( button, false ) );
 
             // https://github.com/ppy/osu/blob/edf5e558aca6cd75e70b510a5f0dd233d6cfcb90/osu.Game/OsuGame.cs#L855
             // add overlay hiding, since osu does it manually

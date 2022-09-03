@@ -29,7 +29,7 @@ public class RulesetLogo : CompositeDrawable {
 				AddInternal( logo );
 			}
 			catch {
-				RemoveInternal( logo );
+				RemoveInternal( logo, false );
 				ruleset.RequestDarkLogo( AddInternal, AddInternal, useLocalIcon: false );
 			}
 		}, fallback => AddInternal( fallback ) );
