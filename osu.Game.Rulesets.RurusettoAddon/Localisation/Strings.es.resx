@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="local-ruleset-description"><value>Ruleset local, no listado en la wiki.</value></data>
+  <data name="page-load-failed"><value>No se pudo obtener la página de la wiki del ruleset. ¡Lo siento!
+Todavía puedes intentar visitarla en [rurusetto]({0}).</value></data>
+  <data name="listing-tab"><value>listado</value></data>
+  <data name="users-tab"><value>usuarios</value></data>
+  <data name="collections-tab"><value>colecciones</value></data>
+  <data name="rurusetto-description"><value>explorar y administrar rulesets</value></data>
+  <data name="user-unknown"><value>Desconocido</value></data>
+  <data name="tag-archived"><value>ARCHIVADO</value></data>
+  <data name="tag-archived-tooltip"><value>Este ruleset ya no se mantiene</value></data>
+  <data name="tag-local"><value>NO LISTADO</value></data>
+  <data name="tag-local-tooltip"><value>Este ruleset está instalado localmente, pero no está listado en la wiki</value></data>
+  <data name="tag-hardcoded"><value>CODIFICADO</value></data>
+  <data name="tag-hardcoded-tooltip"><value>Este ruleset está codificado en el juego y no se puede modificar.</value></data>
+  <data name="tag-failed-import"><value>IMPORTACIÓN FALLIDA</value></data>
+  <data name="tag-failed-import-tooltip"><value>Este ruleset se descargó, pero no se pudo importar</value></data>
+  <data name="tag-borked"><value>BORRADO</value></data>
+  <data name="tag-borked-tooltip"><value>Este ruleset no funciona.</value></data>
+  <data name="tag-playable"><value>JUGABLE</value></data>
+  <data name="tag-playable-tooltip"><value>Este ruleset funciona</value></data>
+  <data name="tag-prerelease"><value>PRE-LANZAMIENTO</value></data>
+  <data name="tag-prerelease-tooltip"><value>La versión actual es un pre-lanzamiento.</value></data>
+  <data name="home-page"><value>Página de inicio</value></data>
+  <data name="report-issue"><value>Reportar problema</value></data>
+  <data name="download-checking"><value>Comprobando...</value></data>
+  <data name="unavailable-online"><value>No disponible en línea</value></data>
+  <data name="installed-unavailable-online"><value>Instalado, no disponible en línea</value></data>
+  <data name="download"><value>Descargar</value></data>
+  <data name="redownload"><value>Re-descargar</value></data>
+  <data name="downloading"><value>Descargando...</value></data>
+  <data name="update"><value>Actualizar</value></data>
+  <data name="remove"><value>Eliminar</value></data>
+  <data name="cancel-download"><value>Cancelar descarga</value></data>
+  <data name="cancel-remove"><value>Cancelar eliminación</value></data>
+  <data name="cancel-update"><value>Cancelar actualización</value></data>
+  <data name="refresh"><value>Actualizar</value></data>
+  <data name="to-be-removed"><value>Se eliminará al reiniciar!</value></data>
+  <data name="to-be-installed"><value>Se instalará al reiniciar!</value></data>
+  <data name="to-be-updated"><value>Se actualizará al restart!</value></data>
+  <data name="installed"><value>Instalado</value></data>
+  <data name="outdated"><value>Desactualizado</value></data>
+  <data name="creator-verified"><value>Creador de rulesets verificado</value></data>
+  <data name="load-error"><value>No se pudo cargar rurusetto-addon: Informe esto al repositorio de rurusetto-addon NO al repositorio de osu!lazer: Código {0}</value></data>
+  <data name="main-page"><value>Principal</value></data>
+  <data name="changelog-page"><value>Registro de cambios</value></data>
+  <data name="recommended-beatmaps-page"><value>Beatmaps recomendados</value></data>
+  <data name="unknown-version"><value>Versión desconocida</value></data>
+  <data name="settings-header"><value>Rurusetto Addon</value></data>
+  <data name="settings-api-address"><value>Dirección de la API</value></data>
+  <data name="untitled-ruleset"><value>Ruleset sin título</value></data>
+  <data name="error-header"><value>Oh no!</value></data>
+  <data name="error-footer"><value>Asegúrese de tener una conexión a Internet y que la dirección de la API en la configuración sea correcta.</value></data>
+  <data name="retry"><value>Reintentar</value></data>
+  <data name="listing-fetch-error"><value>No se pudo recuperar el listado de rulesets</value></data>
+  <data name="page-fetch-error"><value>No se pudo cargar la página</value></data>
+  <data name="subpages-fetch-error"><value>No se pudieron recuperar las subpáginas</value></data>
+  <data name="error-message-generic"><value>Algo salió mal, pero no sé qué!</value></data>
+  <data name="notification-work-incomplete"><value>Parece que rurusetto addon no pudo terminar un trabajo. Por favor, asegúrese de que todos sus cambios se aplicaron correctamente</value></data>
+  </root>
