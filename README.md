@@ -11,7 +11,7 @@ To [Loreos](https://github.com/Loreos7) for the russian locale.
 * Click `Open osu! foler` at the bottom of `General` settings
 * Open the `rulesets` folder
 * Copy the path
-* Go to [Releases](/releases) of this repository
+* Go to [Releases](https://github.com/Flutterish/rurusetto-addon/releases) of this repository
 * Click the topmost one
 * Download the `osu.Game.Rulesets.RurusettoAddon.dll` file. Save to the copied path.
 * Restart osu!
