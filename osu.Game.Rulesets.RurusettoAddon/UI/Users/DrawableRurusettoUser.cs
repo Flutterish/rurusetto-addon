@@ -107,7 +107,7 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		isTall = false;
 
 		if ( verifiedDrawable != null ) {
-			( (Container<Drawable>)verifiedDrawable.Parent ).Remove( verifiedDrawable );
+			( (Container<Drawable>)verifiedDrawable.Parent ).Remove( verifiedDrawable, false );
 		}
 
 		if ( isVerified ) {
@@ -124,7 +124,7 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 		isTall = true;
 
 		if ( verifiedDrawable != null ) {
-			( (Container<Drawable>)verifiedDrawable.Parent )!.Remove( verifiedDrawable );
+			( (Container<Drawable>)verifiedDrawable.Parent )!.Remove( verifiedDrawable, false );
 		}
 
 		if ( isVerified ) {
@@ -170,20 +170,20 @@ public class DrawableRurusettoUser : CompositeDrawable, IHasTooltip {
 	public LocalisableString TooltipText => usernameText;
 
 	protected override bool OnClick ( ClickEvent e ) {
-		//if ( !string.IsNullOrWhiteSpace( profile?.OsuUsername ) && ProfileOverlay != null && OnlineAPI != null ) {
-		//	var request = new GetUserRequest( profile.OsuUsername );
-		//	request.Success += v => {
-		//		ProfileOverlay.ShowUser( v );
-		//	};
-		//	request.Failure += v => {
-		//		// :(
-		//	};
-		//	OnlineAPI.PerformAsync( request );
-		//}
-
-		if ( user.HasProfile ) {
-			user.RequestDetail( profile => Overlay.Header.NavigateTo( user, profile.Username, perserveCategories: true ) );
+		if ( !string.IsNullOrWhiteSpace( profile?.OsuUsername ) && ProfileOverlay != null && OnlineAPI != null ) {
+			var request = new GetUserRequest( profile.OsuUsername );
+			request.Success += v => {
+				ProfileOverlay.ShowUser( v );
+			};
+			request.Failure += v => {
+				// :(
+			};
+			OnlineAPI.PerformAsync( request );
 		}
+
+		//if ( user.HasProfile ) {
+		//	user.RequestDetail( profile => Overlay.Header.NavigateTo( user, profile.Username, perserveCategories: true ) );
+		//}
 
 		return true;
 	}

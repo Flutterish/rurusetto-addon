@@ -25,7 +25,9 @@ public class DrawableTag : CompositeDrawable, IHasTooltip {
 					Text = tag,
 					Anchor = Anchor.CentreLeft,
 					Origin = Anchor.CentreLeft
-				}
+				},
+				Anchor = Anchor.CentreLeft,
+				Origin = Anchor.CentreLeft
 			} );
 
 			Masking = true;
@@ -52,7 +54,9 @@ public class DrawableTag : CompositeDrawable, IHasTooltip {
 					Text = tag,
 					Anchor = Anchor.CentreLeft,
 					Origin = Anchor.CentreLeft
-				}
+				},
+				Anchor = Anchor.CentreLeft,
+				Origin = Anchor.CentreLeft
 			} );
 		}
 	}

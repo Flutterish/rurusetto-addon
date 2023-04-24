@@ -43,33 +43,33 @@ public abstract class CategorisedTabControlOverlayHeader<T, Tcategory, Ttab> : O
     }
 
     protected CategorisedTabControlOverlayHeader () {
+        new Container {
+            RelativeSizeAxes = Axes.X,
+            AutoSizeAxes = Axes.Y,
+            Depth = -1,
+            Children = new Drawable[] {
+                categoryControlBackground = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                },
+                categoryControlContainer = new Container
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Padding = new MarginPadding { Horizontal = ContentSidePadding },
+                    Child = CategoryControl = CreateCategoryControl().With(control =>
+                    {
+                        control.Current = CurrentCategory;
+                    })
+                }
+            }
+        };
         HeaderInfo.Add( new FillFlowContainer {
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
             Direction = FillDirection.Vertical,
             Children = new Drawable[]
             {
-                new Container {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Depth = -1,
-                    Children = new Drawable[] {
-                        categoryControlBackground = new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                        },
-                        categoryControlContainer = new Container
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Padding = new MarginPadding { Horizontal = ContentSidePadding },
-                            Child = CategoryControl = CreateCategoryControl().With(control =>
-                            {
-                                control.Current = CurrentCategory;
-                            })
-                        }
-                    }
-                },
                 new Container {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
