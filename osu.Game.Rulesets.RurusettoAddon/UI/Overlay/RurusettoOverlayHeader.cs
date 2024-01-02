@@ -165,7 +165,7 @@ public class RurusettoOverlayHeader : CategorisedTabControlOverlayHeader<Ruruset
 		public HeaderTitle () {
 			Title = "rūrusetto";
 			Description = Localisation.Strings.RurusettoDescription;
-			Icon = HexaconsIcons.Chart;
+			Icon = OsuIcon.Rulesets;
 		}
 	}
 
